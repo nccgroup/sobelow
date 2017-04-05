@@ -7,4 +7,4 @@ Beta Roadmap:
 - Flag reflected XSS, and potential stored XSS.
 - Flag potential SQL injection.
 - Warn for potentially overly-permissive changesets.
-- Warn for insecure use of commone functions, such as binary_to_term and send_file
+- Warn for insecure use of common functions, such as binary_to_term and send_file
