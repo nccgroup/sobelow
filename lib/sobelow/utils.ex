@@ -1,5 +1,5 @@
 defmodule Sobelow.Utils do
-def get_routes(filepath) do
+  def get_routes(filepath) do
     {:ok, ast} = ast(filepath)
     {:defmodule, _, module_opts} = ast
     do_block = get_do_block(module_opts)
