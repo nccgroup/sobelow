@@ -19,6 +19,22 @@ defmodule Sobelow.Utils do
     |> extract_scopes
   end
 
+  def get_def_funs(filepath) do
+    {:ok, ast} = ast(filepath)
+    {:defmodule, _, module_opts} = ast
+    do_block = get_do_block(module_opts)
+    {_, _, fun_list} = do_block
+
+    get_funs_of_type(fun_list, [:def, :defp])
+    |> List.flatten
+  end
+
+  def parse_fun(fun) do
+#    {_, _, fun_opts} = fun
+#    do_block = get_do_block(fun_opts)
+    fun
+  end
+
   defp extract_scopes(scopes) do
     Enum.map(scopes, &extract_scope(&1))
     |> Enum.reduce(%{}, &merge_scope(&1, &2))
@@ -37,6 +53,10 @@ defmodule Sobelow.Utils do
   end
   defp extract_scope({:scope, _, [_route, {:__aliases__, _, module_name}, _, [do: block]]}) do
     {Module.concat(module_name), [block]}
+  end
+
+  defp get_funs_of_type(fun_list, type) when is_list(type) do
+    Enum.map type, &get_funs_of_type(fun_list, &1)
   end
 
   defp get_funs_of_type(fun_list, type) when is_list(fun_list) do
