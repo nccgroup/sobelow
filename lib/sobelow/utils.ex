@@ -29,11 +29,36 @@ defmodule Sobelow.Utils do
     |> List.flatten
   end
 
-  def parse_fun(fun) do
-#    {_, _, fun_opts} = fun
-#    do_block = get_do_block(fun_opts)
-    fun
+  def get_template_raw_vars(filepath) do
+    ast = EEx.compile_string(File.read!(filepath))
+    get_funs_of_type(ast, :raw)
+    |> List.flatten
+    |> Enum.map(&parse_raw_vars(&1))
   end
+
+  def parse_fun_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    do_block = get_do_block(fun_opts)
+
+    t = get_funs_of_type(do_block, :render)
+    |> List.flatten
+    |> Enum.map(&parse_render_opts/1)
+  end
+
+  defp parse_raw_vars({:raw, _, [{_, _, [_, raw]}]}) do
+    raw
+  end
+
+  defp parse_render_opts({:render, _, opts}) do
+    [template|vars] = Enum.reject(opts, fn opt -> is_tuple(opt) end)
+    if !Enum.empty?(vars) do
+      [vars|_] = vars
+    end
+
+    {template, Keyword.keys(vars)}
+  end
+  defp parse_render_opts([]), do: []
 
   defp extract_scopes(scopes) do
     Enum.map(scopes, &extract_scope(&1))
@@ -55,10 +80,15 @@ defmodule Sobelow.Utils do
     {Module.concat(module_name), [block]}
   end
 
+  defp get_funs_of_type({type, _, _} = fun, type) do
+    [fun]
+  end
+  defp get_funs_of_type({_, _, opts}, type) when is_list(opts) do
+    get_funs_of_type(opts, type)
+  end
   defp get_funs_of_type(fun_list, type) when is_list(type) do
     Enum.map type, &get_funs_of_type(fun_list, &1)
   end
-
   defp get_funs_of_type(fun_list, type) when is_list(fun_list) do
     Enum.reduce fun_list, [], fn(fun, acc) ->
       if val = get_fun_of_type(fun, type) do
@@ -76,14 +106,21 @@ defmodule Sobelow.Utils do
     get_funs_of_type(opts, type)
   end
   defp get_fun_of_type([do: block], type) do
-    get_fun_of_type(block, type)
+    if is_list(block) do
+      get_funs_of_type(block, type)
+    else
+      get_fun_of_type(block, type)
+    end
+  end
+  defp get_fun_of_type([do: do_block, else: else_block], type) do
+    (get_fun_of_type(do_block, type) || []) ++ (get_fun_of_type(else_block, type) || [])
   end
   defp get_fun_of_type(_,_), do: false
 
   defp get_do_block([do: block]), do: block
   defp get_do_block(opts) when is_list(opts), do: Enum.find_value(opts, &get_do_block(&1))
   defp get_do_block({_,_,opts}) when is_list(opts), do: get_do_block(opts)
-  defp get_do_block(_), do: false
+  defp get_do_block(v), do: false
 
   # Config related funcs
   def get_configs(key, filepath) do
@@ -108,4 +145,24 @@ defmodule Sobelow.Utils do
   def ast(filepath) do
     Code.string_to_quoted(File.read!(filepath))
   end
+
+  # This needs to return path name info. IE if it's in the api
+  # directory, return api/filename
+  def all_files(filepath) do
+    {:ok, files} = File.ls(filepath)
+    Enum.flat_map(files, &list(&1, filepath))
+  end
+
+  defp list(filename, filepath) do
+    cond do
+      String.contains?(filename, "_controller.ex") ->
+        [filename]
+      String.contains?(filename, ".ex") ->
+        []
+      true ->
+        []
+#        all_files(filepath <> filename)
+    end
+  end
+
 end

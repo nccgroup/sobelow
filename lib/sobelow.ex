@@ -42,6 +42,6 @@ defmodule Sobelow do
     end
 
     Config.hardcoded_secrets()
-    IO.inspect XSS.reflected_xss()
+    XSS.reflected_xss(web_root)
   end
 end
