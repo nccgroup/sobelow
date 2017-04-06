@@ -14,7 +14,7 @@ defmodule Sobelow do
   """
   alias Sobelow.Utils
   alias Sobelow.Config
-  alias Sobelow.Controller
+  alias Sobelow.XSS
 
   def run do
     app_name = Utils.get_app_name("mix.exs")
@@ -42,6 +42,6 @@ defmodule Sobelow do
     end
 
     Config.hardcoded_secrets()
-    IO.inspect Controller.reflected_xss()
+    IO.inspect XSS.reflected_xss()
   end
 end
