@@ -1,26 +1,35 @@
 defmodule Sobelow.Config do
   alias Sobelow.Utils
 
-  def run do
-    path = "lib/hexpm/web/router.ex"
-    Utils.get_routes(path)
-#    hardcoded_secrets()
+  def hardcoded_secrets do
+    prod_path = "config/prod.exs"
+    prod_secret_path = "config/prod.secret.exs"
+
+    get_secrets_by_file(:secret_key_base, prod_path)
+    |> enumerate_secrets(prod_path)
+
+    get_secrets_by_file(:secret_key_base, prod_secret_path)
+    |> enumerate_secrets(prod_secret_path)
+
+    get_secrets_by_file(:password, prod_path)
+    |> enumerate_secrets(prod_path)
+
+    get_secrets_by_file(:password, prod_secret_path)
+    |> enumerate_secrets(prod_secret_path)
   end
 
-  def hardcoded_secrets do
-    secrets = Utils.get_configs(:secret_key_base, "config/config.exs")
+  defp get_secrets_by_file(secret, file) do
+    if File.exists?(file) do
+      Utils.get_configs(secret, file)
+    else
+      []
+    end
+  end
 
+  defp enumerate_secrets(secrets, file) do
     Enum.each secrets, fn {{_, [line: lineno], _}, val} ->
       if is_binary(val) do
-        IO.puts("Hardcoded secret on line #{lineno} of config.exs: #{val}")
-      end
-    end
-
-    passwords = Utils.get_configs(:password, "config/dev.exs")
-
-    Enum.each passwords, fn {{_, [line: lineno], _}, val} ->
-      if is_binary(val) do
-        IO.puts("Hardcoded password on line #{lineno} of dev.exs: #{val}\n")
+        IO.puts("Hardcoded secret on line #{lineno} of #{file}: #{val}")
       end
     end
   end
