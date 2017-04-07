@@ -98,6 +98,7 @@ defmodule Sobelow.Utils do
       end
     end
   end
+  defp get_funs_of_type(_,_), do: []
 
   defp get_fun_of_type({type, _, _} = fun, type) do
     fun
@@ -146,22 +147,19 @@ defmodule Sobelow.Utils do
     Code.string_to_quoted(File.read!(filepath))
   end
 
-  # This needs to return path name info. IE if it's in the api
-  # directory, return api/filename
-  def all_files(filepath) do
+  def all_files(filepath, directory \\ "") do
     {:ok, files} = File.ls(filepath)
-    Enum.flat_map(files, &list(&1, filepath))
+    Enum.flat_map(files, &list(&1, filepath, directory))
   end
 
-  defp list(filename, filepath) do
+  defp list(filename, filepath, directory) do
     cond do
       String.contains?(filename, "_controller.ex") ->
-        [filename]
+        [directory <> "/" <> filename]
       String.contains?(filename, ".ex") ->
         []
       true ->
-        []
-#        all_files(filepath <> filename)
+        all_files(filepath <> filename, filename)
     end
   end
 
