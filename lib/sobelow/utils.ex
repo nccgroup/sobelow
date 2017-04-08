@@ -36,7 +36,7 @@ defmodule Sobelow.Utils do
     |> Enum.map(&parse_raw_vars(&1))
   end
 
-  def parse_fun_def(fun) do
+  def parse_fun_def(fun) when is_tuple(fun) do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
     do_block = get_do_block(fun_opts)
@@ -54,13 +54,18 @@ defmodule Sobelow.Utils do
   defp parse_raw_vars(_), do: []
 
   defp parse_render_opts({:render, _, opts}, params, meta) do
-    [template|vars] = Enum.reject(opts, fn opt -> is_tuple(opt) end)
+    opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)
+    [template|vars] = case Enum.empty?(opts) do
+      false ->
+        opts
+      true ->
+        ["", []]
+    end
     if !Enum.empty?(vars) do
       [vars|_] = vars
     end
 
     reflected_vars = Enum.filter(vars, fn var ->
-#      is_reflected_var?(var) || is_conn_params?(var)
       (is_reflected_var?(var) && is_in_params?(var, params)) || is_conn_params?(var)
     end)
 
@@ -137,7 +142,20 @@ defmodule Sobelow.Utils do
     end
   end
   defp get_fun_of_type([do: do_block, else: else_block], type) do
-    (get_fun_of_type(do_block, type) || []) ++ (get_fun_of_type(else_block, type) || [])
+    do_b = get_fun_of_type(do_block, type)
+    else_b = get_fun_of_type(else_block, type)
+
+    do_b = if do_b && is_list(do_b) do
+      do_b
+    end
+
+    else_b = if else_b && is_list(else_b) do
+      else_b
+    end
+
+    (do_b || []) ++ (else_b || [])
+
+#     (get_fun_of_type(do_block, type) || []) ++ (get_fun_of_type(else_block, type) || [])
   end
   defp get_fun_of_type(_,_), do: false
 
@@ -191,7 +209,7 @@ defmodule Sobelow.Utils do
       String.contains?(filename, ".ex") ->
         []
       true ->
-        all_files(filepath <> filename, filename)
+        all_files(filepath <> filename <> "/", directory <> "/" <> filename)
     end
   end
 

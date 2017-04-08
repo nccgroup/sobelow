@@ -28,6 +28,12 @@ defmodule Sobelow.XSS do
           template_name = Atom.to_string(template_name) <> ".html"
         end
 
+        # Found test case where user was choosing template via function call. :(
+        # Ultimately, should render without this.
+        if is_list(template_name) do
+          template_name = ".html"
+        end
+
         p = controller_root <> "../templates/" <> controller <> "/" <> template_name <> ".eex"
 
         if File.exists?(p) do
