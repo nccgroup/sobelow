@@ -40,25 +40,48 @@ defmodule Sobelow.Utils do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
     do_block = get_do_block(fun_opts)
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
 
     t = get_funs_of_type(do_block, :render)
     |> List.flatten
-    |> Enum.map(&parse_render_opts/1)
+    |> Enum.map(&parse_render_opts(&1, params, {fun_name, line_no}))
   end
 
   defp parse_raw_vars({:raw, _, [{_, _, [_, raw]}]}) do
     raw
   end
+  defp parse_raw_vars(_), do: []
 
-  defp parse_render_opts({:render, _, opts}) do
+  defp parse_render_opts({:render, _, opts}, params, meta) do
     [template|vars] = Enum.reject(opts, fn opt -> is_tuple(opt) end)
     if !Enum.empty?(vars) do
       [vars|_] = vars
     end
 
-    {template, Keyword.keys(vars)}
+    reflected_vars = Enum.filter(vars, fn var ->
+#      is_reflected_var?(var) || is_conn_params?(var)
+      (is_reflected_var?(var) && is_in_params?(var, params)) || is_conn_params?(var)
+    end)
+
+    {template, Keyword.keys(reflected_vars), params, meta}
   end
   defp parse_render_opts([]), do: []
+
+  defp is_reflected_var?({_, {_, _, nil}}), do: true
+  defp is_reflected_var?(_), do: false
+
+  defp is_in_params?({_, {var, _, _}}, params) do
+    if Enum.member?(params, var) do
+      true
+    else
+      false
+    end
+  end
+
+  def is_conn_params?({_, {{:., _, [Access, :get]}, _, access_opts}}), do: is_conn_params?(access_opts)
+  def is_conn_params?([{{:., _, [{:conn, _, nil}, :params]}, _, []}, _]), do: true
+  def is_conn_params?(_), do: false
 
   defp extract_scopes(scopes) do
     Enum.map(scopes, &extract_scope(&1))
@@ -122,6 +145,15 @@ defmodule Sobelow.Utils do
   defp get_do_block(opts) when is_list(opts), do: Enum.find_value(opts, &get_do_block(&1))
   defp get_do_block({_,_,opts}) when is_list(opts), do: get_do_block(opts)
   defp get_do_block(v), do: false
+
+  defp get_params({_, _, params}) when is_list(params) do
+    Enum.flat_map(params, &get_params/1)
+  end
+  defp get_params({_, params}) when is_tuple(params) do
+    get_params(params)
+  end
+  defp get_params({var, _, nil}), do: [var]
+  defp get_params(_), do: []
 
   # Config related funcs
   def get_configs(key, filepath) do

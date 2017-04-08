@@ -2,7 +2,14 @@ defmodule Sobelow.XSS do
   alias Sobelow.Utils
 
   def reflected_xss(web_root) do
-#    web_root = "../hexpm/lib/hexpm/web/"
+    # Used for testing until I create a real broken demo app.
+    # web_root = "../hexpm/lib/hexpm/web/"
+
+    IO.puts IO.ANSI.cyan_background() <>
+      IO.ANSI.black() <>
+      "Searching for Cross-Site Scripting (XSS) Vulnerabilities" <>
+      IO.ANSI.reset()
+    IO.puts "\n-----------------------------------------------\n"
 
     all_controllers(web_root <> "controllers/")
     |> Enum.each(fn cont -> find_vulnerable_ref(cont, web_root <> "controllers/") end)
@@ -16,18 +23,22 @@ defmodule Sobelow.XSS do
     controller = String.replace_suffix(controller_path, "_controller.ex", "")
 
     Enum.each def_funs, fn funs ->
-      Enum.each(funs, fn {template_name, vars} ->
-        [{temp, _}|_] = funs
-
-        if is_atom(temp) do
-          temp = Atom.to_string(temp) <> ".html"
+      Enum.each(funs, fn {template_name, vars, params, {fun_name, [{_, line_no}]}} ->
+        if is_atom(template_name) do
+          template_name = Atom.to_string(template_name) <> ".html"
         end
 
-        p = controller_root <> "../templates/" <> controller <> "/" <> temp <> ".eex"
+        p = controller_root <> "../templates/" <> controller <> "/" <> template_name <> ".eex"
 
         if File.exists?(p) do
           raw_vals = Utils.get_template_raw_vars(p)
-          IO.inspect {Enum.any?(vars, fn var -> Enum.member?(raw_vals, var) end), template_name}
+          Enum.each(vars, fn var ->
+            if Enum.member?(raw_vals, var) do
+              t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
+              con = String.replace_prefix(controller, "/", "")
+              print_finding(t_name, line_no, con, fun_name, var)
+            end
+          end)
         end
       end)
     end
@@ -36,5 +47,12 @@ defmodule Sobelow.XSS do
 
   defp all_controllers(root_path) do
     Utils.all_files(root_path)
+  end
+
+  defp print_finding(t_name, line_no, con, fun_name, variable) do
+    IO.puts IO.ANSI.red() <> "XSS discovered - Highly Likely" <> IO.ANSI.reset()
+    IO.puts "Location: #{con} controller - #{fun_name}:#{line_no}"
+    IO.puts "Template: #{t_name} - @#{variable}"
+    IO.puts "\n-----------------------------------------------\n"
   end
 end

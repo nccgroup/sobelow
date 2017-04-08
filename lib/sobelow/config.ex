@@ -5,6 +5,12 @@ defmodule Sobelow.Config do
     prod_path = "config/prod.exs"
     prod_secret_path = "config/prod.secret.exs"
 
+    IO.puts IO.ANSI.cyan_background() <>
+      IO.ANSI.black() <>
+      "Searching for Hardcoded Secrets" <>
+      IO.ANSI.reset()
+    IO.puts "\n-----------------------------------------------\n"
+
     get_secrets_by_file(:secret_key_base, prod_path)
     |> enumerate_secrets(prod_path)
 
@@ -29,8 +35,16 @@ defmodule Sobelow.Config do
   defp enumerate_secrets(secrets, file) do
     Enum.each secrets, fn {{_, [line: lineno], _}, val} ->
       if is_binary(val) do
-        IO.puts("Hardcoded secret on line #{lineno} of #{file}: #{val}")
+        print_finding(file, lineno, val)
+#        IO.puts("Hardcoded secret on line #{lineno} of #{file}: #{val}")
       end
     end
+  end
+
+  defp print_finding(file, line_no, val) do
+    IO.puts IO.ANSI.yellow() <> "Hardcoded Secret discovered - Highly Likely" <> IO.ANSI.reset()
+    IO.puts "File: #{file} - line #{line_no}"
+    IO.puts "Value: #{val}"
+    IO.puts "\n-----------------------------------------------\n"
   end
 end
