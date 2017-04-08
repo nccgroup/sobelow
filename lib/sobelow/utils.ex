@@ -2,11 +2,23 @@ defmodule Sobelow.Utils do
 
   def get_app_name(filepath) do
     {:ok, ast} = ast(filepath)
-    {:defmodule, _, [aliases|_]} = ast
-    {:__aliases__, _, module_name} = aliases
-    [app_name|_] = module_name
-    Atom.to_string(app_name)
+    {:defmodule, _, module_opts} = ast
+    do_block = get_do_block(module_opts)
+    {_, _, fun_list} = do_block
+
+    get_funs_of_type(fun_list, :def)
+    |> List.flatten
+    |> Enum.find_value(&extract_app_name/1)
+    |> Atom.to_string
   end
+
+  defp extract_app_name({:def, _, opts}) do
+    extract_app_name(opts)
+  end
+  defp extract_app_name([{:project, _, _}, [do: block]]) do
+    Keyword.get(block, :app)
+  end
+  defp extract_app_name(_), do: false
 
   def get_routes(filepath) do
     {:ok, ast} = ast(filepath)
