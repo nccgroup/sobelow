@@ -34,15 +34,14 @@ defmodule Sobelow.Config do
 
   defp enumerate_secrets(secrets, file) do
     Enum.each secrets, fn {{_, [line: lineno], _}, val} ->
-      if is_binary(val) do
+      if is_binary(val) && String.length(val) > 0 do
         print_finding(file, lineno, val)
-#        IO.puts("Hardcoded secret on line #{lineno} of #{file}: #{val}")
       end
     end
   end
 
   defp print_finding(file, line_no, val) do
-    IO.puts IO.ANSI.yellow() <> "Hardcoded Secret discovered - Highly Likely" <> IO.ANSI.reset()
+    IO.puts IO.ANSI.red() <> "Hardcoded Secret discovered - Highly Likely" <> IO.ANSI.reset()
     IO.puts "File: #{file} - line #{line_no}"
     IO.puts "Value: #{val}"
     IO.puts "\n-----------------------------------------------\n"

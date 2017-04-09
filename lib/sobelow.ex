@@ -30,7 +30,7 @@ defmodule Sobelow do
       Module.concat(app_name, "Web")
     end
 
-    routes_path = web_root <> "router.ex"
+    # routes_path = web_root <> "router.ex"
 
     # This functionality isn't necessarily useful at the moment, but
     # it will be used for validation later on.

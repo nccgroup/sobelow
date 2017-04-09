@@ -23,7 +23,7 @@ defmodule Sobelow.XSS do
     controller = String.replace_suffix(controller_path, "_controller.ex", "")
 
     Enum.each def_funs, fn funs ->
-      Enum.each(funs, fn {template_name, vars, params, {fun_name, [{_, line_no}]}} ->
+      Enum.each(funs, fn {template_name, ref_vars, vars, params, {fun_name, [{_, line_no}]}} ->
         if is_atom(template_name) do
           template_name = Atom.to_string(template_name) <> ".html"
         end
@@ -38,11 +38,19 @@ defmodule Sobelow.XSS do
 
         if File.exists?(p) do
           raw_vals = Utils.get_template_raw_vars(p)
+          Enum.each(ref_vars, fn var ->
+            if Enum.member?(raw_vals, var) do
+              t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
+              con = String.replace_prefix(controller, "/", "")
+              print_finding(t_name, line_no, con, fun_name, var, :high)
+            end
+          end)
+
           Enum.each(vars, fn var ->
             if Enum.member?(raw_vals, var) do
               t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
               con = String.replace_prefix(controller, "/", "")
-              print_finding(t_name, line_no, con, fun_name, var)
+              print_finding(t_name, line_no, con, fun_name, var, :medium)
             end
           end)
         end
@@ -55,9 +63,16 @@ defmodule Sobelow.XSS do
     Utils.all_files(root_path)
   end
 
-  defp print_finding(t_name, line_no, con, fun_name, variable) do
+  defp print_finding(t_name, line_no, con, fun_name, variable, :high) do
     IO.puts IO.ANSI.red() <> "XSS discovered - Highly Likely" <> IO.ANSI.reset()
-    IO.puts "Location: #{con} controller - #{fun_name}:#{line_no}"
+    IO.puts "Controller: #{con} - #{fun_name}:#{line_no}"
+    IO.puts "Template: #{t_name} - @#{variable}"
+    IO.puts "\n-----------------------------------------------\n"
+  end
+
+  defp print_finding(t_name, line_no, con, fun_name, variable, :medium) do
+    IO.puts IO.ANSI.yellow() <> "XSS discovered - Possible" <> IO.ANSI.reset()
+    IO.puts "Controller: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Template: #{t_name} - @#{variable}"
     IO.puts "\n-----------------------------------------------\n"
   end

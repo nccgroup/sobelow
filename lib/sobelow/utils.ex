@@ -55,9 +55,34 @@ defmodule Sobelow.Utils do
     params = get_params(declaration)
     {fun_name, line_no, _} = declaration
 
-    t = get_funs_of_type(do_block, :render)
+    # This pulls assigns from a function, but it wasn't
+    # ultimately needed. Not removing for now.
+    # assigns = get_funs_of_type(do_block, :=)
+    # |> Enum.map(&parse_assign_opts/1)
+    # |> List.flatten
+
+    get_funs_of_type(do_block, :render)
     |> List.flatten
     |> Enum.map(&parse_render_opts(&1, params, {fun_name, line_no}))
+  end
+
+  defp parse_assign_opts({:=, _, [left, _]}) do
+    parse_assign_opts(left)
+  end
+  defp parse_assign_opts({var, _, nil}) do
+    var
+  end
+  defp parse_assign_opts(left) when is_list(left) do
+    Enum.map(left, &parse_assign_opts/1)
+  end
+  defp parse_assign_opts({fun, _, opts}) when is_atom(fun) do
+    parse_assign_opts(opts)
+  end
+  defp parse_assign_opts(left) when is_tuple(left) do
+    parse_assign_opts(Tuple.to_list(left))
+  end
+  defp parse_assign_opts(left) when is_atom(left) do
+    []
   end
 
   defp parse_raw_vars({:raw, _, [{_, _, [_, raw]}]}) do
@@ -81,7 +106,10 @@ defmodule Sobelow.Utils do
       (is_reflected_var?(var) && is_in_params?(var, params)) || is_conn_params?(var)
     end)
 
-    {template, Keyword.keys(reflected_vars), params, meta}
+    var_keys = Keyword.keys(vars)
+    reflected_var_keys = Keyword.keys(reflected_vars)
+
+    {template, reflected_var_keys, var_keys -- reflected_var_keys, params, meta}
   end
   defp parse_render_opts([]), do: []
 
