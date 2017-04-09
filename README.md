@@ -8,8 +8,7 @@ Findings are color-coded based on the level of confidence in exploitability.
 High confidence findings are red, medium confidence are yellow, and low confidence are 
 green.
 
-The initial release will attempt to detect the following with varying levels of 
-confidence:
+The initial release will attempt to detect the following:
 
 * Configuration issues
 * Cross-Site Scripting
