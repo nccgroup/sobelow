@@ -66,6 +66,21 @@ defmodule Sobelow.Utils do
     |> Enum.map(&parse_render_opts(&1, params, {fun_name, line_no}))
   end
 
+  def parse_send_resp_def(fun) when is_tuple(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    do_block = get_do_block(fun_opts)
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    resps = get_funs_of_type(do_block, :send_resp)
+    |> List.flatten
+    |> Enum.map(&parse_send_resp_opts/1)
+    |> Enum.reject(&is_nil/1)
+
+    {resps, params, {fun_name, line_no}}
+  end
+
   defp parse_assign_opts({:=, _, [left, _]}) do
     parse_assign_opts(left)
   end
@@ -89,6 +104,22 @@ defmodule Sobelow.Utils do
     raw
   end
   defp parse_raw_vars(_), do: []
+
+  defp parse_send_resp_opts({:send_resp, _, opts}) do
+    parse_send_resp_opts(opts)
+  end
+  defp parse_send_resp_opts([_, _, val]) do
+    parse_send_resp_opts(val)
+  end
+  defp parse_send_resp_opts([_, val]), do: parse_send_resp_opts(val)
+  defp parse_send_resp_opts({key, _, nil}), do: key
+
+  # This is a general weak-confidence trap for string interpolation
+  # or other function calls. There is more that can be done to get
+  # more precise confidence, but I would like to see how much it is
+  # actually needed before going too deep.
+  defp parse_send_resp_opts({_, _, _}), do: true
+  defp parse_send_resp_opts(_), do: nil
 
   defp parse_render_opts({:render, _, opts}, params, meta) do
     opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)

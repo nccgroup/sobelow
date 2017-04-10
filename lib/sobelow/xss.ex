@@ -17,12 +17,17 @@ defmodule Sobelow.XSS do
 
   defp find_vulnerable_ref(controller_path, controller_root) do
     def_funs = Utils.get_def_funs(controller_root <> controller_path)
-    |> Enum.map(&Utils.parse_fun_def(&1))
+
+    render_funs = Enum.map(def_funs, &Utils.parse_fun_def(&1))
     |> Enum.reject(fn fun -> Enum.empty?(fun) end)
 
-    controller = String.replace_suffix(controller_path, "_controller.ex", "")
+    resp_funs = Enum.map(def_funs, &Utils.parse_send_resp_def(&1))
+    |> Enum.reject(fn {vars, _, _} -> Enum.empty?(vars) end)
 
-    Enum.each def_funs, fn funs ->
+    controller = String.replace_suffix(controller_path, "_controller.ex", "")
+    con = String.replace_prefix(controller, "/", "")
+
+    Enum.each render_funs, fn funs ->
       Enum.each(funs, fn {template_name, ref_vars, vars, params, {fun_name, [{_, line_no}]}} ->
         if is_atom(template_name) do
           template_name = Atom.to_string(template_name) <> ".html"
@@ -57,22 +62,46 @@ defmodule Sobelow.XSS do
       end)
     end
 
+    Enum.each resp_funs, fn {ref_vars, params, {fun_name, [{_, line_no}]}} ->
+      Enum.each ref_vars, fn var ->
+        if Enum.member?(params, var) do
+          print_finding(line_no, con, fun_name, var, :high)
+        else
+          print_finding(line_no, con, fun_name, var, :low)
+        end
+      end
+    end
+
   end
 
   defp all_controllers(root_path) do
     Utils.all_files(root_path)
   end
 
+  defp print_finding(line_no, con, fun_name, var, :high) do
+    IO.puts IO.ANSI.red() <> "XSS in `send_resp` - High Confidence" <> IO.ANSI.reset()
+    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
+    IO.puts "send_resp var: #{var}"
+    IO.puts "\n-----------------------------------------------\n"
+  end
+
+  defp print_finding(line_no, con, fun_name, var, :low) do
+    IO.puts IO.ANSI.green() <> "XSS in `send_resp` - Low Confidence" <> IO.ANSI.reset()
+    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
+    IO.puts "send_resp var: #{var}"
+    IO.puts "\n-----------------------------------------------\n"
+  end
+
   defp print_finding(t_name, line_no, con, fun_name, variable, :high) do
-    IO.puts IO.ANSI.red() <> "XSS discovered - Highly Likely" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con} - #{fun_name}:#{line_no}"
+    IO.puts IO.ANSI.red() <> "XSS - High Confidence" <> IO.ANSI.reset()
+    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
     IO.puts "Template: #{t_name} - @#{variable}"
     IO.puts "\n-----------------------------------------------\n"
   end
 
   defp print_finding(t_name, line_no, con, fun_name, variable, :medium) do
-    IO.puts IO.ANSI.yellow() <> "XSS discovered - Possible" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con} - #{fun_name}:#{line_no}"
+    IO.puts IO.ANSI.yellow() <> "XSS - Medium Confidence" <> IO.ANSI.reset()
+    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
     IO.puts "Template: #{t_name} - @#{variable}"
     IO.puts "\n-----------------------------------------------\n"
   end

@@ -41,7 +41,7 @@ defmodule Sobelow.Config do
   end
 
   defp print_finding(file, line_no, val) do
-    IO.puts IO.ANSI.red() <> "Hardcoded Secret discovered - Highly Likely" <> IO.ANSI.reset()
+    IO.puts IO.ANSI.red() <> "Hardcoded Secret - High Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{file} - line #{line_no}"
     IO.puts "Value: #{val}"
     IO.puts "\n-----------------------------------------------\n"
