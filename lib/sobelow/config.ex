@@ -6,7 +6,7 @@ defmodule Sobelow.Config do
   def hardcoded_secrets do
     IO.puts IO.ANSI.cyan_background() <>
       IO.ANSI.black() <>
-      "Searching for Hardcoded Secrets" <>
+      "Analyzing Configuration" <>
       IO.ANSI.reset()
     IO.puts "\n-----------------------------------------------\n"
 
