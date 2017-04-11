@@ -22,7 +22,7 @@ defmodule Sobelow.XSS do
     |> Enum.reject(fn fun -> Enum.empty?(fun) end)
 
     resp_funs = Enum.map(def_funs, &Utils.parse_send_resp_def(&1))
-    |> Enum.reject(fn {vars, _, _} -> Enum.empty?(vars) end)
+    |> Enum.reject(fn {vars, _, _, _} -> Enum.empty?(vars) end)
 
     controller = String.replace_suffix(controller_path, "_controller.ex", "")
     con = String.replace_prefix(controller, "/", "")
@@ -62,9 +62,9 @@ defmodule Sobelow.XSS do
       end)
     end
 
-    Enum.each resp_funs, fn {ref_vars, params, {fun_name, [{_, line_no}]}} ->
+    Enum.each resp_funs, fn {ref_vars, is_html, params, {fun_name, [{_, line_no}]}} ->
       Enum.each ref_vars, fn var ->
-        if Enum.member?(params, var) do
+        if Enum.member?(params, var) && is_html || is_html do
           print_finding(line_no, con, fun_name, var, :high)
         else
           print_finding(line_no, con, fun_name, var, :low)

@@ -78,7 +78,16 @@ defmodule Sobelow.Utils do
     |> Enum.map(&parse_send_resp_opts/1)
     |> Enum.reject(&is_nil/1)
 
-    {resps, params, {fun_name, line_no}}
+    is_html = get_funs_of_type(do_block, :put_resp_content_type)
+    |> List.flatten
+    |> Enum.any?(&is_content_type_html/1)
+
+    {resps, is_html, params, {fun_name, line_no}}
+  end
+
+  defp is_content_type_html({:put_resp_content_type, _, opts}) do
+    type_list = Enum.filter(opts, &is_binary/1)
+    |> Enum.any?(&String.contains?(&1, "html"))
   end
 
   defp parse_assign_opts({:=, _, [left, _]}) do
