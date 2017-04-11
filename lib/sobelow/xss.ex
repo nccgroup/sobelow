@@ -64,10 +64,17 @@ defmodule Sobelow.XSS do
 
     Enum.each resp_funs, fn {ref_vars, is_html, params, {fun_name, [{_, line_no}]}} ->
       Enum.each ref_vars, fn var ->
-        if Enum.member?(params, var) && is_html || is_html do
+        if Enum.member?(params, var) && is_html do
           print_finding(line_no, con, fun_name, var, :high)
+        end
+
+        if is_html && !Enum.member?(params, var) do
+          print_finding(line_no, con, fun_name, var, :medium)
         else
-          print_finding(line_no, con, fun_name, var, :low)
+          # Need to consider confidence. Maybe mark send_resp finding as low if
+          # it is in params, but not marked html? Removing for now to cut down on
+          # noise. Possibly add it back with a detail flag.
+          # print_finding(line_no, con, fun_name, var, :low)
         end
       end
     end
@@ -82,6 +89,12 @@ defmodule Sobelow.XSS do
     IO.puts IO.ANSI.red() <> "XSS in `send_resp` - High Confidence" <> IO.ANSI.reset()
     IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
     IO.puts "send_resp var: #{var}"
+    IO.puts "\n-----------------------------------------------\n"
+  end
+
+  defp print_finding(line_no, con, fun_name, var, :medium) do
+    IO.puts IO.ANSI.yellow() <> "XSS in `send_resp` - Medium Confidence" <> IO.ANSI.reset()
+    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
     IO.puts "\n-----------------------------------------------\n"
   end
 
