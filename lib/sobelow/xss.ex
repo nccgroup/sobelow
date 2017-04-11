@@ -3,7 +3,7 @@ defmodule Sobelow.XSS do
 
   def reflected_xss(web_root) do
     # Used for testing until I create a real broken demo app.
-     web_root = "../hexpm/lib/hexpm/web/"
+    # web_root = "../hexpm/lib/hexpm/web/"
 
     IO.puts IO.ANSI.cyan_background() <>
       IO.ANSI.black() <>
