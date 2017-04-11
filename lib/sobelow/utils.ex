@@ -1,5 +1,5 @@
 defmodule Sobelow.Utils do
-
+  require IEx
   def get_app_name(filepath) do
     {:ok, ast} = ast(filepath)
     {:defmodule, _, module_opts} = ast
@@ -122,13 +122,34 @@ defmodule Sobelow.Utils do
   end
   defp parse_send_resp_opts([_, val]), do: parse_send_resp_opts(val)
   defp parse_send_resp_opts({key, _, nil}), do: key
+  defp parse_send_resp_opts({:<<>>, _, [{_, _, opts}]}) do
+    Enum.drop(opts, -1)
+    |> Enum.map(&parse_string_interpolation/1)
+    |> List.flatten
+  end
+  defp parse_send_resp_opts({:<<>>, _, opts}) do
+    Enum.map(opts, &parse_string_interpolation/1)
+    |> List.flatten
+  end
 
   # This is a general weak-confidence trap for string interpolation
   # or other function calls. There is more that can be done to get
   # more precise confidence, but I would like to see how much it is
   # actually needed before going too deep.
-  defp parse_send_resp_opts({_, _, _}), do: true
+  defp parse_send_resp_opts({_, _, _} = opts), do: opts
   defp parse_send_resp_opts(_), do: nil
+
+  defp parse_string_interpolation({key, _, nil}), do: key
+  defp parse_string_interpolation({_, _, [{key, _, nil}]}), do: key
+  defp parse_string_interpolation({_, _, [{_, _, opts}]}) do
+    Enum.map opts, &parse_string_interpolation/1
+  end
+  defp parse_string_interpolation({_, _, opts}) do
+    Enum.drop(opts, -1)
+    |> Enum.map(&parse_string_interpolation/1)
+  end
+  defp parse_string_interpolation({:::, _, opts}), do: parse_string_interpolation(opts)
+  defp parse_string_interpolation(v), do: []
 
   defp parse_render_opts({:render, _, opts}, params, meta) do
     opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)

@@ -3,7 +3,7 @@ defmodule Sobelow.XSS do
 
   def reflected_xss(web_root) do
     # Used for testing until I create a real broken demo app.
-    # web_root = "../hexpm/lib/hexpm/web/"
+     web_root = "../hexpm/lib/hexpm/web/"
 
     IO.puts IO.ANSI.cyan_background() <>
       IO.ANSI.black() <>
@@ -64,17 +64,29 @@ defmodule Sobelow.XSS do
 
     Enum.each resp_funs, fn {ref_vars, is_html, params, {fun_name, [{_, line_no}]}} ->
       Enum.each ref_vars, fn var ->
-        if Enum.member?(params, var) && is_html do
-          print_finding(line_no, con, fun_name, var, :high)
-        end
+        if is_list(var) do
+          Enum.each var, fn v ->
+            if Enum.member?(params, v) && is_html do
+              print_finding(line_no, con, fun_name, v, :high)
+            end
 
-        if is_html && !Enum.member?(params, var) do
-          print_finding(line_no, con, fun_name, var, :medium)
+            if is_html && !Enum.member?(params, v) do
+              print_finding(line_no, con, fun_name, v, :medium)
+            end
+          end
         else
-          # Need to consider confidence. Maybe mark send_resp finding as low if
-          # it is in params, but not marked html? Removing for now to cut down on
-          # noise. Possibly add it back with a detail flag.
-          # print_finding(line_no, con, fun_name, var, :low)
+          if Enum.member?(params, var) && is_html do
+            print_finding(line_no, con, fun_name, var, :high)
+          end
+
+          if is_html && !Enum.member?(params, var) do
+            print_finding(line_no, con, fun_name, var, :medium)
+          else
+            # Need to consider confidence. Maybe mark send_resp finding as low if
+            # it is in params, but not marked html? Removing for now to cut down on
+            # noise. Possibly add it back with a detail flag.
+            # print_finding(line_no, con, fun_name, var, :low)
+          end
         end
       end
     end
@@ -95,6 +107,7 @@ defmodule Sobelow.XSS do
   defp print_finding(line_no, con, fun_name, var, :medium) do
     IO.puts IO.ANSI.yellow() <> "XSS in `send_resp` - Medium Confidence" <> IO.ANSI.reset()
     IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
+    IO.puts "send_resp var: #{var}"
     IO.puts "\n-----------------------------------------------\n"
   end
 
