@@ -15,6 +15,7 @@ defmodule Sobelow do
   alias Sobelow.Utils
   alias Sobelow.Config
   alias Sobelow.XSS
+  alias Sobelow.SQL
 
   def run do
     app_name = Utils.get_app_name("mix.exs")
@@ -42,5 +43,6 @@ defmodule Sobelow do
 
     Config.hardcoded_secrets()
     XSS.reflected_xss(web_root)
+    SQL.fetch(web_root)
   end
 end

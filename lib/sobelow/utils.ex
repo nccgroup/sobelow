@@ -48,6 +48,19 @@ defmodule Sobelow.Utils do
     |> Enum.map(&parse_raw_vars(&1))
   end
 
+  def parse_sql_def(fun) when is_tuple(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    do_block = get_do_block(fun_opts)
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    interp_vars = get_aliased_funs_of_type(do_block, :query)
+    |> List.flatten
+
+    {interp_vars, params, {fun_name, line_no}}
+  end
+
   def parse_fun_def(fun) when is_tuple(fun) do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
@@ -209,6 +222,18 @@ defmodule Sobelow.Utils do
     {Module.concat(module_name), [block]}
   end
 
+  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts}, type) do
+    if List.last(aliases) == :SQL do
+      Enum.map(opts, &parse_string_interpolation/1) |> List.flatten
+    else
+      []
+    end
+  end
+  defp get_aliased_funs_of_type({_, _, opts}, type) when is_list(opts) do
+    Enum.map(opts, &get_aliased_funs_of_type(&1, type))
+  end
+  defp get_aliased_funs_of_type(_, _), do: []
+
   defp get_funs_of_type({type, _, _} = fun, type) do
     [fun]
   end
@@ -255,8 +280,6 @@ defmodule Sobelow.Utils do
     end
 
     (do_b || []) ++ (else_b || [])
-
-#     (get_fun_of_type(do_block, type) || []) ++ (get_fun_of_type(else_block, type) || [])
   end
   defp get_fun_of_type(_,_), do: false
 
