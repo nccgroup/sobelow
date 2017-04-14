@@ -1,8 +1,8 @@
 # Sobelow
 
 This project is in development, and not ready for use. Currently `sobelow` can flag 
-XSS with varying levels of confidence, some configuration issues, and some instances 
-of potential SQL injection.
+XSS, some configuration issues, SQL injection, and directory traversal with varying 
+levels of confidence.
 
 Findings are color-coded based on the level of confidence in exploitability. 
 High confidence findings are red, medium confidence are yellow, and low confidence are 
