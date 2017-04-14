@@ -4,11 +4,11 @@ defmodule Sobelow.Config do
   @prod_secret_path "config/prod.secret.exs"
 
   def fetch do
-    IO.puts IO.ANSI.cyan_background() <>
-      IO.ANSI.black() <>
-      "Analyzing Configuration" <>
-      IO.ANSI.reset()
-    IO.puts "\n-----------------------------------------------\n"
+#    IO.puts IO.ANSI.cyan_background() <>
+#      IO.ANSI.black() <>
+#      "Analyzing Configuration" <>
+#      IO.ANSI.reset()
+#    IO.puts "\n-----------------------------------------------\n"
 
     get_configs_by_file(:secret_key_base, @prod_path)
     |> enumerate_secrets(@prod_path)

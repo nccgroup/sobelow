@@ -3,7 +3,7 @@ defmodule Sobelow.Traversal do
 
   def fetch(web_root) do
     # Used for testing until I create a real broken demo app.
-    # web_root = "../hexpm/lib/hexpm/web/"
+     web_root = "../hex/hexpm/lib/hexpm/web/"
 
     IO.puts IO.ANSI.cyan_background() <>
       IO.ANSI.black() <>
@@ -13,6 +13,19 @@ defmodule Sobelow.Traversal do
 
     Utils.all_controllers(web_root <> "controllers/")
     |> Enum.each(fn cont -> find_vulnerable_ref(cont, web_root <> "controllers/") end)
+  end
+
+  def get_vulns(fun, filename) do
+    {vars, params, {fun_name, [{_, line_no}]}} = Utils.parse_send_file_def(fun)
+    filename = String.replace_prefix(filename, "/", "")
+
+    Enum.each vars, fn var ->
+      if Enum.member?(params, var) || var === "conn.params" do
+        print_finding(line_no, filename, fun_name, var, :high)
+      else
+        print_finding(line_no, filename, fun_name, var, :medium)
+      end
+    end
   end
 
   defp find_vulnerable_ref(controller_path, controller_root) do

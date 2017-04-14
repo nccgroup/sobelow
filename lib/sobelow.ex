@@ -42,15 +42,39 @@ defmodule Sobelow do
     #   IO.puts "Router.ex not found in default location.\n"
     # end
 
-    Config.fetch()
-    XSS.fetch(web_root <> "web/")
-
-    if web_root === "./" do
-      SQL.fetch(web_root <> "web/")
+    root = if web_root === "./" do
+      web_root <> "web/"
     else
-      SQL.fetch(web_root)
+      web_root
     end
 
-    Traversal.fetch(web_root <> "web/")
+#    root = "../hex/hexpm/lib/hexpm/"
+
+    Config.fetch()
+    Utils.all_files(root)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.each(fn file ->
+        def_funs = Utils.get_def_funs(root <> file)
+        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
+    end)
+
+#    Config.fetch()
+#    XSS.fetch(web_root <> "web/")
+#
+#    if web_root === "./" do
+#      SQL.fetch(web_root <> "web/")
+#    else
+#      SQL.fetch(web_root)
+#    end
+#
+#    Traversal.fetch(web_root <> "web/")
+  end
+
+  def get_fun_vulns(fun, filename, web_root) do
+    if String.ends_with?(filename, "_controller.ex") do
+      XSS.get_vulns(fun, filename, web_root)
+    end
+    SQL.get_vulns(fun, filename)
+    Traversal.get_vulns(fun, filename)
   end
 end

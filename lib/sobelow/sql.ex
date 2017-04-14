@@ -16,7 +16,20 @@ defmodule Sobelow.SQL do
     |> Enum.each(fn cont -> find_vulnerable_ref(cont, web_root) end)
   end
 
-  defp find_vulnerable_ref(controller_path, controller_root) do
+  def get_vulns(fun, filename) do
+    {interp_vars, params, {fun_name, [{_, line_no}]}} = Utils.parse_sql_def(fun)
+    filename = String.replace_prefix(filename, "/", "")
+
+    Enum.each(interp_vars, fn var ->
+      if Enum.member?(params, var) do
+        print_finding(line_no, filename, fun_name, var, :high)
+      else
+        print_finding(line_no, filename, fun_name, var, :medium)
+      end
+    end)
+  end
+
+  def find_vulnerable_ref(controller_path, controller_root) do
     def_funs = Utils.get_def_funs(controller_root <> controller_path)
 
     render_funs = Enum.map(def_funs, &Utils.parse_sql_def(&1))

@@ -198,6 +198,12 @@ defmodule Sobelow.Utils do
     Enum.map(opts, &parse_string_interpolation/1)
     |> List.flatten
   end
+  defp parse_send_resp_opts({{:., _, [Access, :get]}, _, [{{:., _, [{:conn, _, nil}, :params]}, _, _}, _]}) do
+    "conn.params"
+  end
+  defp parse_send_resp_opts({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
+    Module.concat(module)
+  end
 
   # This is a general weak-confidence trap for string interpolation
   # or other function calls. There is more that can be done to get
@@ -207,22 +213,30 @@ defmodule Sobelow.Utils do
   defp parse_send_resp_opts(_), do: nil
 
   defp parse_string_interpolation({key, _, nil}), do: key
-  defp parse_string_interpolation({_, _, [{key, _, nil}]}), do: key
-  defp parse_string_interpolation({_, _, [{_, _, opts}]}) do
-    Enum.map opts, &parse_string_interpolation/1
-  end
   defp parse_string_interpolation({:::, _, opts}) do
     parse_string_interpolation(opts)
   end
   defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _] = opts) do
     Enum.map vars, &parse_string_interpolation/1
   end
-  defp parse_string_interpolation({_, _, opts}) do
+  defp parse_string_interpolation({{:., _, [Kernel, :to_string]}, _, opts}) do
+    Enum.map opts, &parse_string_interpolation/1
+  end
+
+  defp parse_string_interpolation({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
+    Module.concat(module)
+  end
+  defp parse_string_interpolation({:<<>>, _, opts}) do
     opts
     |> Enum.map(&parse_string_interpolation/1)
   end
-  defp parse_string_interpolation(v), do: []
-
+  defp parse_string_interpolation({key, _, _} = opts) do
+    IO.inspect opts
+    key
+  end
+  defp parse_string_interpolation(v) do
+    []
+  end
   defp parse_render_opts({:render, _, opts}, params, meta) do
     opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)
     [template|vars] = case Enum.empty?(opts) do
