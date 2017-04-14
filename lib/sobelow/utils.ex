@@ -46,6 +46,16 @@ defmodule Sobelow.Utils do
     |> extract_scopes
   end
 
+  def get_pipelines(filepath) do
+    {:ok, ast} = ast(filepath)
+    {:defmodule, _, module_opts} = ast
+    do_block = get_do_block(module_opts)
+    {_, _, fun_list} = do_block
+
+    a = get_funs_of_type(fun_list, :pipeline)
+    |> List.flatten
+  end
+
   def get_def_funs({:defmodule, _, module_opts}) do
     do_block = get_do_block(module_opts)
     {_, _, fun_list} = do_block
@@ -75,6 +85,26 @@ defmodule Sobelow.Utils do
       get_def_funs(ast)
     end
   end
+
+  def is_vuln_pipeline({:pipeline, _, [name, [do: block]]}) do
+    fun_list = case block do
+      {:__block__, _, list} -> list
+      {_, _, _} = list -> [list]
+    end
+
+    plugs = fun_list
+    |> Enum.reject(fn {type, _, _} -> type !== :plug end)
+
+    accepts = Enum.find_value(plugs, &get_plug_accepts/1)
+    csrf = Enum.find_value(plugs, &get_plug_csrf/1)
+
+    if is_list(accepts) && Enum.member?(accepts, "html") && !csrf, do: true, else: false
+  end
+
+  def get_plug_accepts({:plug, _, [:accepts, accepts]}), do: accepts
+  def get_plug_accepts(_), do: false
+  def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
+  def get_plug_csrf(_), do: false
 
   def get_template_raw_vars(filepath) do
     ast = EEx.compile_string(File.read!(filepath))

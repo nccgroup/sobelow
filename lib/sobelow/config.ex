@@ -3,12 +3,9 @@ defmodule Sobelow.Config do
   @prod_path "config/prod.exs"
   @prod_secret_path "config/prod.secret.exs"
 
-  def fetch do
-#    IO.puts IO.ANSI.cyan_background() <>
-#      IO.ANSI.black() <>
-#      "Analyzing Configuration" <>
-#      IO.ANSI.reset()
-#    IO.puts "\n-----------------------------------------------\n"
+  def fetch(web_root) do
+    Utils.get_pipelines(web_root <> "router.ex")
+    |> Enum.each(&is_vuln_pipeline/1)
 
     get_configs_by_file(:secret_key_base, @prod_path)
     |> enumerate_secrets(@prod_path)
@@ -24,6 +21,12 @@ defmodule Sobelow.Config do
 
     get_configs_by_file(:https, @prod_path)
     |> handle_https
+  end
+
+  defp is_vuln_pipeline(pipeline) do
+    if Utils.is_vuln_pipeline(pipeline) do
+      print_finding(pipeline)
+    end
   end
 
   defp get_configs_by_file(secret, file) do
@@ -50,6 +53,12 @@ defmodule Sobelow.Config do
         print_finding(:hsts)
       end
     end
+  end
+
+  defp print_finding({:pipeline, [line: line_no], [pipeline, _]}) do
+    IO.puts IO.ANSI.red() <> "Missing CSRF Protections - High Confidence" <> IO.ANSI.reset()
+    IO.puts "Pipeline: #{pipeline}:#{line_no}"
+    IO.puts "\n-----------------------------------------------\n"
   end
 
   defp print_finding(:https) do

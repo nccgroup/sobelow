@@ -50,7 +50,7 @@ defmodule Sobelow do
 
 #    root = "../hex/hexpm/lib/hexpm/"
 
-    Config.fetch()
+    Config.fetch(web_root <> "web/")
     Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
     |> Enum.each(fn file ->
