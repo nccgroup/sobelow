@@ -133,6 +133,22 @@ defmodule Sobelow.Utils do
     {resps, is_html, params, {fun_name, line_no}}
   end
 
+  def parse_send_file_def(fun) when is_tuple(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    do_block = get_do_block(fun_opts)
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    resps = get_funs_of_type(do_block, :send_file)
+    |> List.flatten
+    |> Enum.map(&parse_send_resp_opts/1)
+    |> Enum.reject(&is_nil/1)
+    |> List.flatten
+
+    {resps, params, {fun_name, line_no}}
+  end
+
   defp is_content_type_html({:put_resp_content_type, _, opts}) do
     type_list = Enum.filter(opts, &is_binary/1)
     |> Enum.any?(&String.contains?(&1, "html"))
@@ -162,6 +178,9 @@ defmodule Sobelow.Utils do
   end
   defp parse_raw_vars(_), do: []
 
+  defp parse_send_resp_opts({:send_file, _, opts}) do
+    parse_send_resp_opts(opts)
+  end
   defp parse_send_resp_opts({:send_resp, _, opts}) do
     parse_send_resp_opts(opts)
   end

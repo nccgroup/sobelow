@@ -16,6 +16,7 @@ defmodule Sobelow do
   alias Sobelow.Config
   alias Sobelow.XSS
   alias Sobelow.SQL
+  alias Sobelow.Traversal
 
   def run do
     app_name = Utils.get_app_name("mix.exs")
@@ -49,5 +50,7 @@ defmodule Sobelow do
     else
       SQL.fetch(web_root)
     end
+
+    Traversal.fetch(web_root <> "web/")
   end
 end
