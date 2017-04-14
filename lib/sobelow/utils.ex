@@ -96,7 +96,7 @@ defmodule Sobelow.Utils do
     {interp_vars, params, {fun_name, line_no}}
   end
 
-  def parse_fun_def(fun) when is_tuple(fun) do
+  def parse_render_def(fun) when is_tuple(fun) do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
     do_block = get_do_block(fun_opts)

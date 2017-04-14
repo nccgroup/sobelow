@@ -42,8 +42,8 @@ defmodule Sobelow do
     #   IO.puts "Router.ex not found in default location.\n"
     # end
 
-    Config.hardcoded_secrets()
-    XSS.reflected_xss(web_root <> "web/")
+    Config.fetch()
+    XSS.fetch(web_root <> "web/")
 
     if web_root === "./" do
       SQL.fetch(web_root <> "web/")

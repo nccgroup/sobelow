@@ -1,7 +1,7 @@
 defmodule Sobelow.XSS do
   alias Sobelow.Utils
 
-  def reflected_xss(web_root) do
+  def fetch(web_root) do
     # Used for testing until I create a real broken demo app.
     # web_root = "../hexpm/lib/hexpm/web/"
 
@@ -18,7 +18,7 @@ defmodule Sobelow.XSS do
   defp find_vulnerable_ref(controller_path, controller_root) do
     def_funs = Utils.get_def_funs(controller_root <> controller_path)
 
-    render_funs = Enum.map(def_funs, &Utils.parse_fun_def(&1))
+    render_funs = Enum.map(def_funs, &Utils.parse_render_def(&1))
     |> Enum.reject(fn fun -> Enum.empty?(fun) end)
 
     resp_funs = Enum.map(def_funs, &Utils.parse_send_resp_def(&1))

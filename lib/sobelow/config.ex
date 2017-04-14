@@ -3,7 +3,7 @@ defmodule Sobelow.Config do
   @prod_path "config/prod.exs"
   @prod_secret_path "config/prod.secret.exs"
 
-  def hardcoded_secrets do
+  def fetch do
     IO.puts IO.ANSI.cyan_background() <>
       IO.ANSI.black() <>
       "Analyzing Configuration" <>
