@@ -94,7 +94,7 @@ defmodule Sobelow.XSS do
   end
 
   defp all_controllers(root_path) do
-    Utils.all_files(root_path)
+    Utils.all_controllers(root_path)
   end
 
   defp print_finding(line_no, con, fun_name, var, :high) do

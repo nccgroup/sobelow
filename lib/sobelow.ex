@@ -20,12 +20,12 @@ defmodule Sobelow do
   def run do
     app_name = Utils.get_app_name("mix.exs")
     web_root = if File.exists?("lib/#{String.downcase(app_name)}/web/router.ex") do
-      "lib/#{String.downcase(app_name)}/web/"
+      "lib/#{String.downcase(app_name)}/"
     else
-      "web/"
+      "./"
     end
 
-    base_app_module = if web_root === "web/" do
+    base_app_module = if web_root === "" do
       Module.concat([app_name])
     else
       Module.concat(app_name, "Web")
@@ -42,7 +42,12 @@ defmodule Sobelow do
     # end
 
     Config.hardcoded_secrets()
-    XSS.reflected_xss(web_root)
-    SQL.fetch(web_root)
+    XSS.reflected_xss(web_root <> "web/")
+
+    if web_root === "./" do
+      SQL.fetch(web_root <> "web/")
+    else
+      SQL.fetch(web_root)
+    end
   end
 end

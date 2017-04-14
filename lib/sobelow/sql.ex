@@ -3,7 +3,7 @@ defmodule Sobelow.SQL do
 
   def fetch(web_root) do
     # Used for testing until I create a real broken demo app.
-    # web_root = "../hexpm/lib/hexpm/web/"
+    # web_root = "../hexpm/lib/"
 
     IO.puts IO.ANSI.cyan_background() <>
       IO.ANSI.black() <>
@@ -11,8 +11,9 @@ defmodule Sobelow.SQL do
       IO.ANSI.reset()
     IO.puts "\n-----------------------------------------------\n"
 
-    all_controllers(web_root <> "controllers/")
-    |> Enum.each(fn cont -> find_vulnerable_ref(cont, web_root <> "controllers/") end)
+    Utils.all_files(web_root)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.each(fn cont -> find_vulnerable_ref(cont, web_root) end)
   end
 
   defp find_vulnerable_ref(controller_path, controller_root) do
@@ -37,19 +38,19 @@ defmodule Sobelow.SQL do
 
   defp print_finding(line_no, con, fun_name, var, :high) do
     IO.puts IO.ANSI.red() <> "SQL injection - High Confidence" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
+    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
     IO.puts "\n-----------------------------------------------\n"
   end
 
   defp print_finding(line_no, con, fun_name, var, :medium) do
     IO.puts IO.ANSI.yellow() <> "SQL injection - Medium Confidence" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
+    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
     IO.puts "\n-----------------------------------------------\n"
   end
 
   defp all_controllers(root_path) do
-    Utils.all_files(root_path)
+    Utils.all_controllers(root_path)
   end
 end

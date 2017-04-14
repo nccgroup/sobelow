@@ -1,8 +1,5 @@
 defmodule Sobelow.Utils do
-  require IEx
-  def get_app_name(filepath) do
-    {:ok, ast} = ast(filepath)
-    {:defmodule, _, module_opts} = ast
+  def get_app_name({:defmodule, _, module_opts}) do
     do_block = get_do_block(module_opts)
     {_, _, fun_list} = do_block
 
@@ -10,6 +7,24 @@ defmodule Sobelow.Utils do
     |> List.flatten
     |> Enum.find_value(&extract_app_name/1)
     |> Atom.to_string
+  end
+  def get_app_name({:__block__, _, module_opts}) do
+    Enum.map(module_opts, fn mod ->
+      do_block = get_do_block(mod)
+      if !is_nil(do_block) do
+        {_, _, fun_list} = do_block
+
+        get_funs_of_type(fun_list, :def)
+        |> List.flatten
+        |> Enum.find_value(&extract_app_name/1)
+        |> Atom.to_string
+      end
+    end) |> Enum.reject(&is_nil/1) |> List.first
+  end
+  def get_app_name({_, _, _}), do: ""
+  def get_app_name(filepath) do
+    {:ok, ast} = ast(filepath)
+    get_app_name(ast)
   end
 
   defp extract_app_name({:def, _, opts}) do
@@ -31,14 +46,34 @@ defmodule Sobelow.Utils do
     |> extract_scopes
   end
 
-  def get_def_funs(filepath) do
-    {:ok, ast} = ast(filepath)
-    {:defmodule, _, module_opts} = ast
+  def get_def_funs({:defmodule, _, module_opts}) do
     do_block = get_do_block(module_opts)
     {_, _, fun_list} = do_block
 
     get_funs_of_type(fun_list, [:def, :defp])
     |> List.flatten
+  end
+  def get_def_funs({:__block__, _, module_opts}) do
+    Enum.flat_map(module_opts, fn mod ->
+     do_block = get_do_block(mod)
+     if !is_nil(do_block) do
+       {_, _, fun_list} = do_block
+
+       get_funs_of_type(fun_list, [:def, :defp])
+       |> List.flatten
+     else
+       []
+     end
+    end)
+  end
+  def get_def_funs({_, _, _}), do: []
+  def get_def_funs(filepath) do
+    if is_nil(filepath) do
+      []
+    else
+      {:ok, ast} = ast(filepath)
+      get_def_funs(ast)
+    end
   end
 
   def get_template_raw_vars(filepath) do
@@ -157,11 +192,16 @@ defmodule Sobelow.Utils do
   defp parse_string_interpolation({_, _, [{_, _, opts}]}) do
     Enum.map opts, &parse_string_interpolation/1
   end
+  defp parse_string_interpolation({:::, _, opts}) do
+    parse_string_interpolation(opts)
+  end
+  defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _] = opts) do
+    Enum.map vars, &parse_string_interpolation/1
+  end
   defp parse_string_interpolation({_, _, opts}) do
-    Enum.drop(opts, -1)
+    opts
     |> Enum.map(&parse_string_interpolation/1)
   end
-  defp parse_string_interpolation({:::, _, opts}), do: parse_string_interpolation(opts)
   defp parse_string_interpolation(v), do: []
 
   defp parse_render_opts({:render, _, opts}, params, meta) do
@@ -224,7 +264,7 @@ defmodule Sobelow.Utils do
 
   defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts}, type) do
     if List.last(aliases) == :SQL do
-      Enum.map(opts, &parse_string_interpolation/1) |> List.flatten
+      Enum.map(opts, &parse_if_string_interpolation/1)
     else
       []
     end
@@ -233,6 +273,13 @@ defmodule Sobelow.Utils do
     Enum.map(opts, &get_aliased_funs_of_type(&1, type))
   end
   defp get_aliased_funs_of_type(_, _), do: []
+
+  defp parse_if_string_interpolation({:<<>>, _, _} = fun) do
+    parse_string_interpolation(fun)
+  end
+  defp parse_if_string_interpolation(_) do
+    []
+  end
 
   defp get_funs_of_type({type, _, _} = fun, type) do
     [fun]
@@ -323,17 +370,33 @@ defmodule Sobelow.Utils do
 
   def all_files(filepath, directory \\ "") do
     {:ok, files} = File.ls(filepath)
-    Enum.flat_map(files, &list(&1, filepath, directory))
+    Enum.flat_map(files, &list_files(&1, filepath, directory))
   end
 
-  defp list(filename, filepath, directory) do
+  defp list_files(filename, filepath, directory) do
+    cond do
+      Path.extname(filename) === ".ex" ->
+        [directory <> "/" <> filename]
+      File.dir?(filepath <> filename) ->
+        all_files(filepath <> filename <> "/", directory <> "/" <> filename)
+      true ->
+        []
+    end
+  end
+
+  def all_controllers(filepath, directory \\ "") do
+    {:ok, files} = File.ls(filepath)
+    Enum.flat_map(files, &list_controllers(&1, filepath, directory))
+  end
+
+  defp list_controllers(filename, filepath, directory) do
     cond do
       String.contains?(filename, "_controller.ex") ->
         [directory <> "/" <> filename]
       String.contains?(filename, ".ex") ->
         []
       true ->
-        all_files(filepath <> filename <> "/", directory <> "/" <> filename)
+        all_controllers(filepath <> filename <> "/", directory <> "/" <> filename)
     end
   end
 
