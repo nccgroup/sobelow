@@ -57,17 +57,6 @@ defmodule Sobelow do
         def_funs = Utils.get_def_funs(root <> file)
         |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
     end)
-
-#    Config.fetch()
-#    XSS.fetch(web_root <> "web/")
-#
-#    if web_root === "./" do
-#      SQL.fetch(web_root <> "web/")
-#    else
-#      SQL.fetch(web_root)
-#    end
-#
-#    Traversal.fetch(web_root <> "web/")
   end
 
   def get_fun_vulns(fun, filename, web_root) do
