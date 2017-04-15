@@ -180,6 +180,20 @@ defmodule Sobelow.Utils do
     {resps, params, {fun_name, line_no}}
   end
 
+  def parse_file_read_def(fun) when is_tuple(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    do_block = get_do_block(fun_opts)
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    resps = get_aliased_funs_of_type(do_block, :read)
+    |> List.flatten
+    |> Enum.reject(&is_nil/1)
+
+    {resps, params, {fun_name, line_no}}
+  end
+
   defp is_content_type_html({:put_resp_content_type, _, opts}) do
     type_list = Enum.filter(opts, &is_binary/1)
     |> Enum.any?(&String.contains?(&1, "html"))
@@ -264,7 +278,6 @@ defmodule Sobelow.Utils do
     |> Enum.map(&parse_string_interpolation/1)
   end
   defp parse_string_interpolation({key, _, _} = opts) do
-    IO.inspect opts
     key
   end
   defp parse_string_interpolation(v) do
@@ -328,8 +341,8 @@ defmodule Sobelow.Utils do
     {Module.concat(module_name), [block]}
   end
 
-  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts}, type) do
-    if List.last(aliases) == :SQL do
+  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = test, type) do
+    if Enum.member?([:SQL, :File], List.last(aliases)) do
       Enum.map(opts, &parse_if_string_interpolation/1)
     else
       []

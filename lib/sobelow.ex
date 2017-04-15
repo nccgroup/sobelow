@@ -32,23 +32,13 @@ defmodule Sobelow do
       Module.concat(app_name, "Web")
     end
 
-    # routes_path = web_root <> "router.ex"
-
-    # This functionality isn't necessarily useful at the moment, but
-    # it will be used for validation later on.
-    # if File.exists?(routes_path) do
-    #   Utils.get_routes(routes_path)
-    # else
-    #   IO.puts "Router.ex not found in default location.\n"
-    # end
-
     root = if web_root === "./" do
       web_root <> "web/"
     else
       web_root
     end
 
-#    root = "../hex/hexpm/lib/hexpm/"
+    # root = "../hexpm/lib/hexpm/"
 
     Config.fetch(web_root <> "web/")
     Utils.all_files(root)
