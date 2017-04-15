@@ -90,6 +90,7 @@ defmodule Sobelow.Utils do
     fun_list = case block do
       {:__block__, _, list} -> list
       {_, _, _} = list -> [list]
+      _ -> []
     end
 
     plugs = fun_list
