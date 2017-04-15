@@ -249,10 +249,12 @@ defmodule Sobelow.Utils do
   defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _] = opts) do
     Enum.map vars, &parse_string_interpolation/1
   end
+  defp parse_string_interpolation({key, _, opts}) when key in [:+, :-, :*, :/] do
+    Enum.map opts, &parse_string_interpolation/1
+  end
   defp parse_string_interpolation({{:., _, [Kernel, :to_string]}, _, opts}) do
     Enum.map opts, &parse_string_interpolation/1
   end
-
   defp parse_string_interpolation({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
     Module.concat(module)
   end
