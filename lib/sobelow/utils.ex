@@ -1,14 +1,49 @@
 defmodule Sobelow.Utils do
+  require IEx
   # General Utils
   def ast(filepath) do
     {:ok, ast} = Code.string_to_quoted(File.read!(filepath))
     ast
   end
 
-  def print_code(fun) do
+  def print_code(fun, var, call \\ nil) do
+#    if call == :query, do: IEx.pry
+    acc = ""
+    func_string = Macro.to_string fun, fn ast, string ->
+      s = case ast do
+        {^call, _, _} ->
+          if is_fun_with_var?(ast, var) do
+            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+          else
+            string
+          end
+        {{:., _,[{:__aliases__, _, aliases}, ^call]}, _, _} ->
+          if is_fun_with_var?(ast, var) do
+            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+          else
+            string
+          end
+        _ -> string
+      end
+      acc <> s
+    end
+
     IO.puts "\n"
-    IO.puts Macro.to_string(fun)
+    IO.puts func_string
   end
+
+  def is_fun_with_var?(fun, var) do
+    {_, acc} = Macro.prewalk(fun, [], &is_fun_var/2)
+    if Enum.member?(acc, var), do: true, else: false
+  end
+
+  defp is_fun_var({var, _, nil} = ast, acc), do: {ast, [var|acc]}
+  defp is_fun_var(ast, acc), do: {ast, acc}
+
+  def find_call({call, _, _} = ast, acc, call) do
+    {ast, acc <> Macro.to_string(ast)}
+  end
+  def find_call(ast, acc, call), do: {ast, acc <> Macro.to_string(ast)}
 
   ## Function parsing
   def get_def_funs(filepath) do

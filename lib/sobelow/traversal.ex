@@ -34,7 +34,7 @@ defmodule Sobelow.Traversal do
     IO.puts color <> "Directory Traversal in `File.read` - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun)
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :read)
     IO.puts "\n-----------------------------------------------\n"
   end
 
@@ -47,6 +47,7 @@ defmodule Sobelow.Traversal do
     IO.puts color <> "Directory Traversal in `send_file` - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :send_file)
     IO.puts "\n-----------------------------------------------\n"
   end
 end

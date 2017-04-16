@@ -24,7 +24,7 @@ defmodule Sobelow.SQL do
     IO.puts color <> "SQL injection - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun)
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :query)
     IO.puts "\n-----------------------------------------------\n"
   end
 end

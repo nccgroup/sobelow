@@ -71,7 +71,7 @@ defmodule Sobelow.XSS do
     IO.puts color <> "XSS in `send_resp` - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun)
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :send_resp)
     IO.puts "\n-----------------------------------------------\n"
   end
 
