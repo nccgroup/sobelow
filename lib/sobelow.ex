@@ -17,28 +17,19 @@ defmodule Sobelow do
   alias Sobelow.XSS
   alias Sobelow.SQL
   alias Sobelow.Traversal
+  alias Mix.Shell.IO
 
-  def run do
-    app_name = Utils.get_app_name("mix.exs")
-    web_root = if File.exists?("lib/#{String.downcase(app_name)}/web/router.ex") do
-      "lib/#{String.downcase(app_name)}/"
-    else
-      "./"
+  def run(opts) do
+    project_root = Keyword.get(opts, :root, ".") <> "/"
+    app_name = Utils.get_app_name(project_root <> "mix.exs")
+    web_root = get_root(app_name, project_root)
+
+    root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: web_root
+
+    if !File.exists?(web_root <> "web/router.ex") do
+      IO.info("This does not appear to be a Phoenix application.")
+      System.halt(0)
     end
-
-    base_app_module = if web_root === "" do
-      Module.concat([app_name])
-    else
-      Module.concat(app_name, "Web")
-    end
-
-    root = if web_root === "./" do
-      web_root <> "web/"
-    else
-      web_root
-    end
-
-    # root = "../hexpm/lib/hexpm/"
 
     Config.fetch(web_root <> "web/")
     Utils.all_files(root)
@@ -47,6 +38,14 @@ defmodule Sobelow do
         def_funs = Utils.get_def_funs(root <> file)
         |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
     end)
+  end
+
+  defp get_root(app_name, project_root) do
+    if File.exists?(project_root <> "lib/#{String.downcase(app_name)}/web/router.ex") do
+      project_root <> "lib/#{String.downcase(app_name)}/"
+    else
+      project_root <> "./"
+    end
   end
 
   def get_fun_vulns(fun, filename, web_root) do
