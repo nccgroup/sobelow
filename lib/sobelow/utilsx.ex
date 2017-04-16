@@ -13,6 +13,17 @@ defmodule Sobelow.Utilsx do
     get_funs_of_type(ast, [:def, :defp])
   end
 
+  defp get_aliased_funs_of_type(ast, type) do
+    {_, acc} = Macro.prewalk(ast, [], &get_aliased_funs_of_type(&1, &2, type))
+    acc
+  end
+  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type) do
+    {ast, [ast|acc]}
+  end
+  defp get_aliased_funs_of_type(ast, acc, type) do
+    {ast, acc}
+  end
+
   defp get_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, type))
     acc
@@ -257,4 +268,32 @@ defmodule Sobelow.Utilsx do
   def is_conn_params?({_, {{:., _, [Access, :get]}, _, access_opts}}), do: is_conn_params?(access_opts)
   def is_conn_params?([{{:., _, [{:conn, _, nil}, :params]}, _, []}, _]), do: true
   def is_conn_params?(_), do: false
+
+  # SQL Utils
+
+  def parse_sql_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    interp_vars = get_aliased_funs_of_type(fun, :query)
+    |> Enum.map(&extract_sql_opts/1)
+    |> List.flatten
+
+    {interp_vars, params, {fun_name, line_no}}
+  end
+
+  defp extract_sql_opts({_, _, opts}) when is_list(opts) do
+    parse_sql_opts(opts)
+  end
+
+  defp parse_sql_opts({:<<>>, _, _} = fun) do
+    parse_string_interpolation(fun)
+  end
+  defp parse_sql_opts([{:__aliases__, _, _}|[sql|_]]), do: parse_sql_opts(sql)
+  defp parse_sql_opts([sql|_]), do: parse_sql_opts(sql)
+  defp parse_sql_opts({key, _, nil}), do: key
+  defp parse_sql_opts(_), do: []
+
 end

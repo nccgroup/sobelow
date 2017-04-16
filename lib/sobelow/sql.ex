@@ -1,5 +1,5 @@
 defmodule Sobelow.SQL do
-  alias Sobelow.Utils
+  alias Sobelow.Utilsx, as: Utils
 
   def get_vulns(fun, filename) do
     {interp_vars, params, {fun_name, [{_, line_no}]}} = Utils.parse_sql_def(fun)
