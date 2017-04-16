@@ -8,7 +8,7 @@ defmodule Sobelow.XSS do
     controller = String.replace_suffix(filename, "_controller.ex", "")
     controller = String.replace_prefix(controller, "/controllers/", "")
     controller = String.replace_prefix(controller, "/web/controllers/", "")
-    con = String.replace_prefix(controller, "/", "")
+    con = String.replace_prefix(filename, "/", "")
 
     Enum.each render_funs, fn {template_name, ref_vars, vars, params, {fun_name, [{_, line_no}]}} ->
       if is_atom(template_name) do
@@ -25,7 +25,6 @@ defmodule Sobelow.XSS do
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
-            con = String.replace_prefix(controller, "/", "")
             print_finding(t_name, line_no, con, fun_name, var, :high)
           end
         end)
@@ -33,7 +32,6 @@ defmodule Sobelow.XSS do
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
-            con = String.replace_prefix(controller, "/", "")
             print_finding(t_name, line_no, con, fun_name, var, :medium)
           end
         end)
@@ -64,38 +62,27 @@ defmodule Sobelow.XSS do
 
   end
 
-  defp print_finding(line_no, con, fun_name, var, :high) do
-    IO.puts IO.ANSI.red() <> "XSS in `send_resp` - High Confidence" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
-    IO.puts "send_resp var: #{var}"
+  defp print_finding(line_no, con, fun_name, var, severity) do
+    {color, confidence} = case severity do
+      :high -> {IO.ANSI.red(), "High"}
+      :medium -> {IO.ANSI.yellow(), "Medium"}
+      :low -> {IO.ANSI.green(), "Low"}
+    end
+    IO.puts color <> "XSS in `send_resp` - #{confidence} Confidence" <> IO.ANSI.reset()
+    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
+    IO.puts "Variable: #{var}"
     IO.puts "\n-----------------------------------------------\n"
   end
 
-  defp print_finding(line_no, con, fun_name, var, :medium) do
-    IO.puts IO.ANSI.yellow() <> "XSS in `send_resp` - Medium Confidence" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
-    IO.puts "send_resp var: #{var}"
-    IO.puts "\n-----------------------------------------------\n"
-  end
-
-  defp print_finding(line_no, con, fun_name, var, :low) do
-    IO.puts IO.ANSI.green() <> "XSS in `send_resp` - Low Confidence" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
-    IO.puts "send_resp var: #{var}"
-    IO.puts "\n-----------------------------------------------\n"
-  end
-
-  defp print_finding(t_name, line_no, con, fun_name, variable, :high) do
-    IO.puts IO.ANSI.red() <> "XSS - High Confidence" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
-    IO.puts "Template: #{t_name} - @#{variable}"
-    IO.puts "\n-----------------------------------------------\n"
-  end
-
-  defp print_finding(t_name, line_no, con, fun_name, variable, :medium) do
-    IO.puts IO.ANSI.yellow() <> "XSS - Medium Confidence" <> IO.ANSI.reset()
-    IO.puts "Controller: #{con}_controller - #{fun_name}:#{line_no}"
-    IO.puts "Template: #{t_name} - @#{variable}"
+  defp print_finding(t_name, line_no, con, fun_name, var, severity) do
+    {color, confidence} = case severity do
+      :high -> {IO.ANSI.red(), "High"}
+      :medium -> {IO.ANSI.yellow(), "Medium"}
+      :low -> {IO.ANSI.green(), "Low"}
+    end
+    IO.puts color <> "XSS - #{confidence} Confidence" <> IO.ANSI.reset()
+    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
+    IO.puts "Template: #{t_name} - @#{var}"
     IO.puts "\n-----------------------------------------------\n"
   end
 end

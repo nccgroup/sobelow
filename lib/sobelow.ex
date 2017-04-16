@@ -27,7 +27,7 @@ defmodule Sobelow do
     root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: web_root
 
     if !File.exists?(web_root <> "web/router.ex") do
-      IO.info("This does not appear to be a Phoenix application.")
+      IO.error("This does not appear to be a Phoenix application.")
       System.halt(0)
     end
 
