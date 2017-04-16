@@ -7,7 +7,6 @@ defmodule Sobelow.Utils do
   end
 
   def print_code(fun, var, call \\ nil) do
-#    if call == :query, do: IEx.pry
     acc = ""
     func_string = Macro.to_string fun, fn ast, string ->
       s = case ast do
