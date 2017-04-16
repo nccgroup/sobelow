@@ -341,8 +341,15 @@ defmodule Sobelow.Utils do
     {Module.concat(module_name), [block]}
   end
 
+  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = test, :query) do
+    if Enum.member?(aliases, :SQL) do
+      parse_if_string_interpolation(:sql, opts)
+    else
+      []
+    end
+  end
   defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = test, type) do
-    if Enum.member?([:SQL, :File], List.last(aliases)) do
+    if Enum.member?([:File], List.last(aliases)) do
       Enum.map(opts, &parse_if_string_interpolation/1)
     else
       []
@@ -356,6 +363,13 @@ defmodule Sobelow.Utils do
   defp parse_if_string_interpolation({:<<>>, _, _} = fun) do
     parse_string_interpolation(fun)
   end
+  defp parse_if_string_interpolation(:sql, [{:__aliases__, _, _}|[sql|_]]) do
+     parse_if_string_interpolation(sql)
+  end
+  defp parse_if_string_interpolation(:sql, [sql|_]) do
+    parse_if_string_interpolation(sql)
+  end
+  defp parse_if_string_interpolation({key, _, nil}), do: [key]
   defp parse_if_string_interpolation(_) do
     []
   end
