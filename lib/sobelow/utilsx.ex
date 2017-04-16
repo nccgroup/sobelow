@@ -13,14 +13,18 @@ defmodule Sobelow.Utilsx do
     get_funs_of_type(ast, [:def, :defp])
   end
 
-  defp get_aliased_funs_of_type(ast, type) do
-    {_, acc} = Macro.prewalk(ast, [], &get_aliased_funs_of_type(&1, &2, type))
+  defp get_aliased_funs_of_type(ast, type, module) do
+    {_, acc} = Macro.prewalk(ast, [], &get_aliased_funs_of_type(&1, &2, type, module))
     acc
   end
-  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type) do
-    {ast, [ast|acc]}
+  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
+    if Enum.member?(aliases, module) do
+      {ast, [ast|acc]}
+    else
+      {ast, acc}
+    end
   end
-  defp get_aliased_funs_of_type(ast, acc, type) do
+  defp get_aliased_funs_of_type(ast, acc, type, module) do
     {ast, acc}
   end
 
@@ -277,7 +281,7 @@ defmodule Sobelow.Utilsx do
     params = get_params(declaration)
     {fun_name, line_no, _} = declaration
 
-    interp_vars = get_aliased_funs_of_type(fun, :query)
+    interp_vars = get_aliased_funs_of_type(fun, :query, :SQL)
     |> Enum.map(&extract_sql_opts/1)
     |> List.flatten
 
@@ -291,9 +295,55 @@ defmodule Sobelow.Utilsx do
   defp parse_sql_opts({:<<>>, _, _} = fun) do
     parse_string_interpolation(fun)
   end
-  defp parse_sql_opts([{:__aliases__, _, _}|[sql|_]]), do: parse_sql_opts(sql)
+  defp parse_sql_opts([{:__aliases__, _, aliases}|[sql|_]]), do: parse_sql_opts(sql)
+
   defp parse_sql_opts([sql|_]), do: parse_sql_opts(sql)
   defp parse_sql_opts({key, _, nil}), do: key
   defp parse_sql_opts(_), do: []
+
+  # Traversal Utils
+  def parse_send_file_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    files = get_funs_of_type(fun, :send_file)
+    |> Enum.map(&parse_send_resp_opts/1)
+    |> List.flatten
+
+    {files, params, {fun_name, line_no}}
+  end
+
+  def parse_file_read_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    resps = get_aliased_funs_of_type(fun, :read, :File)
+    |> Enum.map(&extract_file_read_opts/1)
+    |> List.flatten
+
+    {resps, params, {fun_name, line_no}}
+  end
+
+  defp extract_file_read_opts({_, _, opts} = fun) when is_list(opts) do
+    parse_file_opts(opts)
+  end
+
+  defp parse_file_opts({:<<>>, _, _} = fun) do
+    parse_string_interpolation(fun)
+  end
+  defp parse_file_opts([{:__aliases__, _, aliases}|[file|_]]) do
+    if Enum.member?(aliases, :File) do
+      parse_file_opts(file)
+    else
+      []
+    end
+  end
+  defp parse_file_opts([file|_]), do: parse_file_opts(file)
+  defp parse_file_opts({key, _, nil}), do: key
+  defp parse_file_opts(_), do: []
 
 end

@@ -1,5 +1,5 @@
 defmodule Sobelow.Traversal do
-  alias Sobelow.Utils
+  alias Sobelow.Utilsx, as: Utils
 
   def get_vulns(fun, filename) do
     {vars, params, {fun_name, [{_, line_no}]}} = Utils.parse_send_file_def(fun)

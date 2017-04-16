@@ -53,6 +53,6 @@ defmodule Sobelow do
       XSS.get_vulns(fun, filename, web_root)
     end
     SQL.get_vulns(fun, filename)
-#    Traversal.get_vulns(fun, filename)
+    Traversal.get_vulns(fun, filename)
   end
 end
