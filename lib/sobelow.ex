@@ -12,7 +12,7 @@ defmodule Sobelow do
       :world
 
   """
-  alias Sobelow.Utils
+  alias Sobelow.Utilsx, as: Utils
   alias Sobelow.Config
   alias Sobelow.XSS
   alias Sobelow.SQL
@@ -31,13 +31,13 @@ defmodule Sobelow do
       System.halt(0)
     end
 
-    Config.fetch(web_root <> "web/")
-    Utils.all_files(root)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.each(fn file ->
-        def_funs = Utils.get_def_funs(root <> file)
-        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
-    end)
+    Config.fetch(web_root)
+#    Utils.all_files(root)
+#    |> Enum.reject(&is_nil/1)
+#    |> Enum.each(fn file ->
+#        def_funs = Utils.get_def_funs(root <> file)
+#        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
+#    end)
   end
 
   defp get_root(app_name, project_root) do

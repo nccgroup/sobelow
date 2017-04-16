@@ -1,26 +1,26 @@
 defmodule Sobelow.Config do
-  alias Sobelow.Utils
+  alias Sobelow.Utilsx, as: Utils
   @prod_path "config/prod.exs"
   @prod_secret_path "config/prod.secret.exs"
 
-  def fetch(web_root) do
-    Utils.get_pipelines(web_root <> "router.ex")
+  def fetch(root) do
+    Utils.get_pipelines(root <> "web/" <> "router.ex")
     |> Enum.each(&is_vuln_pipeline/1)
 
-    get_configs_by_file(:secret_key_base, @prod_path)
-    |> enumerate_secrets(@prod_path)
+    get_configs_by_file(:secret_key_base, root <> @prod_path)
+    |> enumerate_secrets(root <> @prod_path)
 
-    get_configs_by_file(:secret_key_base, @prod_secret_path)
-    |> enumerate_secrets(@prod_secret_path)
+    get_configs_by_file(:secret_key_base, root <> @prod_secret_path)
+    |> enumerate_secrets(root <> @prod_secret_path)
 
-    get_configs_by_file(:password, @prod_path)
-    |> enumerate_secrets(@prod_path)
+    get_configs_by_file(:password, root <> @prod_path)
+    |> enumerate_secrets(root <> @prod_path)
 
-    get_configs_by_file(:password, @prod_secret_path)
-    |> enumerate_secrets(@prod_secret_path)
+    get_configs_by_file(:password, root <> @prod_secret_path)
+    |> enumerate_secrets(root <> @prod_secret_path)
 
-    get_configs_by_file(:https, @prod_path)
-    |> handle_https
+    get_configs_by_file(:https, root <> @prod_path)
+    |> handle_https(root <> @prod_path)
   end
 
   defp is_vuln_pipeline(pipeline) do
@@ -38,6 +38,7 @@ defmodule Sobelow.Config do
   end
 
   defp enumerate_secrets(secrets, file) do
+    file = Path.expand(file, "")
     Enum.each secrets, fn {{_, [line: lineno], _}, val} ->
       if is_binary(val) && String.length(val) > 0 do
         print_finding(file, lineno, val)
@@ -45,11 +46,11 @@ defmodule Sobelow.Config do
     end
   end
 
-  defp handle_https(opts) do
+  defp handle_https(opts, file) do
     if length(opts) === 0 do
       print_finding(:https)
     else
-      if length(Utils.get_configs(:force_ssl, @prod_path)) === 0 do
+      if length(Utils.get_configs(:force_ssl, file)) === 0 do
         print_finding(:hsts)
       end
     end
