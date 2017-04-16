@@ -8,14 +8,14 @@ defmodule Sobelow.SQL do
 
     Enum.each(interp_vars, fn var ->
       if Enum.member?(params, var) do
-        print_finding(line_no, filename, fun_name, var, severity || :high)
+        print_finding(line_no, filename, fun, fun_name, var, severity || :high)
       else
-        print_finding(line_no, filename, fun_name, var, severity || :medium)
+        print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
       end
     end)
   end
 
-  defp print_finding(line_no, con, fun_name, var, severity) do
+  defp print_finding(line_no, con, fun, fun_name, var, severity) do
     {color, confidence} = case severity do
       :high -> {IO.ANSI.red(), "High"}
       :medium -> {IO.ANSI.yellow(), "Medium"}
@@ -24,6 +24,7 @@ defmodule Sobelow.SQL do
     IO.puts color <> "SQL injection - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun)
     IO.puts "\n-----------------------------------------------\n"
   end
 end

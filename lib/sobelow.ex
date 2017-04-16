@@ -19,8 +19,8 @@ defmodule Sobelow do
   alias Sobelow.Traversal
   alias Mix.Shell.IO
 
-  def run(opts) do
-    project_root = Keyword.get(opts, :root, ".") <> "/"
+  def run() do
+    project_root = get_env(:root) <> "/"
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     web_root = get_root(app_name, project_root)
 
@@ -40,6 +40,10 @@ defmodule Sobelow do
     end)
   end
 
+  def get_env(key) do
+    Application.get_env(:sobelow, key)
+  end
+
   defp get_root(app_name, project_root) do
     if File.exists?(project_root <> "lib/#{String.downcase(app_name)}/web/router.ex") do
       project_root <> "lib/#{String.downcase(app_name)}/"
@@ -48,7 +52,7 @@ defmodule Sobelow do
     end
   end
 
-  def get_fun_vulns(fun, filename, web_root) do
+  defp get_fun_vulns(fun, filename, web_root) do
     if String.ends_with?(filename, "_controller.ex") do
       XSS.get_vulns(fun, filename, web_root)
     end

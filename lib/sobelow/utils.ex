@@ -1,10 +1,13 @@
 defmodule Sobelow.Utils do
-  require IEx
-
   # General Utils
   def ast(filepath) do
     {:ok, ast} = Code.string_to_quoted(File.read!(filepath))
     ast
+  end
+
+  def print_code(fun) do
+    IO.puts "\n"
+    IO.puts Macro.to_string(fun)
   end
 
   ## Function parsing

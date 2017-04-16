@@ -42,27 +42,27 @@ defmodule Sobelow.XSS do
       if is_list(var) do
         Enum.each var, fn v ->
           if (Enum.member?(params, v) || v === "conn.params") && is_html do
-            print_finding(line_no, con, fun_name, v, :high)
+            print_resp_finding(line_no, con, fun_name, fun, v, :high)
           end
 
           if is_html && !Enum.member?(params, v) do
-            print_finding(line_no, con, fun_name, v, :medium)
+            print_resp_finding(line_no, con, fun_name, fun, v, :medium)
           end
         end
       else
         if (Enum.member?(params, var) || var === "conn.params") && is_html do
-          print_finding(line_no, con, fun_name, var, :high)
+          print_resp_finding(line_no, con, fun_name, fun, var, :high)
         end
 
         if is_html && !Enum.member?(params, var) && var != "conn.params" do
-          print_finding(line_no, con, fun_name, var, :medium)
+          print_resp_finding(line_no, con, fun_name, fun, var, :medium)
         end
       end
     end
 
   end
 
-  defp print_finding(line_no, con, fun_name, var, severity) do
+  defp print_resp_finding(line_no, con, fun_name, fun, var, severity) do
     {color, confidence} = case severity do
       :high -> {IO.ANSI.red(), "High"}
       :medium -> {IO.ANSI.yellow(), "Medium"}
@@ -71,6 +71,7 @@ defmodule Sobelow.XSS do
     IO.puts color <> "XSS in `send_resp` - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun)
     IO.puts "\n-----------------------------------------------\n"
   end
 

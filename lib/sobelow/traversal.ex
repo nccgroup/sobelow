@@ -8,9 +8,9 @@ defmodule Sobelow.Traversal do
 
     Enum.each vars, fn var ->
       if Enum.member?(params, var) || var === "conn.params" do
-        print_finding(line_no, filename, fun_name, var, severity || :high)
+        print_finding(line_no, filename, fun_name, fun, var, severity || :high)
       else
-        print_finding(line_no, filename, fun_name, var, severity || :medium)
+        print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
       end
     end
 
@@ -18,14 +18,14 @@ defmodule Sobelow.Traversal do
 
     Enum.each vars, fn var ->
       if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, var, :read, severity || :high)
+        print_file_finding(line_no, filename, fun_name, fun, var, :read, severity || :high)
       else
-        print_file_finding(line_no, filename, fun_name, var, :read, severity || :medium)
+        print_file_finding(line_no, filename, fun_name, fun, var, :read, severity || :medium)
       end
     end
   end
 
-  defp print_file_finding(line_no, con, fun_name, var, :read, severity) do
+  defp print_file_finding(line_no, con, fun_name, fun, var, :read, severity) do
     {color, confidence} = case severity do
       :high -> {IO.ANSI.red(), "High"}
       :medium -> {IO.ANSI.yellow(), "Medium"}
@@ -34,10 +34,11 @@ defmodule Sobelow.Traversal do
     IO.puts color <> "Directory Traversal in `File.read` - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun)
     IO.puts "\n-----------------------------------------------\n"
   end
 
-  defp print_finding(line_no, con, fun_name, var, severity) do
+  defp print_finding(line_no, con, fun_name, fun, var, severity) do
     {color, confidence} = case severity do
       :high -> {IO.ANSI.red(), "High"}
       :medium -> {IO.ANSI.yellow(), "Medium"}
