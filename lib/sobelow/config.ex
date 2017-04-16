@@ -1,5 +1,5 @@
 defmodule Sobelow.Config do
-  alias Sobelow.Utilsx, as: Utils
+  alias Sobelow.Utils
   @prod_path "config/prod.exs"
   @prod_secret_path "config/prod.secret.exs"
 

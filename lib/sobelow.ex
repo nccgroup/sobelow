@@ -12,7 +12,7 @@ defmodule Sobelow do
       :world
 
   """
-  alias Sobelow.Utilsx, as: Utils
+  alias Sobelow.Utils
   alias Sobelow.Config
   alias Sobelow.XSS
   alias Sobelow.SQL

@@ -1,89 +1,124 @@
 defmodule Sobelow.Utils do
-  def get_app_name({:defmodule, _, module_opts}) do
-    do_block = get_do_block(module_opts)
-    {_, _, fun_list} = do_block
+  require IEx
 
-    get_funs_of_type(fun_list, :def)
-    |> List.flatten
-    |> Enum.find_value(&extract_app_name/1)
-    |> Atom.to_string
+  # General Utils
+  def ast(filepath) do
+    {:ok, ast} = Code.string_to_quoted(File.read!(filepath))
+    ast
   end
-  def get_app_name({:__block__, _, module_opts}) do
-    Enum.map(module_opts, fn mod ->
-      do_block = get_do_block(mod)
-      if !is_nil(do_block) do
-        {_, _, fun_list} = do_block
 
-        get_funs_of_type(fun_list, :def)
-        |> List.flatten
-        |> Enum.find_value(&extract_app_name/1)
-        |> Atom.to_string
-      end
-    end) |> Enum.reject(&is_nil/1) |> List.first
+  ## Function parsing
+  def get_def_funs(filepath) do
+    ast = ast(filepath)
+    get_funs_of_type(ast, [:def, :defp])
   end
-  def get_app_name({_, _, _}), do: ""
+
+  defp get_aliased_funs_of_type(ast, type, module) do
+    {_, acc} = Macro.prewalk(ast, [], &get_aliased_funs_of_type(&1, &2, type, module))
+    acc
+  end
+  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
+    if Enum.member?(aliases, module) do
+      {ast, [ast|acc]}
+    else
+      {ast, acc}
+    end
+  end
+  defp get_aliased_funs_of_type(ast, acc, type, module) do
+    {ast, acc}
+  end
+
+  defp get_funs_of_type(ast, type) do
+    {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, type))
+    acc
+  end
+  defp get_funs_of_type({type, _, _} = ast, acc, types) when is_list(types) do
+    if Enum.member?(types, type) do
+      {ast, [ast|acc]}
+    else
+      {ast, acc}
+    end
+  end
+  defp get_funs_of_type({type, _, _} = ast, acc, type) do
+    {ast, [ast|acc]}
+  end
+  defp get_funs_of_type(ast, acc, type), do: {ast, acc}
+
+  ## Get function parameters.
+  defp get_params({_, _, params}) when is_list(params) do
+    Enum.flat_map(params, &get_params/1)
+  end
+  defp get_params({_, params}) when is_tuple(params) do
+    get_params(params)
+  end
+  defp get_params({var, _, nil}), do: [var]
+  defp get_params(_), do: []
+
+  ## Parsing string interpolation got really messy when attempting to
+  ## use the Macro functionality. Will stick with this for now.
+  defp parse_string_interpolation({key, _, nil}), do: key
+  defp parse_string_interpolation({:::, _, opts}) do
+    parse_string_interpolation(opts)
+  end
+  defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _] = opts) do
+    Enum.map vars, &parse_string_interpolation/1
+  end
+  defp parse_string_interpolation({key, _, opts}) when key in [:+, :-, :*, :/] do
+    Enum.map opts, &parse_string_interpolation/1
+  end
+  defp parse_string_interpolation({{:., _, [Kernel, :to_string]}, _, opts}) do
+    Enum.map opts, &parse_string_interpolation/1
+  end
+  defp parse_string_interpolation({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
+    Module.concat(module)
+  end
+  defp parse_string_interpolation({:<<>>, _, opts}) do
+    opts
+    |> Enum.map(&parse_string_interpolation/1)
+  end
+  defp parse_string_interpolation({key, _, _} = opts) do
+    key
+  end
+  defp parse_string_interpolation(_) do
+    []
+  end
+
+  ## File listing
+  def all_files(filepath, directory \\ "") do
+    {:ok, files} = File.ls(filepath)
+    Enum.flat_map(files, &list_files(&1, filepath, directory))
+  end
+  defp list_files(filename, filepath, directory) do
+    cond do
+      Path.extname(filename) === ".ex" ->
+        [directory <> "/" <> filename]
+      File.dir?(filepath <> filename) ->
+        all_files(filepath <> filename <> "/", directory <> "/" <> filename)
+      true ->
+        []
+    end
+  end
+
+  # Setup Utils
   def get_app_name(filepath) do
-    {:ok, ast} = ast(filepath)
-    get_app_name(ast)
+    ast = ast(filepath)
+    {_, project_block} = Macro.prewalk(ast, [], &extract_app_name/2)
+    Atom.to_string(Keyword.get(project_block, :app))
   end
 
-  defp extract_app_name({:def, _, opts}) do
-    extract_app_name(opts)
+  defp extract_app_name({:def, _, [{:project, _, _}, [do: block]]} = ast, _) do
+    {ast, block}
   end
-  defp extract_app_name([{:project, _, _}, [do: block]]) do
-    Keyword.get(block, :app)
+  defp extract_app_name(ast, acc) do
+    {ast, acc}
   end
-  defp extract_app_name(_), do: false
 
-  def get_routes(filepath) do
-    {:ok, ast} = ast(filepath)
-    {:defmodule, _, module_opts} = ast
-    do_block = get_do_block(module_opts)
-    {_, _, fun_list} = do_block
-
-    get_funs_of_type(fun_list, :scope)
-    |> List.flatten
-    |> extract_scopes
-  end
+  # Config utils
 
   def get_pipelines(filepath) do
-    {:ok, ast} = ast(filepath)
-    {:defmodule, _, module_opts} = ast
-    do_block = get_do_block(module_opts)
-    {_, _, fun_list} = do_block
-
-    a = get_funs_of_type(fun_list, :pipeline)
-    |> List.flatten
-  end
-
-  def get_def_funs({:defmodule, _, module_opts}) do
-    do_block = get_do_block(module_opts)
-    {_, _, fun_list} = do_block
-
-    get_funs_of_type(fun_list, [:def, :defp])
-    |> List.flatten
-  end
-  def get_def_funs({:__block__, _, module_opts}) do
-    Enum.flat_map(module_opts, fn mod ->
-     do_block = get_do_block(mod)
-     if !is_nil(do_block) do
-       {_, _, fun_list} = do_block
-
-       get_funs_of_type(fun_list, [:def, :defp])
-       |> List.flatten
-     else
-       []
-     end
-    end)
-  end
-  def get_def_funs({_, _, _}), do: []
-  def get_def_funs(filepath) do
-    if is_nil(filepath) do
-      []
-    else
-      {:ok, ast} = ast(filepath)
-      get_def_funs(ast)
-    end
+    ast = ast(filepath)
+    {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, :pipeline))
+    acc
   end
 
   def is_vuln_pipeline({:pipeline, _, [name, [do: block]]}) do
@@ -107,121 +142,57 @@ defmodule Sobelow.Utils do
   def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
   def get_plug_csrf(_), do: false
 
+  def get_configs(secret, filepath) do
+    ast = ast(filepath)
+    {ast, acc} = Macro.prewalk(ast, [], &extract_configs(&1, &2, secret))
+    acc
+  end
+
+  defp extract_configs({:config, _, opts} = ast, acc, secret) do
+    {_, val} = Macro.prewalk(opts, [], &get_config(&1, &2, secret))
+
+    if is_list(val) && Enum.empty?(val) do
+      {ast, acc}
+    else
+      {ast, [{ast, val}|acc]}
+    end
+  end
+  defp extract_configs(ast, acc, secret) do
+    {ast, acc}
+  end
+
+  defp get_config({secret, value} = ast, acc, secret), do: {ast, value}
+  defp get_config(ast, acc, _), do: {ast, acc}
+
+  # XSS Utils
+
   def get_template_raw_vars(filepath) do
     ast = EEx.compile_string(File.read!(filepath))
-    get_funs_of_type(ast, :raw)
-    |> List.flatten
-    |> Enum.map(&parse_raw_vars(&1))
-  end
 
-  def parse_sql_def(fun) when is_tuple(fun) do
+    {_, acc} = Macro.prewalk(ast, [], &extract_raw_vars(&1, &2))
+
+    acc
+  end
+  defp extract_raw_vars({:raw, _, [{_, _, [_, raw]}]} = ast, acc) do
+    {ast, [raw|acc]}
+  end
+  defp extract_raw_vars(ast, acc), do: {ast, acc}
+
+  ## Collection of functions to pull options from `send_resp` call.
+  def parse_send_resp_def(fun) do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
-    do_block = get_do_block(fun_opts)
     params = get_params(declaration)
     {fun_name, line_no, _} = declaration
 
-    interp_vars = get_aliased_funs_of_type(do_block, :query)
-    |> List.flatten
-
-    {interp_vars, params, {fun_name, line_no}}
-  end
-
-  def parse_render_def(fun) when is_tuple(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    do_block = get_do_block(fun_opts)
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    # This pulls assigns from a function, but it wasn't
-    # ultimately needed. Not removing for now.
-    # assigns = get_funs_of_type(do_block, :=)
-    # |> Enum.map(&parse_assign_opts/1)
-    # |> List.flatten
-
-    get_funs_of_type(do_block, :render)
-    |> List.flatten
-    |> Enum.map(&parse_render_opts(&1, params, {fun_name, line_no}))
-  end
-
-  def parse_send_resp_def(fun) when is_tuple(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    do_block = get_do_block(fun_opts)
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    resps = get_funs_of_type(do_block, :send_resp)
-    |> List.flatten
+    resps = get_funs_of_type(fun, :send_resp)
     |> Enum.map(&parse_send_resp_opts/1)
-    |> Enum.reject(&is_nil/1)
 
-    is_html = get_funs_of_type(do_block, :put_resp_content_type)
-    |> List.flatten
+    is_html = get_funs_of_type(fun, :put_resp_content_type)
     |> Enum.any?(&is_content_type_html/1)
 
     {resps, is_html, params, {fun_name, line_no}}
   end
-
-  def parse_send_file_def(fun) when is_tuple(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    do_block = get_do_block(fun_opts)
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    resps = get_funs_of_type(do_block, :send_file)
-    |> List.flatten
-    |> Enum.map(&parse_send_resp_opts/1)
-    |> Enum.reject(&is_nil/1)
-    |> List.flatten
-
-    {resps, params, {fun_name, line_no}}
-  end
-
-  def parse_file_read_def(fun) when is_tuple(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    do_block = get_do_block(fun_opts)
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    resps = get_aliased_funs_of_type(do_block, :read)
-    |> List.flatten
-    |> Enum.reject(&is_nil/1)
-
-    {resps, params, {fun_name, line_no}}
-  end
-
-  defp is_content_type_html({:put_resp_content_type, _, opts}) do
-    type_list = Enum.filter(opts, &is_binary/1)
-    |> Enum.any?(&String.contains?(&1, "html"))
-  end
-
-  defp parse_assign_opts({:=, _, [left, _]}) do
-    parse_assign_opts(left)
-  end
-  defp parse_assign_opts({var, _, nil}) do
-    var
-  end
-  defp parse_assign_opts(left) when is_list(left) do
-    Enum.map(left, &parse_assign_opts/1)
-  end
-  defp parse_assign_opts({fun, _, opts}) when is_atom(fun) do
-    parse_assign_opts(opts)
-  end
-  defp parse_assign_opts(left) when is_tuple(left) do
-    parse_assign_opts(Tuple.to_list(left))
-  end
-  defp parse_assign_opts(left) when is_atom(left) do
-    []
-  end
-
-  defp parse_raw_vars({:raw, _, [{_, _, [_, raw]}]}) do
-    raw
-  end
-  defp parse_raw_vars(_), do: []
 
   defp parse_send_resp_opts({:send_file, _, opts}) do
     parse_send_resp_opts(opts)
@@ -249,48 +220,34 @@ defmodule Sobelow.Utils do
   defp parse_send_resp_opts({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
     Module.concat(module)
   end
-
-  # This is a general weak-confidence trap for string interpolation
-  # or other function calls. There is more that can be done to get
-  # more precise confidence, but I would like to see how much it is
-  # actually needed before going too deep.
-  defp parse_send_resp_opts({_, _, _} = opts), do: opts
   defp parse_send_resp_opts(_), do: nil
 
-  defp parse_string_interpolation({key, _, nil}), do: key
-  defp parse_string_interpolation({:::, _, opts}) do
-    parse_string_interpolation(opts)
+  defp is_content_type_html({:put_resp_content_type, _, opts}) do
+    type_list = Enum.filter(opts, &is_binary/1)
+    |> Enum.any?(&String.contains?(&1, "html"))
   end
-  defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _] = opts) do
-    Enum.map vars, &parse_string_interpolation/1
+
+  ## Collection of functions to pull options from the `render` call.
+  def parse_render_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    get_funs_of_type(fun, :render)
+    |> Enum.map(&parse_render_opts(&1, params, {fun_name, line_no}))
   end
-  defp parse_string_interpolation({key, _, opts}) when key in [:+, :-, :*, :/] do
-    Enum.map opts, &parse_string_interpolation/1
-  end
-  defp parse_string_interpolation({{:., _, [Kernel, :to_string]}, _, opts}) do
-    Enum.map opts, &parse_string_interpolation/1
-  end
-  defp parse_string_interpolation({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
-    Module.concat(module)
-  end
-  defp parse_string_interpolation({:<<>>, _, opts}) do
-    opts
-    |> Enum.map(&parse_string_interpolation/1)
-  end
-  defp parse_string_interpolation({key, _, _} = opts) do
-    key
-  end
-  defp parse_string_interpolation(v) do
-    []
-  end
+
   defp parse_render_opts({:render, _, opts}, params, meta) do
     opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)
-    [template|vars] = case Enum.empty?(opts) do
-      false ->
-        opts
-      true ->
-        ["", []]
-    end
+    [template|vars] =
+      case Enum.empty?(opts) do
+        false ->
+          opts
+        true ->
+          ["", []]
+      end
+
     if !Enum.empty?(vars) do
       [vars|_] = vars
     end
@@ -304,193 +261,89 @@ defmodule Sobelow.Utils do
 
     {template, reflected_var_keys, var_keys -- reflected_var_keys, params, meta}
   end
-  defp parse_render_opts([]), do: []
 
   defp is_reflected_var?({_, {_, _, nil}}), do: true
   defp is_reflected_var?(_), do: false
 
   defp is_in_params?({_, {var, _, _}}, params) do
-    if Enum.member?(params, var) do
-      true
-    else
-      false
-    end
+    Enum.member?(params, var)
   end
 
   def is_conn_params?({_, {{:., _, [Access, :get]}, _, access_opts}}), do: is_conn_params?(access_opts)
   def is_conn_params?([{{:., _, [{:conn, _, nil}, :params]}, _, []}, _]), do: true
   def is_conn_params?(_), do: false
 
-  defp extract_scopes(scopes) do
-    Enum.map(scopes, &extract_scope(&1))
-    |> Enum.reduce(%{}, &merge_scope(&1, &2))
+  # SQL Utils
+
+  def parse_sql_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    interp_vars = get_aliased_funs_of_type(fun, :query, :SQL)
+    |> Enum.map(&extract_sql_opts/1)
+    |> List.flatten
+
+    {interp_vars, params, {fun_name, line_no}}
   end
 
-  defp merge_scope({mod, block}, acc) do
-    if current_block = Map.get(acc, mod) do
-      Map.update(acc, mod, block, fn _ -> current_block ++ block end)
-    else
-      Map.put(acc, mod, block)
-    end
+  defp extract_sql_opts({_, _, opts}) when is_list(opts) do
+    parse_sql_opts(opts)
   end
 
-  defp extract_scope({:scope, _, [_route, {:__aliases__, _, module_name}, [do: block]]}) do
-    {Module.concat(module_name), [block]}
-  end
-  defp extract_scope({:scope, _, [_route, {:__aliases__, _, module_name}, _, [do: block]]}) do
-    {Module.concat(module_name), [block]}
-  end
-
-  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = test, :query) do
-    if Enum.member?(aliases, :SQL) do
-      parse_if_string_interpolation(:sql, opts)
-    else
-      []
-    end
-  end
-  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = test, type) do
-    if Enum.member?([:File], List.last(aliases)) do
-      Enum.map(opts, &parse_if_string_interpolation/1)
-    else
-      []
-    end
-  end
-  defp get_aliased_funs_of_type({_, _, opts}, type) when is_list(opts) do
-    Enum.map(opts, &get_aliased_funs_of_type(&1, type))
-  end
-  defp get_aliased_funs_of_type(_, _), do: []
-
-  defp parse_if_string_interpolation({:<<>>, _, _} = fun) do
+  defp parse_sql_opts({:<<>>, _, _} = fun) do
     parse_string_interpolation(fun)
   end
-  defp parse_if_string_interpolation(:sql, [{:__aliases__, _, _}|[sql|_]]) do
-     parse_if_string_interpolation(sql)
-  end
-  defp parse_if_string_interpolation(:sql, [sql|_]) do
-    parse_if_string_interpolation(sql)
-  end
-  defp parse_if_string_interpolation({key, _, nil}), do: [key]
-  defp parse_if_string_interpolation(_) do
-    []
+  defp parse_sql_opts([{:__aliases__, _, aliases}|[sql|_]]), do: parse_sql_opts(sql)
+
+  defp parse_sql_opts([sql|_]), do: parse_sql_opts(sql)
+  defp parse_sql_opts({key, _, nil}), do: key
+  defp parse_sql_opts(_), do: []
+
+  # Traversal Utils
+  def parse_send_file_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    files = get_funs_of_type(fun, :send_file)
+    |> Enum.map(&parse_send_resp_opts/1)
+    |> List.flatten
+
+    {files, params, {fun_name, line_no}}
   end
 
-  defp get_funs_of_type({type, _, _} = fun, type) do
-    [fun]
-  end
-  defp get_funs_of_type({_, _, opts}, type) when is_list(opts) do
-    get_funs_of_type(opts, type)
-  end
-  defp get_funs_of_type(fun_list, type) when is_list(type) do
-    Enum.map type, &get_funs_of_type(fun_list, &1)
-  end
-  defp get_funs_of_type(fun_list, type) when is_list(fun_list) do
-    Enum.reduce fun_list, [], fn(fun, acc) ->
-      if val = get_fun_of_type(fun, type) do
-        [val|acc]
-      else
-        acc
-      end
-    end
-  end
-  defp get_funs_of_type(_,_), do: []
+  def parse_file_read_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
 
-  defp get_fun_of_type({type, _, _} = fun, type) do
-    fun
+    resps = get_aliased_funs_of_type(fun, :read, :File)
+    |> Enum.map(&extract_file_read_opts/1)
+    |> List.flatten
+
+    {resps, params, {fun_name, line_no}}
   end
-  defp get_fun_of_type({_,_,opts}, type) when is_list(opts) do
-    get_funs_of_type(opts, type)
+
+  defp extract_file_read_opts({_, _, opts} = fun) when is_list(opts) do
+    parse_file_opts(opts)
   end
-  defp get_fun_of_type([do: block], type) do
-    if is_list(block) do
-      get_funs_of_type(block, type)
+
+  defp parse_file_opts({:<<>>, _, _} = fun) do
+    parse_string_interpolation(fun)
+  end
+  defp parse_file_opts([{:__aliases__, _, aliases}|[file|_]]) do
+    if Enum.member?(aliases, :File) do
+      parse_file_opts(file)
     else
-      get_fun_of_type(block, type)
+      []
     end
   end
-  defp get_fun_of_type([do: do_block, else: else_block], type) do
-    do_b = get_fun_of_type(do_block, type)
-    else_b = get_fun_of_type(else_block, type)
-
-    do_b = if do_b && is_list(do_b) do
-      do_b
-    end
-
-    else_b = if else_b && is_list(else_b) do
-      else_b
-    end
-
-    (do_b || []) ++ (else_b || [])
-  end
-  defp get_fun_of_type(_,_), do: false
-
-  defp get_do_block([do: block]), do: block
-  defp get_do_block(opts) when is_list(opts), do: Enum.find_value(opts, &get_do_block(&1))
-  defp get_do_block({_,_,opts}) when is_list(opts), do: get_do_block(opts)
-  defp get_do_block(v), do: false
-
-  defp get_params({_, _, params}) when is_list(params) do
-    Enum.flat_map(params, &get_params/1)
-  end
-  defp get_params({_, params}) when is_tuple(params) do
-    get_params(params)
-  end
-  defp get_params({var, _, nil}), do: [var]
-  defp get_params(_), do: []
-
-  # Config related funcs
-  def get_configs(key, filepath) do
-    {:ok, {_, _, terms}} = ast(filepath)
-    Enum.map(terms, &get_config_val(&1, key))
-      |> Enum.filter(fn val -> val end)
-  end
-
-  defp get_config_val(term, key) do
-    if val = get_val(term, key) do
-      {term, val}
-    end
-  end
-
-  defp get_val({:config, _, opts}, key), do: get_val(opts, key)
-  defp get_val(opts, key) when is_list(opts) do
-    Enum.find_value(opts, &get_val(&1, key))
-  end
-  defp get_val({key, val}, key), do: val
-  defp get_val(_, _), do: false
-
-  def ast(filepath) do
-    Code.string_to_quoted(File.read!(filepath))
-  end
-
-  def all_files(filepath, directory \\ "") do
-    {:ok, files} = File.ls(filepath)
-    Enum.flat_map(files, &list_files(&1, filepath, directory))
-  end
-
-  defp list_files(filename, filepath, directory) do
-    cond do
-      Path.extname(filename) === ".ex" ->
-        [directory <> "/" <> filename]
-      File.dir?(filepath <> filename) ->
-        all_files(filepath <> filename <> "/", directory <> "/" <> filename)
-      true ->
-        []
-    end
-  end
-
-  def all_controllers(filepath, directory \\ "") do
-    {:ok, files} = File.ls(filepath)
-    Enum.flat_map(files, &list_controllers(&1, filepath, directory))
-  end
-
-  defp list_controllers(filename, filepath, directory) do
-    cond do
-      String.contains?(filename, "_controller.ex") ->
-        [directory <> "/" <> filename]
-      String.contains?(filename, ".ex") ->
-        []
-      true ->
-        all_controllers(filepath <> filename <> "/", directory <> "/" <> filename)
-    end
-  end
+  defp parse_file_opts([file|_]), do: parse_file_opts(file)
+  defp parse_file_opts({key, _, nil}), do: key
+  defp parse_file_opts(_), do: []
 
 end
