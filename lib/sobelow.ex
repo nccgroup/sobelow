@@ -32,12 +32,12 @@ defmodule Sobelow do
     end
 
     Config.fetch(web_root)
-#    Utils.all_files(root)
-#    |> Enum.reject(&is_nil/1)
-#    |> Enum.each(fn file ->
-#        def_funs = Utils.get_def_funs(root <> file)
-#        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
-#    end)
+    Utils.all_files(root)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.each(fn file ->
+        def_funs = Utils.get_def_funs(root <> file)
+        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
+    end)
   end
 
   defp get_root(app_name, project_root) do
@@ -52,7 +52,7 @@ defmodule Sobelow do
     if String.ends_with?(filename, "_controller.ex") do
       XSS.get_vulns(fun, filename, web_root)
     end
-    SQL.get_vulns(fun, filename)
-    Traversal.get_vulns(fun, filename)
+#    SQL.get_vulns(fun, filename)
+#    Traversal.get_vulns(fun, filename)
   end
 end

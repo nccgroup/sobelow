@@ -1,5 +1,5 @@
 defmodule Sobelow.XSS do
-  alias Sobelow.Utils
+  alias Sobelow.Utilsx, as: Utils
 
   def get_vulns(fun, filename, web_root) do
     render_funs = Utils.parse_render_def(fun)
