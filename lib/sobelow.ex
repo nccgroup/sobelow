@@ -3,6 +3,7 @@ defmodule Sobelow do
   Sobelow is a static analysis tool for discovering
   vulnerabilities in Phoenix applications.
   """
+  @v Mix.Project.config[:version]
 
   alias Sobelow.Utils
   alias Sobelow.Config
@@ -38,11 +39,10 @@ defmodule Sobelow do
   end
 
   defp print_banner() do
-    v = Mix.Project.config[:version]
     """
     ##############################################
     #                                            #
-    #          Running Sobelow - v#{v}          #
+    #          Running Sobelow - v#{@v}          #
     #  Created by Griffin Byatt - @griffinbyatt  #
     #     NCC Group - https://nccgroup.trust     #
     #                                            #
