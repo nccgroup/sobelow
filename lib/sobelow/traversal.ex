@@ -6,11 +6,13 @@ defmodule Sobelow.Traversal do
     filename = String.replace_prefix(filename, "/", "")
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_finding(line_no, filename, fun_name, fun, var, severity || :high)
-      else
-        print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
+    if String.ends_with?(filename, "_controller.ex") do
+      Enum.each vars, fn var ->
+        if Enum.member?(params, var) || var === "conn.params" do
+          print_finding(line_no, filename, fun_name, fun, var, severity || :high)
+        else
+          print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
+        end
       end
     end
 
