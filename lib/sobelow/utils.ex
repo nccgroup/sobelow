@@ -54,7 +54,7 @@ defmodule Sobelow.Utils do
     {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type))
     acc
   end
-  defp get_erlang_funs_of_type({{:., _, [:erlang, :binary_to_term]}, _, _} = ast, acc, :binary_to_term) do
+  defp get_erlang_funs_of_type({{:., _, [:erlang, type]}, _, _} = ast, acc, type) do
     {ast, [ast|acc]}
   end
   defp get_erlang_funs_of_type(ast, acc, type), do: {ast, acc}
