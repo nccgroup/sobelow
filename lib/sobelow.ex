@@ -1,17 +1,9 @@
 defmodule Sobelow do
   @moduledoc """
-  Documentation for Sobelow.
+  Sobelow is a static analysis tool for discovering
+  vulnerabilities in Phoenix applications.
   """
 
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Sobelow.hello
-      :world
-
-  """
   alias Sobelow.Utils
   alias Sobelow.Config
   alias Sobelow.XSS
@@ -20,6 +12,7 @@ defmodule Sobelow do
   alias Mix.Shell.IO
 
   def run() do
+    IO.info print_banner()
     project_root = get_env(:root) <> "/"
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     web_root = get_root(app_name, project_root)
@@ -42,6 +35,19 @@ defmodule Sobelow do
 
   def get_env(key) do
     Application.get_env(:sobelow, key)
+  end
+
+  defp print_banner() do
+    v = Mix.Project.config[:version]
+    """
+    ##############################################
+    #                                            #
+    #          Running Sobelow - v#{v}          #
+    #  Created by Griffin Byatt - @griffinbyatt  #
+    #     NCC Group - https://nccgroup.trust     #
+    #                                            #
+    ##############################################
+    """
   end
 
   defp get_root(app_name, project_root) do
