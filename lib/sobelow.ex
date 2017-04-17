@@ -10,6 +10,7 @@ defmodule Sobelow do
   alias Sobelow.XSS
   alias Sobelow.SQL
   alias Sobelow.Traversal
+  alias Sobelow.Misc
   alias Mix.Shell.IO
 
   def run() do
@@ -64,5 +65,6 @@ defmodule Sobelow do
     end
     SQL.get_vulns(fun, filename)
     Traversal.get_vulns(fun, filename)
+    Misc.get_vulns(fun, filename)
   end
 end

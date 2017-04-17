@@ -50,6 +50,15 @@ defmodule Sobelow.Utils do
     get_funs_of_type(ast, [:def, :defp])
   end
 
+  defp get_erlang_funs_of_type(ast, type) do
+    {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type))
+    acc
+  end
+  defp get_erlang_funs_of_type({{:., _, [:erlang, :binary_to_term]}, _, _} = ast, acc, :binary_to_term) do
+    {ast, [ast|acc]}
+  end
+  defp get_erlang_funs_of_type(ast, acc, type), do: {ast, acc}
+
   defp get_aliased_funs_of_type(ast, type, module) do
     {_, acc} = Macro.prewalk(ast, [], &get_aliased_funs_of_type(&1, &2, type, module))
     acc
@@ -383,4 +392,25 @@ defmodule Sobelow.Utils do
   defp parse_file_opts({key, _, nil}), do: key
   defp parse_file_opts(_), do: []
 
+  # Misc Utils
+  def parse_binary_term_def(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    erls = get_erlang_funs_of_type(fun, :binary_to_term)
+    |> Enum.map(&extract_binary_term_opts/1)
+    |> List.flatten
+
+    {erls, params, {fun_name, line_no}}
+  end
+
+  defp extract_binary_term_opts({_, _, opts} = fun) when is_list(opts) do
+    parse_binary_term_opts(opts)
+  end
+
+  defp parse_binary_term_opts([bin|_]), do: parse_binary_term_opts(bin)
+  defp parse_binary_term_opts({key, _, nil}), do: key
+  defp parse_binary_term_opts(_), do: []
 end
