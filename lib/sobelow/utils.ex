@@ -43,6 +43,9 @@ defmodule Sobelow.Utils do
   end
 
   defp is_fun_var({var, _, nil} = ast, acc), do: {ast, [var|acc]}
+  defp is_fun_var({:__aliases__, _, aliases} = ast, acc) do
+    {ast, [Module.concat(aliases)|acc]}
+  end
   defp is_fun_var(ast, acc), do: {ast, acc}
 
   def find_call({call, _, _} = ast, acc, call) do
