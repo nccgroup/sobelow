@@ -22,6 +22,12 @@ defmodule Sobelow.Utils do
           else
             string
           end
+        {{:., _, [:erlang, ^call]}, _, _} ->
+          if is_fun_with_var?(ast, var) do
+            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+          else
+            string
+          end
         _ -> string
       end
       acc <> s
