@@ -4,7 +4,10 @@ defmodule Sobelow.Utils do
     {:ok, ast} = Code.string_to_quoted(File.read!(filepath))
     ast
   end
-
+  def print_code(fun, :highlight_all) do
+    IO.puts "\n"
+    IO.puts IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset()
+  end
   def print_code(fun, var, call \\ nil) do
     acc = ""
     func_string = Macro.to_string fun, fn ast, string ->
@@ -245,27 +248,25 @@ defmodule Sobelow.Utils do
   def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
   def get_plug_csrf(_), do: false
 
-  def get_configs(secret, filepath) do
+  def get_configs(key, filepath) do
     ast = ast(filepath)
-    {ast, acc} = Macro.prewalk(ast, [], &extract_configs(&1, &2, secret))
+    {ast, acc} = Macro.prewalk(ast, [], &extract_configs(&1, &2, key))
     acc
   end
 
-  defp extract_configs({:config, _, opts} = ast, acc, secret) do
-    {_, val} = Macro.prewalk(opts, [], &get_config(&1, &2, secret))
+  defp extract_configs({:config, _, opts} = ast, acc, key) do
+    val = List.last(opts)
+    |> Keyword.get(key)
 
-    if is_list(val) && Enum.empty?(val) do
+    if is_nil(val) do
       {ast, acc}
     else
-      {ast, [{ast, val}|acc]}
+      {ast, [{ast, key, val}|acc]}
     end
   end
-  defp extract_configs(ast, acc, secret) do
+  defp extract_configs(ast, acc, key) do
     {ast, acc}
   end
-
-  defp get_config({secret, value} = ast, acc, secret), do: {ast, value}
-  defp get_config(ast, acc, _), do: {ast, acc}
 
   # XSS Utils
 

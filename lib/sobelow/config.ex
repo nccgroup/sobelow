@@ -39,9 +39,9 @@ defmodule Sobelow.Config do
 
   defp enumerate_secrets(secrets, file) do
     file = Path.expand(file, "")
-    Enum.each secrets, fn {{_, [line: lineno], _}, val} ->
+    Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 do
-        print_finding(file, lineno, val)
+        print_finding(file, lineno, fun, key, val)
       end
     end
   end
@@ -72,10 +72,11 @@ defmodule Sobelow.Config do
     IO.puts "\n-----------------------------------------------\n"
   end
 
-  defp print_finding(file, line_no, val) do
+  defp print_finding(file, line_no, fun, key, val) do
     IO.puts IO.ANSI.red() <> "Hardcoded Secret - High Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{file} - line #{line_no}"
-    IO.puts "Value: #{val}"
+    IO.puts "Type: #{key}"
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, :highlight_all)
     IO.puts "\n-----------------------------------------------\n"
   end
 end
