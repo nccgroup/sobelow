@@ -3,7 +3,6 @@ defmodule Sobelow.Traversal.SendFile do
 
   def run(fun, filename) do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_send_file_def(fun)
-    filename = String.replace_prefix(filename, "/", "")
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
     if String.ends_with?(filename, "_controller.ex") do

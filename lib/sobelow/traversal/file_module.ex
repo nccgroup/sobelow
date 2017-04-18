@@ -3,7 +3,6 @@ defmodule Sobelow.Traversal.FileModule do
 
   def run(fun, filename) do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_file_read_def(fun)
-    filename = String.replace_prefix(filename, "/", "")
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
     Enum.each vars, fn var ->

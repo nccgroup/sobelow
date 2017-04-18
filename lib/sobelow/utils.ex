@@ -368,29 +368,6 @@ defmodule Sobelow.Utils do
 
   # SQL Utils
 
-  ## query(repo, sql, params \\ [], opts \\ [])
-  ##
-  ## ecto queries have optional params, so they must be
-  ## handled differently.
-  def parse_sql_def(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    pipevars = get_funs_of_type(fun, :|>)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&get_aliased_funs_of_type(&1, :query, :SQL))
-    |> Enum.map(&extract_opts({:pipe, &1}))
-    |> List.flatten
-
-    interp_vars = get_aliased_funs_of_type(fun, :query, :SQL) -- pipevars
-    |> Enum.map(&extract_opts/1)
-    |> List.flatten
-
-    {interp_vars ++ pipevars, params, {fun_name, line_no}}
-  end
-
   # Traversal Utils
 
   # Misc Utils
