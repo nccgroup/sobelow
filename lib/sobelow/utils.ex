@@ -76,12 +76,39 @@ defmodule Sobelow.Utils do
   end
   defp get_erlang_funs_of_type(ast, acc, type), do: {ast, acc}
 
+  ## This is used to get aliased function calls such as `File.read`
+  ## or `Ecto.Adapters.SQL.query`.
+  ##
+  ## This splits the call between strict and and standard, because there
+  ## are some instances where we can be more certain of the alias contents.
+  ## For instance, when using stdlib features such as `File.read` the alias
+  ## list will be [:File]. For functions like `Ecto.Adapters.SQL.query`, there is less
+  ## certainty because the Module has likely been aliased. The alias list
+  ## could be [:Ecto, :Adapters, :SQL], just [:SQL], or something else entirely.
+  ##
+  ## Will consider flagging strict/standard separately depending on how this
+  ## works in practice.
+  defp get_aliased_funs_of_type(ast, type, module) when is_list(module) do
+    {_, acc} = Macro.prewalk(ast, [], &get_strict_aliased_funs_of_type(&1, &2, type, module))
+    acc
+  end
   defp get_aliased_funs_of_type(ast, type, module) do
     {_, acc} = Macro.prewalk(ast, [], &get_aliased_funs_of_type(&1, &2, type, module))
     acc
   end
+
+  defp get_strict_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
+    if aliases === module do
+      {ast, [ast|acc]}
+    else
+      {ast, acc}
+    end
+  end
+  defp get_strict_aliased_funs_of_type(ast, acc, type, module) do
+    {ast, acc}
+  end
   defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
-    if Enum.member?(aliases, module) do
+    if List.last(aliases) === module do
       {ast, [ast|acc]}
     else
       {ast, acc}
@@ -414,7 +441,7 @@ defmodule Sobelow.Utils do
     params = get_params(declaration)
     {fun_name, line_no, _} = declaration
 
-    resps = get_aliased_funs_of_type(fun, :read, :File)
+    resps = get_aliased_funs_of_type(fun, :read, [:File])
     |> Enum.map(&extract_opts/1)
     |> List.flatten
 
