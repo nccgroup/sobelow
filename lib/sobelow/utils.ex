@@ -419,44 +419,6 @@ defmodule Sobelow.Utils do
 
   # Traversal Utils
 
-  ## send_file(conn, status, file, offset \\ 0, length \\ :all)
-  ##
-  ## send_file has optional params, so the parameter we care about
-  ## for traversal won't be at a definite location. This is a
-  ## simple solution to the problem.
-  def parse_send_file_def(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    pipefiles = get_funs_of_type(fun, :|>)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&get_funs_of_type(&1, :send_file))
-    |> Enum.map(&extract_opts({:pipe, &1}))
-    |> List.flatten
-
-    files = get_funs_of_type(fun, :send_file) -- pipefiles
-    |> Enum.map(&extract_opts/1)
-    |> List.flatten
-
-
-    {files ++ pipefiles, params, {fun_name, line_no}}
-  end
-
-  def parse_file_read_def(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    resps = get_aliased_funs_of_type(fun, :read, [:File])
-    |> Enum.map(&extract_opts/1)
-    |> List.flatten
-
-    {resps, params, {fun_name, line_no}}
-  end
-
   # Misc Utils
   def parse_binary_term_def(fun) do
     {_, _, fun_opts} = fun
