@@ -45,6 +45,12 @@ defmodule Sobelow.Utils do
   defp is_fun_var({:__aliases__, _, aliases} = ast, acc) do
     {ast, [Module.concat(aliases)|acc]}
   end
+  defp is_fun_var({:render, _, [_, _, keylist]} = ast, acc) do
+    {ast, Keyword.keys(keylist) ++ acc}
+  end
+  defp is_fun_var({:render, _, [_, keylist]} = ast, acc) when is_list(keylist) do
+    {ast, Keyword.keys(keylist) ++ acc}
+  end
   defp is_fun_var(ast, acc), do: {ast, acc}
 
   def find_call({call, _, _} = ast, acc, call) do

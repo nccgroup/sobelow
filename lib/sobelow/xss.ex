@@ -25,14 +25,14 @@ defmodule Sobelow.XSS do
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
-            print_finding(t_name, line_no, con, fun_name, var, :high)
+            print_finding(t_name, line_no, con, fun_name, fun, var, :high)
           end
         end)
 
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
-            print_finding(t_name, line_no, con, fun_name, var, :medium)
+            print_finding(t_name, line_no, con, fun_name, fun, var, :medium)
           end
         end)
       end
@@ -75,7 +75,7 @@ defmodule Sobelow.XSS do
     IO.puts "\n-----------------------------------------------\n"
   end
 
-  defp print_finding(t_name, line_no, con, fun_name, var, severity) do
+  defp print_finding(t_name, line_no, con, fun_name, fun, var, severity) do
     {color, confidence} = case severity do
       :high -> {IO.ANSI.red(), "High"}
       :medium -> {IO.ANSI.yellow(), "Medium"}
@@ -84,6 +84,7 @@ defmodule Sobelow.XSS do
     IO.puts color <> "XSS - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{con} - #{fun_name}:#{line_no}"
     IO.puts "Template: #{t_name} - @#{var}"
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :render)
     IO.puts "\n-----------------------------------------------\n"
   end
 end
