@@ -5,7 +5,6 @@ defmodule Sobelow.Config.HTTPS do
   @prod_path "config/prod.exs"
 
   def run(root) do
-    IO.inspect root <> @prod_path
     Config.get_configs_by_file(:https, root <> @prod_path)
     |> handle_https(root <> @prod_path)
   end
