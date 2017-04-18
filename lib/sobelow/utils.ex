@@ -318,40 +318,14 @@ defmodule Sobelow.Utils do
   end
   defp extract_raw_vars(ast, acc), do: {ast, acc}
 
-  def parse_send_resp_def(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    resps = get_funs_of_type(fun, :send_resp)
-    |> Enum.map(&extract_opts/1)
-
-    is_html = get_funs_of_type(fun, :put_resp_content_type)
-    |> Enum.any?(&is_content_type_html/1)
-
-    {resps, is_html, params, {fun_name, line_no}}
-  end
-
-  defp is_content_type_html({:put_resp_content_type, _, opts}) do
+  def is_content_type_html({:put_resp_content_type, _, opts}) do
     type_list = Enum.filter(opts, &is_binary/1)
     |> Enum.any?(&String.contains?(&1, "html"))
   end
 
-  ## Collection of functions to pull options from the `render` call.
-  def parse_render_def(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
-
-    get_funs_of_type(fun, :render)
-    |> Enum.map(&parse_render_opts(&1, params, {fun_name, line_no}))
-  end
-
   # The `render` function is parsed separately. This may change in the future,
   # but some unique properties made it simpler to start with this.
-  defp parse_render_opts({:render, _, opts}, params, meta) do
+  def parse_render_opts({:render, _, opts}, params, meta) do
     # Reject tuple vals from opts. Basically, this will leave the template
     # and the keyword list if there is one.
     opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)
