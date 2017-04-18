@@ -394,16 +394,5 @@ defmodule Sobelow.Utils do
   # Traversal Utils
 
   # Misc Utils
-  def parse_binary_term_def(fun) do
-    {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
-    params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
 
-    erls = get_erlang_funs_of_type(fun, :binary_to_term)
-    |> Enum.map(&extract_opts/1)
-    |> List.flatten
-
-    {erls, params, {fun_name, line_no}}
-  end
 end
