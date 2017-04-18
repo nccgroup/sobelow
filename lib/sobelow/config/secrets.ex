@@ -1,0 +1,37 @@
+defmodule Sobelow.Config.Secrets do
+  alias Sobelow.Config
+  alias Sobelow.Utils
+  @prod_path "config/prod.exs"
+  @prod_secret_path "config/prod.secret.exs"
+
+  def run(root) do
+    Config.get_configs_by_file(:secret_key_base, root <> @prod_path)
+    |> enumerate_secrets(root <> @prod_path)
+
+    Config.get_configs_by_file(:secret_key_base, root <> @prod_secret_path)
+    |> enumerate_secrets(root <> @prod_secret_path)
+
+    Config.get_configs_by_file(:password, root <> @prod_path)
+    |> enumerate_secrets(root <> @prod_path)
+
+    Config.get_configs_by_file(:password, root <> @prod_secret_path)
+    |> enumerate_secrets(root <> @prod_secret_path)
+  end
+
+  defp enumerate_secrets(secrets, file) do
+    file = Path.expand(file, "")
+    Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
+      if is_binary(val) && String.length(val) > 0 do
+        print_finding(file, lineno, fun, key, val)
+      end
+    end
+  end
+
+  defp print_finding(file, line_no, fun, key, val) do
+    IO.puts IO.ANSI.red() <> "Hardcoded Secret - High Confidence" <> IO.ANSI.reset()
+    IO.puts "File: #{file} - line #{line_no}"
+    IO.puts "Type: #{key}"
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, :highlight_all)
+    IO.puts "\n-----------------------------------------------\n"
+  end
+end

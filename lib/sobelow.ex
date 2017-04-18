@@ -26,7 +26,7 @@ defmodule Sobelow do
       System.halt(0)
     end
 
-    Config.fetch(web_root)
+    Config.fetch(project_root, web_root)
     Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
     |> Enum.each(fn file ->
