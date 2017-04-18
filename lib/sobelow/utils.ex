@@ -67,14 +67,14 @@ defmodule Sobelow.Utils do
     get_funs_of_type(ast, [:def, :defp])
   end
 
-  defp get_erlang_funs_of_type(ast, type) do
+  def get_erlang_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type))
     acc
   end
-  defp get_erlang_funs_of_type({{:., _, [:erlang, type]}, _, _} = ast, acc, type) do
+  def get_erlang_funs_of_type({{:., _, [:erlang, type]}, _, _} = ast, acc, type) do
     {ast, [ast|acc]}
   end
-  defp get_erlang_funs_of_type(ast, acc, type), do: {ast, acc}
+  def get_erlang_funs_of_type(ast, acc, type), do: {ast, acc}
 
   ## This is used to get aliased function calls such as `File.read`
   ## or `Ecto.Adapters.SQL.query`.
@@ -88,69 +88,69 @@ defmodule Sobelow.Utils do
   ##
   ## Will consider flagging strict/standard separately depending on how this
   ## works in practice.
-  defp get_aliased_funs_of_type(ast, type, module) when is_list(module) do
+  def get_aliased_funs_of_type(ast, type, module) when is_list(module) do
     {_, acc} = Macro.prewalk(ast, [], &get_strict_aliased_funs_of_type(&1, &2, type, module))
     acc
   end
-  defp get_aliased_funs_of_type(ast, type, module) do
+  def get_aliased_funs_of_type(ast, type, module) do
     {_, acc} = Macro.prewalk(ast, [], &get_aliased_funs_of_type(&1, &2, type, module))
     acc
   end
 
-  defp get_strict_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
+  def get_strict_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
     if aliases === module do
       {ast, [ast|acc]}
     else
       {ast, acc}
     end
   end
-  defp get_strict_aliased_funs_of_type(ast, acc, type, module) do
+  def get_strict_aliased_funs_of_type(ast, acc, type, module) do
     {ast, acc}
   end
-  defp get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
+  def get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
     if List.last(aliases) === module do
       {ast, [ast|acc]}
     else
       {ast, acc}
     end
   end
-  defp get_aliased_funs_of_type(ast, acc, type, module) do
+  def get_aliased_funs_of_type(ast, acc, type, module) do
     {ast, acc}
   end
 
-  defp get_funs_of_type(ast, type) do
+  def get_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, type))
     acc
   end
-  defp get_funs_of_type({type, _, _} = ast, acc, types) when is_list(types) do
+  def get_funs_of_type({type, _, _} = ast, acc, types) when is_list(types) do
     if Enum.member?(types, type) do
       {ast, [ast|acc]}
     else
       {ast, acc}
     end
   end
-  defp get_funs_of_type({type, _, _} = ast, acc, type) do
+  def get_funs_of_type({type, _, _} = ast, acc, type) do
     {ast, [ast|acc]}
   end
-  defp get_funs_of_type(ast, acc, type), do: {ast, acc}
+  def get_funs_of_type(ast, acc, type), do: {ast, acc}
 
   ## Extract opts from piped functions separately.
-  defp extract_opts({:pipe, {:send_file, _, opts}}), do: parse_opts(Enum.at(opts, 1))
-  defp extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))
+  def extract_opts({:pipe, {:send_file, _, opts}}), do: parse_opts(Enum.at(opts, 1))
+  def extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))
 
-  defp extract_opts({:send_file, _, opts} = fun), do: parse_opts(Enum.at(opts, 2))
-  defp extract_opts({:send_resp, _, opts}), do: parse_opts(List.last(opts))
+  def extract_opts({:send_file, _, opts} = fun), do: parse_opts(Enum.at(opts, 2))
+  def extract_opts({:send_resp, _, opts}), do: parse_opts(List.last(opts))
   ## This is what an ecto query looks like. Don't need to validate the aliases here,
   ## because that is done in the fetching phase.
-  defp extract_opts({{:., _, [_, :query]}, _, opts} = fun) do
+  def extract_opts({{:., _, [_, :query]}, _, opts} = fun) do
     parse_opts(Enum.at(opts, 1))
   end
 
-  defp extract_opts({_, _, opts} = fun) when is_list(opts) do
+  def extract_opts({_, _, opts} = fun) when is_list(opts) do
     opts
     |> Enum.map &parse_opts/1
   end
-  defp extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
+  def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
 
   defp parse_opts({key, _, nil}), do: key
   defp parse_opts({:<<>>, _, opts}) do
@@ -176,6 +176,15 @@ defmodule Sobelow.Utils do
   defp parse_opts(opts) when is_tuple(opts), do: parse_opts(Tuple.to_list(opts))
   defp parse_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
   defp parse_opts(_), do: []
+
+  def get_fun_declaration(fun) do
+    {_, _, fun_opts} = fun
+    [declaration|_] = fun_opts
+    params = get_params(declaration)
+    {fun_name, line_no, _} = declaration
+
+    {params, {fun_name, line_no}}
+  end
 
   ## Get function parameters.
   defp get_params({_, _, params}) when is_list(params) do
