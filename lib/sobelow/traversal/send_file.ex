@@ -34,8 +34,14 @@ defmodule Sobelow.Traversal.SendFile do
     |> Enum.map(&Utils.extract_opts/1)
     |> List.flatten
 
+    conn = Utils.get_aliased_funs_of_type(fun, :send_file, [:Plug, :Conn])
+    |> Enum.map(&Utils.extract_opts/1)
+    |> List.flatten
 
-    {files ++ pipefiles, params, {fun_name, line_no}}
+#    IO.inspect conn
+
+
+    {files ++ pipefiles ++ conn, params, {fun_name, line_no}}
   end
 
   def print_finding(line_no, con, fun_name, fun, var, severity) do

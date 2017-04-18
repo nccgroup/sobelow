@@ -145,6 +145,9 @@ defmodule Sobelow.Utils do
   def extract_opts({{:., _, [_, :query]}, _, opts} = fun) do
     parse_opts(Enum.at(opts, 1))
   end
+  def extract_opts({{:., _, [_, :send_file]}, _, opts} = fun) do
+    parse_opts(Enum.at(opts, 2))
+  end
 
   def extract_opts({_, _, opts} = fun) when is_list(opts) do
     opts
