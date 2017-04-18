@@ -306,7 +306,11 @@ defmodule Sobelow.Utils do
     |> Enum.map(&parse_render_opts(&1, params, {fun_name, line_no}))
   end
 
+  # The `render` function is parsed separately. This may change in the future,
+  # but some unique properties made it simpler to start with this.
   defp parse_render_opts({:render, _, opts}, params, meta) do
+    # Reject tuple vals from opts. Basically, this will leave the template
+    # and the keyword list if there is one.
     opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)
     [template|vars] =
       case Enum.empty?(opts) do
@@ -324,7 +328,11 @@ defmodule Sobelow.Utils do
       (is_reflected_var?(var) && is_in_params?(var, params)) || is_conn_params?(var)
     end)
 
-    var_keys = Keyword.keys(vars)
+    var_keys =
+      Enum.map vars, fn {key, val} ->
+        if !is_binary(val), do: key
+      end
+
     reflected_var_keys = Keyword.keys(reflected_vars)
 
     {template, reflected_var_keys, var_keys -- reflected_var_keys, params, meta}
