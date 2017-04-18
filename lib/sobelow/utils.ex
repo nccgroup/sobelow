@@ -98,6 +98,49 @@ defmodule Sobelow.Utils do
   end
   defp get_funs_of_type(ast, acc, type), do: {ast, acc}
 
+  ## Extract opts from piped functions separately.
+  defp extract_opts({:pipe, {:send_file, _, opts}}), do: parse_opts(Enum.at(opts, 1))
+  defp extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))
+
+  defp extract_opts({:send_file, _, opts} = fun), do: parse_opts(Enum.at(opts, 2))
+  defp extract_opts({:send_resp, _, opts}), do: parse_opts(List.last(opts))
+  ## This is what an ecto query looks like. Don't need to validate the aliases here,
+  ## because that is done in the fetching phase.
+  defp extract_opts({{:., _, [_, :query]}, _, opts} = fun) do
+    parse_opts(Enum.at(opts, 1))
+  end
+
+  defp extract_opts({_, _, opts} = fun) when is_list(opts) do
+    opts
+    |> Enum.map &parse_opts/1
+  end
+  defp extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
+
+  defp parse_opts({key, _, nil}), do: key
+  defp parse_opts({:<<>>, _, opts}) do
+    Enum.map(opts, &parse_string_interpolation/1)
+    |> List.flatten
+  end
+  defp parse_opts({{:., _, [Access, :get]}, _, [{{:., _, [{:conn, _, nil}, :params]}, _, _}, _]}) do
+    "conn.params"
+  end
+  defp parse_opts({{:., _, [Access, :get]}, _, opts}) do
+    [{val, _, _}|_] = opts
+    val
+  end
+  defp parse_opts({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
+    Module.concat(module)
+  end
+  defp parse_opts({fun, _, opts}) when fun in [:+, :-, :*, :/, :{}] do
+    Enum.map(opts, &parse_opts/1)
+  end
+  # Sigils aren't ordinary function calls.
+  defp parse_opts({fun, _, _}) when fun in [:sigil_s, :sigil_e], do: []
+  defp parse_opts({fun, _, opts}) when is_list(opts), do: fun
+  defp parse_opts(opts) when is_tuple(opts), do: parse_opts(Tuple.to_list(opts))
+  defp parse_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
+  defp parse_opts(_), do: []
+
   ## Get function parameters.
   defp get_params({_, _, params}) when is_list(params) do
     Enum.flat_map(params, &get_params/1)
@@ -232,7 +275,6 @@ defmodule Sobelow.Utils do
   end
   defp extract_raw_vars(ast, acc), do: {ast, acc}
 
-  ## Collection of functions to pull options from `send_resp` call.
   def parse_send_resp_def(fun) do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
@@ -240,41 +282,13 @@ defmodule Sobelow.Utils do
     {fun_name, line_no, _} = declaration
 
     resps = get_funs_of_type(fun, :send_resp)
-    |> Enum.map(&parse_send_resp_opts/1)
+    |> Enum.map(&extract_opts/1)
 
     is_html = get_funs_of_type(fun, :put_resp_content_type)
     |> Enum.any?(&is_content_type_html/1)
 
     {resps, is_html, params, {fun_name, line_no}}
   end
-
-  defp parse_send_resp_opts({:send_file, _, opts}) do
-    parse_send_resp_opts(opts)
-  end
-  defp parse_send_resp_opts({:send_resp, _, opts}) do
-    parse_send_resp_opts(opts)
-  end
-  defp parse_send_resp_opts([_, _, val]) do
-    parse_send_resp_opts(val)
-  end
-  defp parse_send_resp_opts([_, val]), do: parse_send_resp_opts(val)
-  defp parse_send_resp_opts({key, _, nil}), do: key
-  defp parse_send_resp_opts({:<<>>, _, [{_, _, opts}]}) do
-    Enum.drop(opts, -1)
-    |> Enum.map(&parse_string_interpolation/1)
-    |> List.flatten
-  end
-  defp parse_send_resp_opts({:<<>>, _, opts}) do
-    Enum.map(opts, &parse_string_interpolation/1)
-    |> List.flatten
-  end
-  defp parse_send_resp_opts({{:., _, [Access, :get]}, _, [{{:., _, [{:conn, _, nil}, :params]}, _, _}, _]}) do
-    "conn.params"
-  end
-  defp parse_send_resp_opts({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
-    Module.concat(module)
-  end
-  defp parse_send_resp_opts(_), do: nil
 
   defp is_content_type_html({:put_resp_content_type, _, opts}) do
     type_list = Enum.filter(opts, &is_binary/1)
@@ -329,44 +343,54 @@ defmodule Sobelow.Utils do
 
   # SQL Utils
 
+  ## query(repo, sql, params \\ [], opts \\ [])
+  ##
+  ## ecto queries have optional params, so they must be
+  ## handled differently.
   def parse_sql_def(fun) do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
     params = get_params(declaration)
     {fun_name, line_no, _} = declaration
 
-    interp_vars = get_aliased_funs_of_type(fun, :query, :SQL)
-    |> Enum.map(&extract_sql_opts/1)
+    pipevars = get_funs_of_type(fun, :|>)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&get_aliased_funs_of_type(&1, :query, :SQL))
+    |> Enum.map(&extract_opts({:pipe, &1}))
     |> List.flatten
 
-    {interp_vars, params, {fun_name, line_no}}
-  end
+    interp_vars = get_aliased_funs_of_type(fun, :query, :SQL) -- pipevars
+    |> Enum.map(&extract_opts/1)
+    |> List.flatten
 
-  defp extract_sql_opts({_, _, opts}) when is_list(opts) do
-    parse_sql_opts(opts)
+    {interp_vars ++ pipevars, params, {fun_name, line_no}}
   end
-
-  defp parse_sql_opts({:<<>>, _, _} = fun) do
-    parse_string_interpolation(fun)
-  end
-  defp parse_sql_opts([{:__aliases__, _, aliases}|[sql|_]]), do: parse_sql_opts(sql)
-
-  defp parse_sql_opts([sql|_]), do: parse_sql_opts(sql)
-  defp parse_sql_opts({key, _, nil}), do: key
-  defp parse_sql_opts(_), do: []
 
   # Traversal Utils
+
+  ## send_file(conn, status, file, offset \\ 0, length \\ :all)
+  ##
+  ## send_file has optional params, so the parameter we care about
+  ## for traversal won't be at a definite location. This is a
+  ## simple solution to the problem.
   def parse_send_file_def(fun) do
     {_, _, fun_opts} = fun
     [declaration|_] = fun_opts
     params = get_params(declaration)
     {fun_name, line_no, _} = declaration
 
-    files = get_funs_of_type(fun, :send_file)
-    |> Enum.map(&parse_send_resp_opts/1)
+    pipefiles = get_funs_of_type(fun, :|>)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&get_funs_of_type(&1, :send_file))
+    |> Enum.map(&extract_opts({:pipe, &1}))
     |> List.flatten
 
-    {files, params, {fun_name, line_no}}
+    files = get_funs_of_type(fun, :send_file) -- pipefiles
+    |> Enum.map(&extract_opts/1)
+    |> List.flatten
+
+
+    {files ++ pipefiles, params, {fun_name, line_no}}
   end
 
   def parse_file_read_def(fun) do
@@ -376,29 +400,11 @@ defmodule Sobelow.Utils do
     {fun_name, line_no, _} = declaration
 
     resps = get_aliased_funs_of_type(fun, :read, :File)
-    |> Enum.map(&extract_file_read_opts/1)
+    |> Enum.map(&extract_opts/1)
     |> List.flatten
 
     {resps, params, {fun_name, line_no}}
   end
-
-  defp extract_file_read_opts({_, _, opts} = fun) when is_list(opts) do
-    parse_file_opts(opts)
-  end
-
-  defp parse_file_opts({:<<>>, _, _} = fun) do
-    parse_string_interpolation(fun)
-  end
-  defp parse_file_opts([{:__aliases__, _, aliases}|[file|_]]) do
-    if Enum.member?(aliases, :File) do
-      parse_file_opts(file)
-    else
-      []
-    end
-  end
-  defp parse_file_opts([file|_]), do: parse_file_opts(file)
-  defp parse_file_opts({key, _, nil}), do: key
-  defp parse_file_opts(_), do: []
 
   # Misc Utils
   def parse_binary_term_def(fun) do
@@ -408,17 +414,9 @@ defmodule Sobelow.Utils do
     {fun_name, line_no, _} = declaration
 
     erls = get_erlang_funs_of_type(fun, :binary_to_term)
-    |> Enum.map(&extract_binary_term_opts/1)
+    |> Enum.map(&extract_opts/1)
     |> List.flatten
 
     {erls, params, {fun_name, line_no}}
   end
-
-  defp extract_binary_term_opts({_, _, opts} = fun) when is_list(opts) do
-    parse_binary_term_opts(opts)
-  end
-
-  defp parse_binary_term_opts([bin|_]), do: parse_binary_term_opts(bin)
-  defp parse_binary_term_opts({key, _, nil}), do: key
-  defp parse_binary_term_opts(_), do: []
 end
