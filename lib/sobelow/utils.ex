@@ -182,7 +182,11 @@ defmodule Sobelow.Utils do
 
   def get_fun_declaration(fun) do
     {_, _, fun_opts} = fun
-    [declaration|_] = fun_opts
+    [definition|_] = fun_opts
+    declaration = case definition do
+      {:when, _, [opts|_]} -> opts
+      opts -> opts
+    end
     params = get_params(declaration)
     {fun_name, line_no, _} = declaration
 

@@ -24,6 +24,11 @@ defmodule Sobelow.Misc.BinToTerm do
 
   def parse_binary_term_def(fun) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
+#    IO.inspect line_no
+#    if (fun_name == :when) && ([line: line] = line_no) do
+#    require IEx
+#    if line == 123, do: IEx.pry
+#    end
 
     erls = Utils.get_erlang_funs_of_type(fun, :binary_to_term)
     |> Enum.map(&Utils.extract_opts/1)
