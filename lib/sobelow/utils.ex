@@ -298,8 +298,8 @@ defmodule Sobelow.Utils do
   end
 
   defp extract_configs({:config, _, opts} = ast, acc, key) do
-    val = List.last(opts)
-    |> Keyword.get(key)
+    opt = List.last(opts)
+    val = if is_list(opt), do: Keyword.get(opt, key), else: nil
 
     if is_nil(val) do
       {ast, acc}
