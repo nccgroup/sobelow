@@ -250,9 +250,11 @@ defmodule Sobelow.Utils do
 
   # Setup Utils
   def get_app_name(filepath) do
-    ast = ast(filepath)
-    {_, project_block} = Macro.prewalk(ast, [], &extract_app_name/2)
-    Atom.to_string(Keyword.get(project_block, :app))
+    if File.exists?(filepath) do
+      ast = ast(filepath)
+      {_, project_block} = Macro.prewalk(ast, [], &extract_app_name/2)
+      Atom.to_string(Keyword.get(project_block, :app))
+    end
   end
 
   defp extract_app_name({:def, _, [{:project, _, _}, [do: block]]} = ast, _) do

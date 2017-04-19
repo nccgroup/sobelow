@@ -17,14 +17,12 @@ defmodule Sobelow do
     IO.info print_banner()
     project_root = get_env(:root) <> "/"
     app_name = Utils.get_app_name(project_root <> "mix.exs")
+    if is_nil(app_name), do: file_error()
     web_root = get_root(app_name, project_root)
 
     root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: web_root
 
-    if !File.exists?(web_root <> "web/router.ex") do
-      IO.error("This does not appear to be a Phoenix application.")
-      System.halt(0)
-    end
+    if !File.exists?(web_root <> "web/router.ex"), do: file_error()
 
     Config.fetch(project_root, web_root)
     Utils.all_files(root)
@@ -66,5 +64,10 @@ defmodule Sobelow do
     SQL.get_vulns(fun, filename)
     Traversal.get_vulns(fun, filename)
     Misc.get_vulns(fun, filename)
+  end
+
+  defp file_error() do
+    IO.error("This does not appear to be a Phoenix application.")
+    System.halt(0)
   end
 end
