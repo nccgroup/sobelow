@@ -2,10 +2,22 @@ defmodule Sobelow.Traversal.SendFile do
   alias Sobelow.Utils
 
   def run(fun, filename) do
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_send_file_def(fun)
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
+    # If the file is a controller, check for `send_file` as well as
+    # `Plug.Conn.send_file`. If it is not a controller, look for
+    # `Plug.Conn.send_file` only.
     if String.ends_with?(filename, "_controller.ex") do
+      {vars, params, {fun_name, [{_, line_no}]}} = parse_send_file_def(fun)
+      Enum.each vars, fn var ->
+        if Enum.member?(params, var) || var === "conn.params" do
+          print_finding(line_no, filename, fun_name, fun, var, severity || :high)
+        else
+          print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
+        end
+      end
+    else
+      {vars, params, {fun_name, [{_, line_no}]}} = parse_aliased_send_file_def(fun)
       Enum.each vars, fn var ->
         if Enum.member?(params, var) || var === "conn.params" do
           print_finding(line_no, filename, fun_name, fun, var, severity || :high)
@@ -34,14 +46,25 @@ defmodule Sobelow.Traversal.SendFile do
     |> Enum.map(&Utils.extract_opts/1)
     |> List.flatten
 
-    conn = Utils.get_aliased_funs_of_type(fun, :send_file, [:Plug, :Conn])
+    {aliased_files, _, _} = parse_aliased_send_file_def(fun)
+
+    {files ++ pipefiles ++ aliased_files, params, {fun_name, line_no}}
+  end
+
+  defp parse_aliased_send_file_def(fun) do
+    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
+
+    pipefiles = Utils.get_funs_of_type(fun, :|>)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&Utils.get_aliased_funs_of_type(&1, :send_file, [:Plug, :Conn]))
+    |> Enum.map(&Utils.extract_opts({:pipe, &1}))
+    |> List.flatten
+
+    aliased_files = Utils.get_aliased_funs_of_type(fun, :send_file, [:Plug, :Conn]) -- pipefiles
     |> Enum.map(&Utils.extract_opts/1)
     |> List.flatten
 
-#    IO.inspect conn
-
-
-    {files ++ pipefiles ++ conn, params, {fun_name, line_no}}
+    {aliased_files ++ pipefiles, params, {fun_name, line_no}}
   end
 
   def print_finding(line_no, con, fun_name, fun, var, severity) do
