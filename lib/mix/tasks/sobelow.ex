@@ -9,24 +9,41 @@ defmodule Mix.Tasks.Sobelow do
 
       mix sobelow
 
-  Or by using the "--root" flag:
+  ## Command line options
 
-      mix sobelow --root apps/umbrella_web
+  * `--root -r` - Specify application root directory
+  * `--with-code -v` - Print vulnerable code snippets
+  * `--ignore -i` - Ignore modules
 
-  To see vulnerable code snippets, use the "--with-code" flag:
+  ## Supported modules
 
-      mix sobelow --with-code
+  * XSS
+  * SQL
+  * Config
+  * Traversal
+  * Misc
+
+  These modules can be used for "ignore" functionality. For example:
+
+      mix sobelow -i XSS,Traversal
   """
-  @switches [with_code: :boolean, root: :string]
+  @switches [with_code: :boolean, root: :string, ignore: :string]
+  @aliases  [v: :with_code, r: :root, i: :ignore]
 
   def run(argv) do
-    {opts, _, _} = OptionParser.parse(argv, @switches)
+    {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
 
     with_code = Keyword.get(opts, :with_code, false)
     root = Keyword.get(opts, :root, ".")
 
     set_env(:with_code, with_code)
     set_env(:root, root)
+
+    ignored =
+      Keyword.get(opts, :ignore, "")
+      |> String.split(",")
+
+    set_env(:ignored, ignored)
 
     Sobelow.run()
   end

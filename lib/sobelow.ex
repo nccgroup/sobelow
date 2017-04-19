@@ -4,6 +4,11 @@ defmodule Sobelow do
   vulnerabilities in Phoenix applications.
   """
   @v Mix.Project.config[:version]
+  @submodules [Sobelow.XSS,
+               Sobelow.SQL,
+               Sobelow.Traversal,
+               Sobelow.Misc,
+               Sobelow.Config]
 
   alias Sobelow.Utils
   alias Sobelow.Config
@@ -24,12 +29,18 @@ defmodule Sobelow do
 
     if !File.exists?(web_root <> "web/router.ex"), do: file_error()
 
-    Config.fetch(project_root, web_root)
+    ignored =
+      get_env(:ignored)
+      |> Enum.map(&get_mod/1)
+    allowed = @submodules -- ignored
+
+    if Enum.member?(allowed, Config), do: Config.fetch(project_root, web_root)
+
     Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
     |> Enum.each(fn file ->
         def_funs = Utils.get_def_funs(root <> file)
-        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/"))
+        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/", allowed -- [Config]))
     end)
   end
 
@@ -57,17 +68,25 @@ defmodule Sobelow do
     end
   end
 
-  defp get_fun_vulns(fun, filename, web_root) do
-    if String.ends_with?(filename, "_controller.ex") do
-      XSS.get_vulns(fun, filename, web_root)
+  defp get_fun_vulns(fun, filename, web_root, mods) do
+    Enum.each mods, fn mod ->
+      apply(mod, :get_vulns, [fun, filename, web_root])
     end
-    SQL.get_vulns(fun, filename)
-    Traversal.get_vulns(fun, filename)
-    Misc.get_vulns(fun, filename)
   end
 
   defp file_error() do
     IO.error("This does not appear to be a Phoenix application.")
     System.halt(0)
+  end
+
+  def get_mod(mod_string) do
+    case mod_string do
+      "XSS" -> Sobelow.XSS
+      "SQL" -> Sobelow.SQL
+      "Misc" -> Sobelow.Misc
+      "Config" -> Sobelow.Config
+      "Traversal" -> Sobelow.Traversal
+      _ -> nil
+    end
   end
 end
