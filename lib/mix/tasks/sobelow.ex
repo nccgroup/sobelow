@@ -1,5 +1,22 @@
 defmodule Mix.Tasks.Sobelow do
   use Mix.Task
+  @moduledoc """
+  Sobelow is a static analysis tool for discovering
+  vulnerabilities in Phoenix applications.
+
+  This tool should be run in the root of the project directory
+  with the following command:
+
+      mix sobelow
+
+  Or by using the "--root" flag:
+
+      mix sobelow --root apps/umbrella_web
+
+  To see vulnerable code snippets, use the "--with-code" flag:
+
+      mix sobelow --with-code
+  """
   @switches [with_code: :boolean, root: :string]
 
   def run(argv) do
