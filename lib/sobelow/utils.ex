@@ -151,12 +151,19 @@ defmodule Sobelow.Utils do
     parse_opts(Enum.at(opts, 2))
   end
 
-  def extract_opts({_, _, opts} = fun) when is_list(opts) do
+  def extract_opts({_, _, opts}) when is_list(opts) do
     opts
     |> Enum.map &parse_opts/1
   end
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
 
+  # A more general extract_opts. May be able to replace some of the
+  # function specific extractions.
+  def extract_opts({_, _, opts}, idx) do
+    parse_opts(Enum.at(opts, idx))
+  end
+
+  defp parse_opts({:@, _, _}), do: []
   defp parse_opts({key, _, nil}), do: key
   defp parse_opts({:<<>>, _, opts}) do
     Enum.map(opts, &parse_string_interpolation/1)

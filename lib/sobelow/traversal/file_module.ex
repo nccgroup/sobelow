@@ -14,7 +14,6 @@ defmodule Sobelow.Traversal.FileModule do
     end
 
     {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :write)
-    severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
     Enum.each vars, fn var ->
       if Enum.member?(params, var) || var === "conn.params" do
@@ -23,13 +22,45 @@ defmodule Sobelow.Traversal.FileModule do
         print_file_finding(line_no, filename, fun_name, fun, var, :write, severity || :medium)
       end
     end
+
+    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :rm)
+
+    Enum.each vars, fn var ->
+      if Enum.member?(params, var) || var === "conn.params" do
+        print_file_finding(line_no, filename, fun_name, fun, var, :rm, severity || :high)
+      else
+        print_file_finding(line_no, filename, fun_name, fun, var, :rm, severity || :medium)
+      end
+    end
+
+    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :read!)
+
+    Enum.each vars, fn var ->
+      if Enum.member?(params, var) || var === "conn.params" do
+        print_file_finding(line_no, filename, fun_name, fun, var, :read!, severity || :high)
+      else
+        print_file_finding(line_no, filename, fun_name, fun, var, :read!, severity || :medium)
+      end
+    end
+
+    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :write!)
+
+    Enum.each vars, fn var ->
+      if Enum.member?(params, var) || var === "conn.params" do
+        print_file_finding(line_no, filename, fun_name, fun, var, :write!, severity || :high)
+      else
+        print_file_finding(line_no, filename, fun_name, fun, var, :write!, severity || :medium)
+      end
+    end
   end
 
   def parse_file_def(fun, type) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
+    # Can extract_opts at idx 0, because File functions path is
+    # always the first parameter.
     resps = Utils.get_aliased_funs_of_type(fun, type, [:File])
-    |> Enum.map(&Utils.extract_opts/1)
+    |> Enum.map(&Utils.extract_opts(&1, 0))
     |> List.flatten
 
     {resps, params, {fun_name, line_no}}
