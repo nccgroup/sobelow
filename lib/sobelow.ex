@@ -29,9 +29,7 @@ defmodule Sobelow do
 
     if !File.exists?(web_root <> "web/router.ex"), do: file_error()
 
-    ignored =
-      get_env(:ignored)
-      |> Enum.map(&get_mod/1)
+    ignored = get_ignored()
     allowed = @submodules -- ignored
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, web_root)
@@ -82,11 +80,25 @@ defmodule Sobelow do
   def get_mod(mod_string) do
     case mod_string do
       "XSS" -> Sobelow.XSS
+      "XSS.Raw" -> Sobelow.XSS.Raw
+      "XSS.SendResp" -> Sobelow.XSS.SendResp
       "SQL" -> Sobelow.SQL
+      "SQL.Inject" -> Sobelow.SQL.Inject
       "Misc" -> Sobelow.Misc
+      "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
       "Config" -> Sobelow.Config
+      "Config.CSRF" -> Sobelow.Config.CSRF
+      "Config.Secrets" -> Sobelow.Config.Secrets
+      "Config.HTTPS" -> Sobelow.Config.HTTPS
       "Traversal" -> Sobelow.Traversal
+      "Traversal.SendFile" -> Sobelow.Traversal.SendFile
+      "Traversal.FileModule" -> Sobelow.Traversal.FileModule
       _ -> nil
     end
+  end
+
+  def get_ignored() do
+    get_env(:ignored)
+    |> Enum.map(&get_mod/1)
   end
 end
