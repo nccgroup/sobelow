@@ -139,6 +139,8 @@ defmodule Sobelow.Utils do
   def extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))
 
   def extract_opts({:send_file, _, opts} = fun), do: parse_opts(Enum.at(opts, 2))
+  # Check for nil for `send_resp/1`
+  def extract_opts({:send_resp, _, nil}), do: []
   def extract_opts({:send_resp, _, opts}), do: parse_opts(List.last(opts))
   ## This is what an ecto query looks like. Don't need to validate the aliases here,
   ## because that is done in the fetching phase.
@@ -170,6 +172,8 @@ defmodule Sobelow.Utils do
   defp parse_opts({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
     Module.concat(module)
   end
+  # This is what an accessor func looks like, eg conn.params
+  defp parse_opts({{:., _, [{val, _, nil}, _]}, _, _}), do: val
   defp parse_opts({fun, _, opts}) when fun in [:+, :-, :*, :/, :{}] do
     Enum.map(opts, &parse_opts/1)
   end
