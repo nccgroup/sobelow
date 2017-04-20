@@ -18,14 +18,23 @@ defmodule Mix.Tasks.Sobelow do
   ## Supported modules
 
   * XSS
+  * XSS.Raw
+  * XSS.SendResp
   * SQL
+  * SQL.Inject
   * Config
+  * Config.CSRF
+  * Config.HTTPS
+  * Config.Secrets
   * Traversal
+  * Traversal.SendFile
+  * Traversal.FileModule
   * Misc
+  * Misc.BinToTerm
 
   These modules can be used for "ignore" functionality. For example:
 
-      mix sobelow -i XSS,Traversal
+      mix sobelow -i XSS.Raw,Traversal
   """
   @switches [with_code: :boolean, root: :string, ignore: :string]
   @aliases  [v: :with_code, r: :root, i: :ignore]
