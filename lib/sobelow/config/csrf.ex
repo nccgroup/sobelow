@@ -1,4 +1,12 @@
 defmodule Sobelow.Config.CSRF do
+  @moduledoc """
+  Cross-Site Request Forgery (CSRF) is flagged by `sobelow` when
+  a pipeline accepts "html" requests, but does not implement
+  the `:protect_from_forgery` plug.
+
+  Read more about CSRF here:
+  https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
+  """
   alias Sobelow.Utils
 
   def run(root) do
