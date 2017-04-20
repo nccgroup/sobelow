@@ -1,4 +1,17 @@
 defmodule Sobelow.SQL.Inject do
+  @moduledoc """
+  SQL injection occurs when untrusted input is interpolated
+  directly into a SQL query. In a typical Phoenix application,
+  this would mean using the `Ecto.Adapters.SQL.query` method
+  and not using the parameterization feature.
+
+  Read more about SQL injection here:
+  https://www.owasp.org/index.php/SQL_Injection
+
+  SQL injection checks can be ignored with the following command:
+
+      $ mix sobelow -i SQL.Inject
+  """
   alias Sobelow.Utils
 
   def run(fun, filename) do

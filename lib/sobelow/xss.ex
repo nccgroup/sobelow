@@ -1,4 +1,17 @@
 defmodule Sobelow.XSS do
+  @moduledoc """
+  Cross-Site Scripting (XSS) vulnerabilities are a result
+  of rendering untrusted input on a page without proper encoding.
+  XSS may allow an attacker to perform actions on behalf of
+  other users, steal session tokens, or access private data.
+
+  Read more about XSS here:
+  https://www.owasp.org/index.php/Cross-site_Scripting_(XSS)
+
+  XSS checks can be ignored with the following command:
+
+      $ mix sobelow -i XSS
+  """
   alias Sobelow.Utils
   alias Sobelow.XSS.{SendResp, Raw}
   @submodules [Sobelow.XSS.SendResp,
