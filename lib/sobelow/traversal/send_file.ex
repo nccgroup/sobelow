@@ -36,13 +36,21 @@ defmodule Sobelow.Traversal.SendFile do
   defp parse_send_file_def(fun) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
-    pipefiles = Utils.get_funs_of_type(fun, :|>)
+#    pipefiles = Utils.get_funs_of_type(fun, :|>)
+#    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+#    |> Enum.flat_map(&Utils.get_funs_of_type(&1, :send_file))
+#    |> Enum.map(&Utils.extract_opts({:pipe, &1}))
+#    |> List.flatten
+
+    pipefuns = Utils.get_funs_of_type(fun, :|>)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&Utils.get_funs_of_type(&1, :send_file))
+
+    pipefiles = pipefuns
     |> Enum.map(&Utils.extract_opts({:pipe, &1}))
     |> List.flatten
 
-    files = Utils.get_funs_of_type(fun, :send_file) -- pipefiles
+    files = Utils.get_funs_of_type(fun, :send_file) -- pipefuns
     |> Enum.map(&Utils.extract_opts/1)
     |> List.flatten
 

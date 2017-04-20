@@ -137,6 +137,7 @@ defmodule Sobelow.Utils do
   ## Extract opts from piped functions separately.
   def extract_opts({:pipe, {:send_file, _, opts}}), do: parse_opts(Enum.at(opts, 1))
   def extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))
+  def extract_opts({:pipe, {_, opts}}, idx), do: parse_opts(Enum.at(opts, idx))
 
   def extract_opts({:send_file, _, opts} = fun), do: parse_opts(Enum.at(opts, 2))
   # Check for nil for `send_resp/1`
@@ -156,6 +157,7 @@ defmodule Sobelow.Utils do
     |> Enum.map &parse_opts/1
   end
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
+  def extract_opts({val, _, nil}), do: [val]
 
   # A more general extract_opts. May be able to replace some of the
   # function specific extractions.
@@ -213,6 +215,17 @@ defmodule Sobelow.Utils do
   end
   defp get_params({var, _, nil}), do: [var]
   defp get_params(_), do: []
+
+  def get_pipe_val(ast, pipe_fun) do
+    {_,acc} = Macro.prewalk(ast, [], &get_pipe_val(&1, &2, pipe_fun))
+    acc
+  end
+  def get_pipe_val({:|>, _, [{:|>,_,opts},pipefun]} = ast, acc, pipefun) do
+    key = extract_opts(List.last(opts))
+    {ast, [key|acc]}
+  end
+  def get_pipe_val({:|>, _, [{key,_,_},pipefun]} = ast, acc, pipefun), do: {ast,[key|acc]}
+  def get_pipe_val(ast,acc,pipe), do: {ast, acc}
 
   ## Parsing string interpolation got really messy when attempting to
   ## use the Macro functionality. Will stick with this for now.
