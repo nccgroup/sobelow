@@ -8,14 +8,16 @@ defmodule Sobelow.XSS do
     controller = String.replace_suffix(filename, "_controller.ex", "")
     controller = String.replace_prefix(controller, "/controllers/", "")
     controller = String.replace_prefix(controller, "/web/controllers/", "")
-    con = String.replace_prefix(filename, "/", "")
+    path = web_root <> String.replace_prefix(filename, "/web/", "")
+    |> Path.expand("")
+    |> String.replace_prefix("/", "")
     allowed = @submodules -- Sobelow.get_ignored()
 
     Enum.each allowed, fn mod ->
       if mod === Raw do
-        apply(mod, :run, [fun, filename, web_root, con, controller])
+        apply(mod, :run, [fun, path, web_root, controller])
       else
-        apply(mod, :run, [fun, filename, con])
+        apply(mod, :run, [fun, path])
       end
     end
   end

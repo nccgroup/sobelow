@@ -1,27 +1,27 @@
 defmodule Sobelow.XSS.SendResp do
   alias Sobelow.Utils
 
-  def run(fun, filename, con) do
+  def run(fun, filename) do
     {ref_vars, is_html, params, {fun_name, [{_, line_no}]}} = parse_send_resp_def(fun)
 
     Enum.each ref_vars, fn var ->
       if is_list(var) do
         Enum.each var, fn v ->
           if (Enum.member?(params, v) || v === "conn.params") && is_html do
-            print_resp_finding(line_no, con, fun_name, fun, v, :high)
+            print_resp_finding(line_no, filename, fun_name, fun, v, :high)
           end
 
           if is_html && !Enum.member?(params, v) do
-            print_resp_finding(line_no, con, fun_name, fun, v, :medium)
+            print_resp_finding(line_no, filename, fun_name, fun, v, :medium)
           end
         end
       else
         if (Enum.member?(params, var) || var === "conn.params") && is_html do
-          print_resp_finding(line_no, con, fun_name, fun, var, :high)
+          print_resp_finding(line_no, filename, fun_name, fun, var, :high)
         end
 
         if is_html && !Enum.member?(params, var) && var != "conn.params" do
-          print_resp_finding(line_no, con, fun_name, fun, var, :medium)
+          print_resp_finding(line_no, filename, fun_name, fun, var, :medium)
         end
       end
     end

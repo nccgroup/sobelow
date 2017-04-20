@@ -1,7 +1,7 @@
 defmodule Sobelow.XSS.Raw do
   alias Sobelow.Utils
 
-  def run(fun, filename, web_root, con, controller) do
+  def run(fun, filename, web_root, controller) do
     render_funs = parse_render_def(fun)
 
     Enum.each render_funs, fn {template_name, ref_vars, vars, params, {fun_name, [{_, line_no}]}} ->
@@ -19,14 +19,14 @@ defmodule Sobelow.XSS.Raw do
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
-            print_finding(t_name, line_no, con, fun_name, fun, var, :high)
+            print_finding(t_name, line_no, filename, fun_name, fun, var, :high)
           end
         end)
 
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
-            print_finding(t_name, line_no, con, fun_name, fun, var, :medium)
+            print_finding(t_name, line_no, filename, fun_name, fun, var, :medium)
           end
         end)
       end
