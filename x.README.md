@@ -30,7 +30,7 @@ please open an issue!
 To install Sobelow, you must have a working Elixir environment. Then, 
 execute the following from the commandline: 
 
-    $ mix archive.install <TODO_ADD_LINK>
+    $ mix archive.install https://github.com/GriffinMB/sobelow/raw/master/sobelow.ez
     
 ## Use
 
