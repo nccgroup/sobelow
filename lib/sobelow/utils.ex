@@ -4,6 +4,9 @@ defmodule Sobelow.Utils do
     {:ok, ast} = Code.string_to_quoted(File.read!(filepath))
     ast
   end
+  # This should be about as big as it gets, and is still fairly simple
+  # to understand. If it gets much more convoluted, an alternate
+  # solution should be explored.
   def print_code(fun, :highlight_all) do
     IO.puts "\n"
     IO.puts IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset()
@@ -18,7 +21,19 @@ defmodule Sobelow.Utils do
           else
             string
           end
+        {:|>, _, [_, {{:., _,[{:__aliases__, _, _}, ^call]}, _, _}]} ->
+          if is_fun_with_var?(ast, var) do
+            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+          else
+            string
+          end
         {{:., _,[{:__aliases__, _, aliases}, ^call]}, _, _} ->
+          if is_fun_with_var?(ast, var) do
+            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+          else
+            string
+          end
+        {:|>, _, [_, {{:., _, [:erlang, ^call]}, _, _}]} ->
           if is_fun_with_var?(ast, var) do
             IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
           else
@@ -183,6 +198,7 @@ defmodule Sobelow.Utils do
   end
   # This is what an accessor func looks like, eg conn.params
   defp parse_opts({{:., _, [{val, _, nil}, _]}, _, _}), do: val
+  defp parse_opts({:., _, [{val, _, nil}, _]}), do: val
   defp parse_opts({fun, _, opts}) when fun in [:+, :-, :*, :/, :{}] do
     Enum.map(opts, &parse_opts/1)
   end
@@ -222,6 +238,10 @@ defmodule Sobelow.Utils do
   end
   def get_pipe_val({:|>, _, [{:|>,_,opts},pipefun]} = ast, acc, pipefun) do
     key = extract_opts(List.last(opts))
+    {ast, [key|acc]}
+  end
+  def get_pipe_val({:|>, _, [{key,_,_},pipefun]} = ast, acc, pipefun) when is_tuple(key) do
+    key = extract_opts(key)
     {ast, [key|acc]}
   end
   def get_pipe_val({:|>, _, [{key,_,_},pipefun]} = ast, acc, pipefun), do: {ast,[key|acc]}

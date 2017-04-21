@@ -34,13 +34,15 @@ defmodule Sobelow.SQL.Inject do
   def parse_sql_def(fun) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
-    pipevars = Utils.get_funs_of_type(fun, :|>)
+    pipefuns = Utils.get_funs_of_type(fun, :|>)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&Utils.get_aliased_funs_of_type(&1, :query, :SQL))
+
+    pipevars = pipefuns
     |> Enum.map(&Utils.extract_opts({:pipe, &1}))
     |> List.flatten
 
-    interp_vars = Utils.get_aliased_funs_of_type(fun, :query, :SQL) -- pipevars
+    interp_vars = Utils.get_aliased_funs_of_type(fun, :query, :SQL) -- pipefuns
     |> Enum.map(&Utils.extract_opts/1)
     |> List.flatten
 
