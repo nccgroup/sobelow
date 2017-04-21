@@ -1,6 +1,7 @@
 defmodule Sobelow.SQL do
   alias Sobelow.SQL.Inject
   @submodules [Sobelow.SQL.Inject]
+  use Sobelow.Finding
 
   def get_vulns(fun, filename, web_root) do
     filename = String.replace_prefix(filename, "/", "")

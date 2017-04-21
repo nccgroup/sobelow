@@ -1,5 +1,6 @@
 defmodule Sobelow.Traversal.FileModule do
   alias Sobelow.Utils
+  use Sobelow.Finding
 
   def run(fun, filename) do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :read)
@@ -93,5 +94,9 @@ defmodule Sobelow.Traversal.FileModule do
     IO.puts "Variable: #{var}"
     if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, type)
     IO.puts "\n-----------------------------------------------\n"
+  end
+
+  def get_details() do
+    Sobelow.Traversal.details()
   end
 end

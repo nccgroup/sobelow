@@ -1,5 +1,7 @@
 defmodule Sobelow.Misc.BinToTerm do
   @moduledoc """
+  # Insecure use of `binary_to_term`
+
   If user input is passed to Erlang's `binary_to_term` function
   it may result in memory exhaustion or code execution. Even with
   the `:safe` option, `binary_to_term` will deserialize functions,
@@ -10,6 +12,7 @@ defmodule Sobelow.Misc.BinToTerm do
       $ mix sobelow -i Misc.BinToTerm
   """
   alias Sobelow.Utils
+  use Sobelow.Finding
 
   def run(fun, filename) do
     {vars, _params, {fun_name, [{_, line_no}]}} = parse_binary_term_def(fun)

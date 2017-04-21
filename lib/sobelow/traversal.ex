@@ -1,5 +1,7 @@
 defmodule Sobelow.Traversal do
   @moduledoc """
+  # Path Traversal
+
   Path traversal vulnerabilities are a result of
   interacting with the filesystem using untrusted input.
   This class of vulnerability may result in file disclosure,
@@ -16,6 +18,8 @@ defmodule Sobelow.Traversal do
   alias Sobelow.Traversal.{SendFile, FileModule}
   @submodules [Sobelow.Traversal.SendFile,
                Sobelow.Traversal.FileModule]
+
+  use Sobelow.Finding
 
   def get_vulns(fun, filename, web_root) do
     filename = String.replace_prefix(filename, "/", "")

@@ -1,5 +1,7 @@
 defmodule Sobelow.Config.Secrets do
   @moduledoc """
+  # Hard-coded Secrets
+
   In the event of a source-code disclosure via file read
   vulnerability, accidental commit, etc, hard-coded secrets
   may be exposed to an attacker. This may result in
@@ -14,6 +16,7 @@ defmodule Sobelow.Config.Secrets do
   """
   alias Sobelow.Config
   alias Sobelow.Utils
+  use Sobelow.Finding
   @prod_path "config/prod.exs"
   @prod_secret_path "config/prod.secret.exs"
 

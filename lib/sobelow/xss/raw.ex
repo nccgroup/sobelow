@@ -1,5 +1,6 @@
 defmodule Sobelow.XSS.Raw do
   alias Sobelow.Utils
+  use Sobelow.Finding
 
   def run(fun, filename, web_root, controller) do
     render_funs = parse_render_def(fun)
@@ -38,6 +39,10 @@ defmodule Sobelow.XSS.Raw do
 
     Utils.get_funs_of_type(fun, :render)
     |> Enum.map(&Utils.parse_render_opts(&1, params, {fun_name, line_no}))
+  end
+
+  def get_details() do
+    Sobelow.XSS.details()
   end
 
   defp print_finding(t_name, line_no, con, fun_name, fun, var, severity) do

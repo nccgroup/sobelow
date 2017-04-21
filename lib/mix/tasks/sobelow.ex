@@ -36,17 +36,20 @@ defmodule Mix.Tasks.Sobelow do
 
       mix sobelow -i XSS.Raw,Traversal
   """
-  @switches [with_code: :boolean, root: :string, ignore: :string]
-  @aliases  [v: :with_code, r: :root, i: :ignore]
+  @switches [with_code: :boolean, root: :string, ignore: :string, details: :string, all_details: :boolean]
+  @aliases  [v: :with_code, r: :root, i: :ignore, d: :details]
 
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
 
     with_code = Keyword.get(opts, :with_code, false)
     root = Keyword.get(opts, :root, ".")
+    details = Keyword.get(opts, :details, nil)
+    all_details = Keyword.get(opts, :all_details)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
+    set_env(:details, details)
 
     ignored =
       Keyword.get(opts, :ignore, "")
@@ -54,7 +57,18 @@ defmodule Mix.Tasks.Sobelow do
 
     set_env(:ignored, ignored)
 
-    Sobelow.run()
+    if !is_nil(all_details) do
+      Sobelow.all_details()
+    end
+
+    if is_nil(all_details) && !is_nil(details) do
+      Sobelow.details()
+    end
+
+    if is_nil(all_details) && is_nil(details) do
+      Sobelow.run()
+    end
+
   end
 
   def set_env(key, value) do

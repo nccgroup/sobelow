@@ -5,6 +5,8 @@ defmodule Sobelow.Config do
                Sobelow.Config.Secrets,
                Sobelow.Config.HTTPS]
 
+  use Sobelow.Finding
+
   def fetch(root, web_root) do
     allowed = @submodules -- Sobelow.get_ignored()
 

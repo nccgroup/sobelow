@@ -1,6 +1,7 @@
 defmodule Sobelow.Misc do
   alias Sobelow.Misc.BinToTerm
   @submodules [Sobelow.Misc.BinToTerm]
+  use Sobelow.Finding
 
   def get_vulns(fun, filename, web_root) do
     filename = String.replace_prefix(filename, "/", "")

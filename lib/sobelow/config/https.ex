@@ -1,5 +1,7 @@
 defmodule Sobelow.Config.HTTPS do
   @moduledoc """
+  # HTTPS
+
   Without HTTPS, attackers in a priveleged network position can
   intercept and modify traffic. The HTTP Strict Transport Security
   (HSTS) helps defend against man-in-the-middle attacks by
@@ -14,6 +16,7 @@ defmodule Sobelow.Config.HTTPS do
   """
   alias Sobelow.Config
   alias Sobelow.Utils
+  use Sobelow.Finding
 
   @prod_path "config/prod.exs"
 

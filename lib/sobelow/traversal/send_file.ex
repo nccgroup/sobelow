@@ -1,5 +1,6 @@
 defmodule Sobelow.Traversal.SendFile do
   alias Sobelow.Utils
+  use Sobelow.Finding
 
   def run(fun, filename) do
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
@@ -94,5 +95,9 @@ defmodule Sobelow.Traversal.SendFile do
     IO.puts "Variable: #{var}"
     if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :send_file)
     IO.puts "\n-----------------------------------------------\n"
+  end
+
+  def get_details() do
+    Sobelow.Traversal.details()
   end
 end

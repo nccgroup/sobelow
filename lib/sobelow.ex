@@ -10,6 +10,21 @@ defmodule Sobelow do
                Sobelow.Misc,
                Sobelow.Config]
 
+  @allsubmodules [Sobelow.XSS,
+                  Sobelow.XSS.Raw,
+                  Sobelow.XSS.SendResp,
+                  Sobelow.SQL,
+                  Sobelow.SQL.Inject,
+                  Sobelow.Traversal,
+                  Sobelow.Traversal.FileModule,
+                  Sobelow.Traversal.SendFile,
+                  Sobelow.Misc,
+                  Sobelow.Misc.BinToTerm,
+                  Sobelow.Config,
+                  Sobelow.Config.Secrets,
+                  Sobelow.Config.HTTPS,
+                  Sobelow.Config.CSRF]
+
   alias Sobelow.Utils
   alias Sobelow.Config
   alias Sobelow.XSS
@@ -40,6 +55,17 @@ defmodule Sobelow do
         def_funs = Utils.get_def_funs(root <> file)
         |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/", allowed -- [Config]))
     end)
+  end
+
+  def details() do
+    get_env(:details)
+    |> get_mod
+    |> apply(:details, [])
+  end
+
+  def all_details() do
+    @submodules
+    |> Enum.each(&apply(&1, :details, []))
   end
 
   def get_env(key) do

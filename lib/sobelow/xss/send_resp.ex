@@ -1,5 +1,6 @@
 defmodule Sobelow.XSS.SendResp do
   alias Sobelow.Utils
+  use Sobelow.Finding
 
   def run(fun, filename) do
     {ref_vars, is_html, params, {fun_name, [{_, line_no}]}} = parse_send_resp_def(fun)
@@ -37,6 +38,10 @@ defmodule Sobelow.XSS.SendResp do
     |> Enum.any?(&Utils.is_content_type_html/1)
 
     {resps, is_html, params, {fun_name, line_no}}
+  end
+
+  def get_details() do
+    Sobelow.XSS.details()
   end
 
   defp print_resp_finding(line_no, con, fun_name, fun, var, severity) do

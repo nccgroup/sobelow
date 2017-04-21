@@ -1,5 +1,7 @@
 defmodule Sobelow.XSS do
   @moduledoc """
+  # Cross-Site Scripting
+
   Cross-Site Scripting (XSS) vulnerabilities are a result
   of rendering untrusted input on a page without proper encoding.
   XSS may allow an attacker to perform actions on behalf of
@@ -16,6 +18,8 @@ defmodule Sobelow.XSS do
   alias Sobelow.XSS.{SendResp, Raw}
   @submodules [Sobelow.XSS.SendResp,
                Sobelow.XSS.Raw]
+
+  use Sobelow.Finding
 
   def get_vulns(fun, filename, web_root) do
     controller = String.replace_suffix(filename, "_controller.ex", "")

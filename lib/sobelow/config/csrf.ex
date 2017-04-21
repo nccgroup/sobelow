@@ -1,5 +1,7 @@
 defmodule Sobelow.Config.CSRF do
   @moduledoc """
+  # Cross-Site Request Forgery
+
   In a Cross-Site Request Forgery (CSRF) attack, an untrusted
   application can cause a user's browser to submit requests or perform
   actions on the user's behalf.
@@ -16,6 +18,7 @@ defmodule Sobelow.Config.CSRF do
       $ mix sobelow -i Config.CSRF
   """
   alias Sobelow.Utils
+  use Sobelow.Finding
 
   def run(root) do
     Utils.get_pipelines(root <> "web/" <> "router.ex")
