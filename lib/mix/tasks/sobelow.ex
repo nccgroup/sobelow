@@ -14,6 +14,16 @@ defmodule Mix.Tasks.Sobelow do
   * `--root -r` - Specify application root directory
   * `--with-code -v` - Print vulnerable code snippets
   * `--ignore -i` - Ignore modules
+  * `--details -d` - Get module details
+  * `--all-details` - Get all module details
+
+  ## Ignoring modules
+
+  If specific modules, or classes of modules are not relevant
+  to the scan, it is possible to ignore them with a
+  comma-separated list.
+
+      mix sobelow -i XSS.Raw,Traversal
 
   ## Supported modules
 
@@ -32,9 +42,6 @@ defmodule Mix.Tasks.Sobelow do
   * Misc
   * Misc.BinToTerm
 
-  These modules can be used for "ignore" functionality. For example:
-
-      mix sobelow -i XSS.Raw,Traversal
   """
   @switches [with_code: :boolean, root: :string, ignore: :string, details: :string, all_details: :boolean]
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details]
