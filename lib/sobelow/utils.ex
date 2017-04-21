@@ -169,7 +169,7 @@ defmodule Sobelow.Utils do
 
   def extract_opts({_, _, opts}) when is_list(opts) do
     opts
-    |> Enum.map &parse_opts/1
+    |> Enum.map(&parse_opts/1)
   end
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
   def extract_opts({val, _, nil}), do: [val]
@@ -199,7 +199,7 @@ defmodule Sobelow.Utils do
   # This is what an accessor func looks like, eg conn.params
   defp parse_opts({{:., _, [{val, _, nil}, _]}, _, _}), do: val
   defp parse_opts({:., _, [{val, _, nil}, _]}), do: val
-  defp parse_opts({fun, _, opts}) when fun in [:+, :-, :*, :/, :{}] do
+  defp parse_opts({fun, _, opts}) when fun in [:+, :-, :*, :/, :{}, :<>] do
     Enum.map(opts, &parse_opts/1)
   end
   # Sigils aren't ordinary function calls.
@@ -244,7 +244,11 @@ defmodule Sobelow.Utils do
     key = extract_opts(key)
     {ast, [key|acc]}
   end
-  def get_pipe_val({:|>, _, [{key,_,_},pipefun]} = ast, acc, pipefun), do: {ast,[key|acc]}
+  def get_pipe_val({:|>, _, [{key,_,nil},pipefun]} = ast, acc, pipefun), do: {ast, [key|acc]}
+  def get_pipe_val({:|>, _, [{_,_,opts},pipefun]} = ast, acc, pipefun) do
+    val = extract_opts(opts)
+    {ast,[val|acc]}
+  end
   def get_pipe_val(ast,acc,pipe), do: {ast, acc}
 
   ## Parsing string interpolation got really messy when attempting to
@@ -418,11 +422,4 @@ defmodule Sobelow.Utils do
   def is_conn_params?({_, {{:., _, [Access, :get]}, _, access_opts}}), do: is_conn_params?(access_opts)
   def is_conn_params?([{{:., _, [{:conn, _, nil}, :params]}, _, []}, _]), do: true
   def is_conn_params?(_), do: false
-
-  # SQL Utils
-
-  # Traversal Utils
-
-  # Misc Utils
-
 end
