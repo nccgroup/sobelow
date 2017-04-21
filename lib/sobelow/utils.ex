@@ -245,6 +245,11 @@ defmodule Sobelow.Utils do
     {ast, [key|acc]}
   end
   def get_pipe_val({:|>, _, [{key,_,nil},pipefun]} = ast, acc, pipefun), do: {ast, [key|acc]}
+  def get_pipe_val({:|>, _, [{:<<>>,_,opts},pipefun]} = ast, acc, pipefun) do
+    val = opts
+    |> Enum.map(&parse_string_interpolation/1)
+    {ast,[val|acc]}
+  end
   def get_pipe_val({:|>, _, [{_,_,opts},pipefun]} = ast, acc, pipefun) do
     val = extract_opts(opts)
     {ast,[val|acc]}
