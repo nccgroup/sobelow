@@ -27,7 +27,7 @@ defmodule Sobelow.Utils do
           else
             string
           end
-        {{:., _,[{:__aliases__, _, aliases}, ^call]}, _, _} ->
+        {{:., _,[{:__aliases__, _, _}, ^call]}, _, _} ->
           if is_fun_with_var?(ast, var) do
             IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
           else
@@ -74,7 +74,7 @@ defmodule Sobelow.Utils do
   def find_call({call, _, _} = ast, acc, call) do
     {ast, acc <> Macro.to_string(ast)}
   end
-  def find_call(ast, acc, call), do: {ast, acc <> Macro.to_string(ast)}
+  def find_call(ast, acc, _call), do: {ast, acc <> Macro.to_string(ast)}
 
   ## Function parsing
   def get_def_funs(filepath) do
@@ -89,7 +89,7 @@ defmodule Sobelow.Utils do
   def get_erlang_funs_of_type({{:., _, [:erlang, type]}, _, _} = ast, acc, type) do
     {ast, [ast|acc]}
   end
-  def get_erlang_funs_of_type(ast, acc, type), do: {ast, acc}
+  def get_erlang_funs_of_type(ast, acc, _type), do: {ast, acc}
 
   ## This is used to get aliased function calls such as `File.read`
   ## or `Ecto.Adapters.SQL.query`.
@@ -112,24 +112,24 @@ defmodule Sobelow.Utils do
     acc
   end
 
-  def get_strict_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
+  def get_strict_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, _opts} = ast, acc, type, module) do
     if aliases === module do
       {ast, [ast|acc]}
     else
       {ast, acc}
     end
   end
-  def get_strict_aliased_funs_of_type(ast, acc, type, module) do
+  def get_strict_aliased_funs_of_type(ast, acc, _type, _module) do
     {ast, acc}
   end
-  def get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, opts} = ast, acc, type, module) do
+  def get_aliased_funs_of_type({{:., _, [{:__aliases__, _, aliases}, type]}, _, _opts} = ast, acc, type, module) do
     if List.last(aliases) === module do
       {ast, [ast|acc]}
     else
       {ast, acc}
     end
   end
-  def get_aliased_funs_of_type(ast, acc, type, module) do
+  def get_aliased_funs_of_type(ast, acc, _type, _module) do
     {ast, acc}
   end
 
@@ -147,33 +147,30 @@ defmodule Sobelow.Utils do
   def get_funs_of_type({type, _, _} = ast, acc, type) do
     {ast, [ast|acc]}
   end
-  def get_funs_of_type(ast, acc, type), do: {ast, acc}
+  def get_funs_of_type(ast, acc, _type), do: {ast, acc}
 
   ## Extract opts from piped functions separately.
   def extract_opts({:pipe, {:send_file, _, opts}}), do: parse_opts(Enum.at(opts, 1))
   def extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))
   def extract_opts({:pipe, {_, opts}}, idx), do: parse_opts(Enum.at(opts, idx))
-
-  def extract_opts({:send_file, _, opts} = fun), do: parse_opts(Enum.at(opts, 2))
+  def extract_opts({:send_file, _, opts}), do: parse_opts(Enum.at(opts, 2))
   # Check for nil for `send_resp/1`
   def extract_opts({:send_resp, _, nil}), do: []
   def extract_opts({:send_resp, _, opts}), do: parse_opts(List.last(opts))
   ## This is what an ecto query looks like. Don't need to validate the aliases here,
   ## because that is done in the fetching phase.
-  def extract_opts({{:., _, [_, :query]}, _, opts} = fun) do
+  def extract_opts({{:., _, [_, :query]}, _, opts}) do
     parse_opts(Enum.at(opts, 1))
   end
-  def extract_opts({{:., _, [_, :send_file]}, _, opts} = fun) do
+  def extract_opts({{:., _, [_, :send_file]}, _, opts}) do
     parse_opts(Enum.at(opts, 2))
   end
-
   def extract_opts({_, _, opts}) when is_list(opts) do
     opts
     |> Enum.map(&parse_opts/1)
   end
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
   def extract_opts({val, _, nil}), do: [val]
-
   # A more general extract_opts. May be able to replace some of the
   # function specific extractions.
   def extract_opts({_, _, opts}, idx) do
@@ -193,7 +190,7 @@ defmodule Sobelow.Utils do
     [{val, _, _}|_] = opts
     val
   end
-  defp parse_opts({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
+  defp parse_opts({{:., _, [{:__aliases__, _, module}, _func]}, _, _}) do
     Module.concat(module)
   end
   # This is what an accessor func looks like, eg conn.params
@@ -249,7 +246,7 @@ defmodule Sobelow.Utils do
     val = extract_opts(opts)
     {ast,[val|acc]}
   end
-  def get_pipe_val(ast,acc,pipe), do: {ast, acc}
+  def get_pipe_val(ast,acc,_pipe), do: {ast, acc}
 
   ## Parsing string interpolation got really messy when attempting to
   ## use the Macro functionality. Will stick with this for now.
@@ -257,7 +254,7 @@ defmodule Sobelow.Utils do
   defp parse_string_interpolation({:::, _, opts}) do
     parse_string_interpolation(opts)
   end
-  defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _] = opts) do
+  defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _]) do
     Enum.map vars, &parse_string_interpolation/1
   end
   defp parse_string_interpolation({key, _, opts}) when key in [:+, :-, :*, :/] do
@@ -266,14 +263,14 @@ defmodule Sobelow.Utils do
   defp parse_string_interpolation({{:., _, [Kernel, :to_string]}, _, opts}) do
     Enum.map opts, &parse_string_interpolation/1
   end
-  defp parse_string_interpolation({{:., _, [{:__aliases__, _, module}, func]}, _, _}) do
+  defp parse_string_interpolation({{:., _, [{:__aliases__, _, module}, _func]}, _, _}) do
     Module.concat(module)
   end
   defp parse_string_interpolation({:<<>>, _, opts}) do
     opts
     |> Enum.map(&parse_string_interpolation/1)
   end
-  defp parse_string_interpolation({key, _, _} = opts) do
+  defp parse_string_interpolation({key, _, _}) do
     key
   end
   defp parse_string_interpolation(_) do
@@ -320,7 +317,7 @@ defmodule Sobelow.Utils do
     acc
   end
 
-  def is_vuln_pipeline({:pipeline, _, [name, [do: block]]}) do
+  def is_vuln_pipeline({:pipeline, _, [_name, [do: block]]}) do
     fun_list = case block do
       {:__block__, _, list} -> list
       {_, _, _} = list -> [list]
@@ -343,7 +340,7 @@ defmodule Sobelow.Utils do
 
   def get_configs(key, filepath) do
     ast = ast(filepath)
-    {ast, acc} = Macro.prewalk(ast, [], &extract_configs(&1, &2, key))
+    {_ast, acc} = Macro.prewalk(ast, [], &extract_configs(&1, &2, key))
     acc
   end
 
@@ -357,7 +354,7 @@ defmodule Sobelow.Utils do
       {ast, [{ast, key, val}|acc]}
     end
   end
-  defp extract_configs(ast, acc, key) do
+  defp extract_configs(ast, acc, _key) do
     {ast, acc}
   end
 
@@ -376,7 +373,7 @@ defmodule Sobelow.Utils do
   defp extract_raw_vars(ast, acc), do: {ast, acc}
 
   def is_content_type_html({:put_resp_content_type, _, opts}) do
-    type_list = Enum.filter(opts, &is_binary/1)
+    Enum.filter(opts, &is_binary/1)
     |> Enum.any?(&String.contains?(&1, "html"))
   end
 

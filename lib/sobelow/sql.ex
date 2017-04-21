@@ -1,5 +1,4 @@
 defmodule Sobelow.SQL do
-  alias Sobelow.SQL.Inject
   @submodules [Sobelow.SQL.Inject]
   use Sobelow.Finding
 

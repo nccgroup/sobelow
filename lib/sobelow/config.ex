@@ -1,6 +1,6 @@
 defmodule Sobelow.Config do
   alias Sobelow.Utils
-  alias Sobelow.Config.{CSRF, Secrets, HTTPS}
+  alias Sobelow.Config.CSRF
   @submodules [Sobelow.Config.CSRF,
                Sobelow.Config.Secrets,
                Sobelow.Config.HTTPS]

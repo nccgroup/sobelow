@@ -14,8 +14,6 @@ defmodule Sobelow.Traversal do
 
       $ mix sobelow -i Traversal
   """
-  alias Sobelow.Utils
-  alias Sobelow.Traversal.{SendFile, FileModule}
   @submodules [Sobelow.Traversal.SendFile,
                Sobelow.Traversal.FileModule]
 

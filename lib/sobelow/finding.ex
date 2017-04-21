@@ -18,7 +18,7 @@ defmodule Sobelow.Finding do
         end
       end
 
-       defoverridable [details: 0, get_details: 0]
+      defoverridable [details: 0, get_details: 0]
     end
   end
 end
