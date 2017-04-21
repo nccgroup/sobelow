@@ -166,13 +166,20 @@ defmodule Sobelow.Utils do
   def extract_opts({{:., _, [_, :send_file]}, _, opts} = fun) do
     parse_opts(Enum.at(opts, 2))
   end
-
+  def extract_opts({{:., _, _}, _, opts} = fun) do
+    parse_opts(fun)
+  end
+  def extract_opts({:<<>>,_,opts}) do
+    opts
+    |> Enum.map(&parse_string_interpolation/1)
+  end
+  def extract_opts({val, _, nil}), do: [val]
+  def extract_opts({val, _, []}), do: [val]
   def extract_opts({_, _, opts}) when is_list(opts) do
     opts
     |> Enum.map(&parse_opts/1)
   end
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
-  def extract_opts({val, _, nil}), do: [val]
 
   # A more general extract_opts. May be able to replace some of the
   # function specific extractions.
@@ -240,19 +247,9 @@ defmodule Sobelow.Utils do
     key = extract_opts(List.last(opts))
     {ast, [key|acc]}
   end
-  def get_pipe_val({:|>, _, [{key,_,_},pipefun]} = ast, acc, pipefun) when is_tuple(key) do
-    key = extract_opts(key)
+  def get_pipe_val({:|>, _, [opts,pipefun]} = ast, acc, pipefun) do
+    key = extract_opts(opts)
     {ast, [key|acc]}
-  end
-  def get_pipe_val({:|>, _, [{key,_,nil},pipefun]} = ast, acc, pipefun), do: {ast, [key|acc]}
-  def get_pipe_val({:|>, _, [{:<<>>,_,opts},pipefun]} = ast, acc, pipefun) do
-    val = opts
-    |> Enum.map(&parse_string_interpolation/1)
-    {ast,[val|acc]}
-  end
-  def get_pipe_val({:|>, _, [{_,_,opts},pipefun]} = ast, acc, pipefun) do
-    val = extract_opts(opts)
-    {ast,[val|acc]}
   end
   def get_pipe_val(ast,acc,pipe), do: {ast, acc}
 
