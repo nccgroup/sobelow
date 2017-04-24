@@ -1,5 +1,4 @@
 defmodule Sobelow.Misc do
-  alias Sobelow.Misc.BinToTerm
   @submodules [Sobelow.Misc.BinToTerm]
   use Sobelow.Finding
 

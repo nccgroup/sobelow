@@ -10,27 +10,8 @@ defmodule Sobelow do
                Sobelow.Misc,
                Sobelow.Config]
 
-  @allsubmodules [Sobelow.XSS,
-                  Sobelow.XSS.Raw,
-                  Sobelow.XSS.SendResp,
-                  Sobelow.SQL,
-                  Sobelow.SQL.Inject,
-                  Sobelow.Traversal,
-                  Sobelow.Traversal.FileModule,
-                  Sobelow.Traversal.SendFile,
-                  Sobelow.Misc,
-                  Sobelow.Misc.BinToTerm,
-                  Sobelow.Config,
-                  Sobelow.Config.Secrets,
-                  Sobelow.Config.HTTPS,
-                  Sobelow.Config.CSRF]
-
   alias Sobelow.Utils
   alias Sobelow.Config
-  alias Sobelow.XSS
-  alias Sobelow.SQL
-  alias Sobelow.Traversal
-  alias Sobelow.Misc
   alias Mix.Shell.IO
 
   def run() do
@@ -52,7 +33,7 @@ defmodule Sobelow do
     Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
     |> Enum.each(fn file ->
-        def_funs = Utils.get_def_funs(root <> file)
+        Utils.get_def_funs(root <> file)
         |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/", allowed -- [Config]))
     end)
   end

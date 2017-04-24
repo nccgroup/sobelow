@@ -14,8 +14,7 @@ defmodule Sobelow.XSS do
 
       $ mix sobelow -i XSS
   """
-  alias Sobelow.Utils
-  alias Sobelow.XSS.{SendResp, Raw}
+  alias Sobelow.XSS.Raw
   @submodules [Sobelow.XSS.SendResp,
                Sobelow.XSS.Raw]
 
