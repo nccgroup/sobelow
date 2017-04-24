@@ -1,4 +1,7 @@
 defmodule Sobelow.Utils do
+  @operators [:+, :-, :!, :^, :not, :~~~, :*, :/, :++, :--, :.., :<>,
+              :<<<, :>>>, :~>>, :<<~, :>, :<, :>=, :<=, :==, :!=, :=~,
+              :===, :!==, :&&, :&&&, :and, :||, :|||, :or, :=, :|]
   # General Utils
   def ast(filepath) do
     {:ok, ast} = Code.string_to_quoted(File.read!(filepath))
@@ -204,7 +207,7 @@ defmodule Sobelow.Utils do
   # This is what an accessor func looks like, eg conn.params
   defp parse_opts({{:., _, [{val, _, nil}, _]}, _, _}), do: val
   defp parse_opts({:., _, [{val, _, nil}, _]}), do: val
-  defp parse_opts({fun, _, opts}) when fun in [:+, :-, :*, :/, :{}, :<>] do
+  defp parse_opts({fun, _, opts}) when fun in @operators do
     Enum.map(opts, &parse_opts/1)
   end
   # Sigils aren't ordinary function calls.
