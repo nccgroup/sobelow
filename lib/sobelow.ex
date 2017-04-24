@@ -13,13 +13,16 @@ defmodule Sobelow do
   alias Sobelow.Utils
   alias Sobelow.Config
   alias Mix.Shell.IO
-
+  # In order to support the old application structure, as well as the
+  # upcoming application structure (ie all in lib directory, vs pulled
+  # into a web directory), there are a number of different "roots" in
+  # use.
   def run() do
     IO.info print_banner()
     project_root = get_env(:root) <> "/"
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     if is_nil(app_name), do: file_error()
-    web_root = get_root(app_name, project_root)
+    {web_root, lib_root} = get_root(app_name, project_root)
 
     root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: web_root
 
@@ -36,6 +39,15 @@ defmodule Sobelow do
         Utils.get_def_funs(root <> file)
         |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/", allowed -- [Config]))
     end)
+
+    if web_root !== lib_root do
+      Utils.all_files(lib_root)
+      |> Enum.reject(&is_nil/1)
+      |> Enum.each(fn file ->
+        Utils.get_def_funs(lib_root <> file)
+        |> Enum.each(&get_fun_vulns(&1, file, web_root, allowed -- [Config]))
+      end)
+    end
   end
 
   def details() do
@@ -66,10 +78,11 @@ defmodule Sobelow do
   end
 
   defp get_root(app_name, project_root) do
+    lib_root = project_root <> "lib/#{String.downcase(app_name)}/"
     if File.exists?(project_root <> "lib/#{String.downcase(app_name)}/web/router.ex") do
-      project_root <> "lib/#{String.downcase(app_name)}/"
+      {lib_root, lib_root}
     else
-      project_root <> "./"
+      {project_root <> "./", lib_root}
     end
   end
 
