@@ -62,7 +62,7 @@ defmodule Sobelow.Utils do
     if Enum.member?(acc, var), do: true, else: false
   end
 
-  defp is_fun_var({var, _, nil} = ast, acc), do: {ast, [var|acc]}
+  defp is_fun_var({var, _, _} = ast, acc), do: {ast, [var|acc]}
   defp is_fun_var({:__aliases__, _, aliases} = ast, acc) do
     {ast, [Module.concat(aliases)|acc]}
   end
