@@ -251,30 +251,19 @@ defmodule Sobelow.Utils do
   end
   def get_pipe_val(ast,acc,pipe), do: {ast, acc}
 
-  ## Parsing string interpolation got really messy when attempting to
-  ## use the Macro functionality. Will stick with this for now.
   defp parse_string_interpolation({key, _, nil}), do: key
   defp parse_string_interpolation({:::, _, opts}) do
     parse_string_interpolation(opts)
   end
   defp parse_string_interpolation([{{:., _, [Kernel, :to_string]}, _, vars}, _]) do
-    Enum.map vars, &parse_string_interpolation/1
-  end
-  defp parse_string_interpolation({key, _, opts}) when key in [:+, :-, :*, :/] do
-    Enum.map opts, &parse_string_interpolation/1
+    Enum.map vars, &parse_opts/1
   end
   defp parse_string_interpolation({{:., _, [Kernel, :to_string]}, _, opts}) do
-    Enum.map opts, &parse_string_interpolation/1
-  end
-  defp parse_string_interpolation({{:., _, [{:__aliases__, _, module}, _func]}, _, _}) do
-    Module.concat(module)
+    Enum.map opts, &parse_opts/1
   end
   defp parse_string_interpolation({:<<>>, _, opts}) do
     opts
     |> Enum.map(&parse_string_interpolation/1)
-  end
-  defp parse_string_interpolation({key, _, _}) do
-    key
   end
   defp parse_string_interpolation(_) do
     []
