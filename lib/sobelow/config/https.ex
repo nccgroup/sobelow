@@ -4,7 +4,7 @@ defmodule Sobelow.Config.HTTPS do
 
   Without HTTPS, attackers in a priveleged network position can
   intercept and modify traffic. The HTTP Strict Transport Security
-  (HSTS) helps defend against man-in-the-middle attacks by
+  (HSTS) header helps defend against man-in-the-middle attacks by
   preventing unencrypted connections.
 
   Sobelow detects missing HTTPS/HSTS by checking the prod

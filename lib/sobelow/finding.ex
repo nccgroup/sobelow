@@ -1,9 +1,6 @@
 defmodule Sobelow.Finding do
-  @callback get_details() :: String.t
-
   defmacro __using__(_) do
     quote do
-      @behaviour Sobelow.Finding
       def details() do
         if is_nil(@moduledoc) do
           get_details()
