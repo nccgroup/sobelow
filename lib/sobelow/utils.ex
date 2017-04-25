@@ -152,6 +152,19 @@ defmodule Sobelow.Utils do
   end
   def get_funs_of_type(ast, acc, _type), do: {ast, acc}
 
+  def get_pipe_funs(ast) do
+    all_pipes = get_funs_of_type(ast, :|>)
+    Enum.filter all_pipes, fn pipe ->
+      {_,acc} = Macro.prewalk(pipe, [], &get_do_block/2)
+      Enum.empty?(acc)
+    end
+  end
+
+  def get_do_block({:|>,_,[_,{_,_,[[do: block]]}]} = ast, acc) do
+    {[], [ast|acc]}
+  end
+  def get_do_block(ast, acc), do: {ast, acc}
+
   ## Extract opts from piped functions separately.
   def extract_opts({:pipe, {:send_file, _, opts}}), do: parse_opts(Enum.at(opts, 1))
   def extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))

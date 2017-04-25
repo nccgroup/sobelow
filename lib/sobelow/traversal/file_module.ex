@@ -68,7 +68,7 @@ defmodule Sobelow.Traversal.FileModule do
   def parse_file_def(fun, type) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
-    pipefuns = Utils.get_funs_of_type(fun, :|>)
+    pipefuns = Utils.get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&Utils.get_aliased_funs_of_type(&1, type, [:File]))
 
