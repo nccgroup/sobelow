@@ -148,7 +148,7 @@ defmodule Sobelow.Utils do
     end
   end
 
-  def get_do_block({:|>,_,[_,{_,_,[[do: block]]}]} = ast, acc) do
+  def get_do_block({:|>,_,[_,{_,_,[[do: _block]]}]} = ast, acc) do
     {[], [ast|acc]}
   end
   def get_do_block(ast, acc), do: {ast, acc}
@@ -169,7 +169,7 @@ defmodule Sobelow.Utils do
   def extract_opts({{:., _, [_, :send_file]}, _, opts}) do
     parse_opts(Enum.at(opts, 2))
   end
-  def extract_opts({{:., _, _}, _, opts} = fun) do
+  def extract_opts({{:., _, _}, _, _opts} = fun) do
     parse_opts(fun)
   end
   def extract_opts({:<<>>,_,opts}) do
@@ -253,7 +253,7 @@ defmodule Sobelow.Utils do
     key = extract_opts(opts)
     {ast, [key|acc]}
   end
-  def get_pipe_val(ast,acc,pipe), do: {ast, acc}
+  def get_pipe_val(ast,acc,_pipe), do: {ast, acc}
 
   defp parse_string_interpolation({key, _, nil}), do: key
   defp parse_string_interpolation({:::, _, opts}) do

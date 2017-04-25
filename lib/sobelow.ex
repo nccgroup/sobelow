@@ -51,6 +51,8 @@ defmodule Sobelow do
         |> Enum.each(&get_fun_vulns(&1, file, web_root, allowed -- [Config]))
       end)
     end
+
+    IO.info "... SCAN COMPLETE ..."
   end
 
   def details() do
