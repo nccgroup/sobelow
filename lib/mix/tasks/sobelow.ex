@@ -43,7 +43,13 @@ defmodule Mix.Tasks.Sobelow do
   * Misc.BinToTerm
 
   """
-  @switches [with_code: :boolean, root: :string, ignore: :string, details: :string, all_details: :boolean]
+  @switches [with_code: :boolean,
+             root: :string,
+             ignore: :string,
+             details: :string,
+             all_details: :boolean,
+             private: :boolean]
+
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details]
 
   def run(argv) do
@@ -53,10 +59,12 @@ defmodule Mix.Tasks.Sobelow do
     root = Keyword.get(opts, :root, ".")
     details = Keyword.get(opts, :details, nil)
     all_details = Keyword.get(opts, :all_details)
+    private = Keyword.get(opts, :private, false)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
     set_env(:details, details)
+    set_env(:private, private)
 
     ignored =
       Keyword.get(opts, :ignore, "")

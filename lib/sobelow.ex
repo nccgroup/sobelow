@@ -21,7 +21,7 @@ defmodule Sobelow do
     IO.info print_banner()
 
     project_root = get_env(:root) <> "/"
-    version_check(project_root)
+    if !get_env(:private), do: version_check(project_root)
 
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     if is_nil(app_name), do: file_error()
