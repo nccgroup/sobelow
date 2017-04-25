@@ -77,12 +77,10 @@ the commandline:
     $ mix help sobelow
 
 ## Updates
-
-When scanning a project, Sobelow makes an HTTP request to 
-determine the most recent available version, and will print an alert if a new 
-version is available. This will only happen once per 24 
-hours, per project. Sobelow validates this time by creating 
-a `.sobelow` file in the root of the scanned project.
+When scanning a project, Sobelow will occasionally check for 
+updates, and will print an alert if a new version is available. 
+Sobelow keeps track of the last update-check by creating a 
+`.sobelow` file in the root of the scanned project.
 
 If this functionality is not desired, the `--private` flag 
 can be used with the scan.
