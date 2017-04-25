@@ -19,35 +19,15 @@ defmodule Sobelow.Utils do
     func_string = Macro.to_string fun, fn ast, string ->
       s = case ast do
         {^call, _, _} ->
-          if is_fun_with_var?(ast, var) do
-            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-          else
-            string
-          end
+          maybe_highlight(string, ast, var)
         {:|>, _, [_, {{:., _,[{:__aliases__, _, _}, ^call]}, _, _}]} ->
-          if is_fun_with_var?(ast, var) do
-            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-          else
-            string
-          end
+          maybe_highlight(string, ast, var)
         {{:., _,[{:__aliases__, _, _}, ^call]}, _, _} ->
-          if is_fun_with_var?(ast, var) do
-            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-          else
-            string
-          end
+          maybe_highlight(string, ast, var)
         {:|>, _, [_, {{:., _, [:erlang, ^call]}, _, _}]} ->
-          if is_fun_with_var?(ast, var) do
-            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-          else
-            string
-          end
+          maybe_highlight(string, ast, var)
         {{:., _, [:erlang, ^call]}, _, _} ->
-          if is_fun_with_var?(ast, var) do
-            IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-          else
-            string
-          end
+          maybe_highlight(string, ast, var)
         _ -> string
       end
       acc <> s
@@ -55,6 +35,14 @@ defmodule Sobelow.Utils do
 
     IO.puts "\n"
     IO.puts func_string
+  end
+
+  defp maybe_highlight(string, ast, var) do
+    if is_fun_with_var?(ast, var) do
+      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+    else
+      string
+    end
   end
 
   def is_fun_with_var?(fun, var) do
