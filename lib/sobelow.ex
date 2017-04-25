@@ -19,7 +19,10 @@ defmodule Sobelow do
   # use.
   def run() do
     IO.info print_banner()
+
     project_root = get_env(:root) <> "/"
+    version_check(project_root)
+
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     if is_nil(app_name), do: file_error()
     {web_root, lib_root} = get_root(app_name, project_root)
@@ -95,6 +98,47 @@ defmodule Sobelow do
   defp file_error() do
     IO.error("This does not appear to be a Phoenix application.")
     System.halt(0)
+  end
+
+  defp version_check(project_root) do
+    cfile = project_root <> ".sobelow"
+    time = DateTime.utc_now() |> DateTime.to_unix()
+
+    if File.exists?(cfile) do
+      {timestamp, _} = case File.read!(cfile) do
+        "sobelow-" <> timestamp -> Integer.parse(timestamp)
+        _ -> file_error()
+      end
+      if time - 12*60*60 > timestamp do
+        maybe_prompt_update(time, cfile)
+      end
+    else
+      maybe_prompt_update(time, cfile)
+    end
+  end
+
+  defp get_sobelow_version() do
+    {:ok, vsn} = Mix.Utils.read_path("https://griffinbyatt.com/static/sobelow-version")
+    Version.parse! vsn
+  end
+
+  defp maybe_prompt_update(time, cfile) do
+    installed_vsn = Version.parse! @v
+
+    cmp = get_sobelow_version()
+    |> Version.compare(installed_vsn)
+
+    case cmp do
+      :gt ->
+        IO.error """
+        A new version of Sobelow is available:
+        {{ARCHIVE INSTALL COMMAND}}
+        """
+      _ -> nil
+    end
+
+    timestamp = "sobelow-" <> to_string(time)
+    File.write(cfile, timestamp)
   end
 
   def get_mod(mod_string) do
