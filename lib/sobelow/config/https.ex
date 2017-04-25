@@ -37,11 +37,17 @@ defmodule Sobelow.Config.HTTPS do
 
   defp print_finding(:https) do
     IO.puts IO.ANSI.red() <> "HTTPS Not Enabled - High Confidence" <> IO.ANSI.reset()
+    if Sobelow.get_env(:with_code), do: print_info("HTTPS")
     IO.puts "\n-----------------------------------------------\n"
   end
 
   defp print_finding(:hsts) do
     IO.puts IO.ANSI.yellow() <> "HSTS Not Enabled - Medium Confidence" <> IO.ANSI.reset()
+    if Sobelow.get_env(:with_code), do: print_info("HSTS")
     IO.puts "\n-----------------------------------------------\n"
+  end
+
+  defp print_info(type) do
+    IO.puts "\n#{type} configuration details could not be found in `prod.exs` or `prod.secret.exs`."
   end
 end
