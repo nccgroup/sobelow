@@ -16,6 +16,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--ignore -i` - Ignore modules
   * `--details -d` - Get module details
   * `--all-details` - Get all module details
+  * `--private` - Skip update checks
 
   ## Ignoring modules
 
