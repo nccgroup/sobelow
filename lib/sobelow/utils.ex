@@ -151,6 +151,7 @@ defmodule Sobelow.Utils do
   def get_do_block({:|>,_,[_,{_,_,[[do: _block]]}]} = ast, acc) do
     {[], [ast|acc]}
   end
+  def get_do_block([do: _block] = ast, acc), do: {[], [ast|acc]}
   def get_do_block(ast, acc), do: {ast, acc}
 
   ## Extract opts from piped functions separately.
@@ -247,13 +248,31 @@ defmodule Sobelow.Utils do
   end
   def get_pipe_val({:|>, _, [{:|>,_,opts},pipefun]} = ast, acc, pipefun) do
     key = extract_opts(List.last(opts))
-    {ast, [key|acc]}
+    {[], [key|acc]}
   end
   def get_pipe_val({:|>, _, [opts,pipefun]} = ast, acc, pipefun) do
     key = extract_opts(opts)
-    {ast, [key|acc]}
+    {[], [key|acc]}
+  end
+  def get_pipe_val({:|>, _, [{fun,_,funopts} = opts,maybe_pipe]} = ast, acc, pipe) when not fun in [:|>] do
+    {_,match_pipe} = Macro.prewalk(maybe_pipe, [], &get_match(&1, &2, pipe))
+    {_,match_opts} = Macro.prewalk(opts, [], &get_match(&1,&2,pipe))
+
+    cond do
+      !Enum.empty?(match_pipe) ->
+        key = extract_opts(match_pipe)
+        {[], [key|acc]}
+      !Enum.empty?(match_opts) ->
+        key = extract_opts(funopts)
+        {[], [key|acc]}
+      true ->
+        {ast, acc}
+    end
   end
   def get_pipe_val(ast,acc,_pipe), do: {ast, acc}
+
+  defp get_match(match, acc, match), do: {[], [match|acc]}
+  defp get_match(ast, acc, _), do: {ast, acc}
 
   defp parse_string_interpolation({key, _, nil}), do: key
   defp parse_string_interpolation({:::, _, opts}) do
