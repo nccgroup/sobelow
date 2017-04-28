@@ -16,7 +16,7 @@ security issues:
 * Unsafe serialization
 
 Potential vulnerabilities are flagged in different colors 
-according to confidence in exploitability. High confidence is 
+according to confidence in their insecurity. High confidence is 
 red, medium confidence is yellow, and low confidence is green.
 
 A finding is typically marked "low confidence" if it looks 
