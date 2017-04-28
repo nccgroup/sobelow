@@ -125,8 +125,20 @@ defmodule Sobelow do
   end
 
   defp get_sobelow_version() do
-    {:ok, vsn} = Mix.Utils.read_path("https://griffinbyatt.com/static/sobelow-version")
-    Version.parse! vsn
+    # Modeled after old Mix.Utils.read_path
+    {:ok, _} = Application.ensure_all_started(:ssl)
+    {:ok, _} = Application.ensure_all_started(:inets)
+    {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
+
+    case :httpc.request('https://griffinbyatt.com/static/sobelow-version') do
+      {:ok, {{_, 200, _}, _, vsn}} ->
+        Version.parse! to_string(vsn)
+      _ ->
+        IO.error("Error fetching version number.\n")
+        @v
+    end
+  after
+    :inets.stop(:httpc, :sobelow)
   end
 
   defp maybe_prompt_update(time, cfile) do
