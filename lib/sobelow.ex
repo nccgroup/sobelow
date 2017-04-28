@@ -56,9 +56,14 @@ defmodule Sobelow do
   end
 
   def details() do
-    get_env(:details)
+    mod = get_env(:details)
     |> get_mod
-    |> apply(:details, [])
+
+    if is_nil(mod) do
+      IO.error "A valid module was not selected."
+    else
+      apply(mod, :details, [])
+    end
   end
 
   def all_details() do
