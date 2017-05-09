@@ -1,78 +1,29 @@
 defmodule Sobelow.Traversal.FileModule do
   alias Sobelow.Utils
   use Sobelow.Finding
+  @file_funcs [:read,
+               :read!,
+               :write,
+               :write!,
+               :rm,
+               :rm!,
+               :rm_rf]
 
   def run(fun, filename) do
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :read)
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, fun, var, :read, severity || :high)
-      else
-        print_file_finding(line_no, filename, fun_name, fun, var, :read, severity || :medium)
+    Enum.each @file_funcs, fn(file_func) ->
+      {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, file_func)
+
+      Enum.each vars, fn var ->
+        if Enum.member?(params, var) || var === "conn.params" do
+          print_file_finding(line_no, filename, fun_name, fun, var, file_func, severity || :high)
+        else
+          print_file_finding(line_no, filename, fun_name, fun, var, file_func, severity || :medium)
+        end
       end
     end
 
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :write)
-
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, fun, var, :write, severity || :high)
-      else
-        print_file_finding(line_no, filename, fun_name, fun, var, :write, severity || :medium)
-      end
-    end
-
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :rm)
-
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, fun, var, :rm, severity || :high)
-      else
-        print_file_finding(line_no, filename, fun_name, fun, var, :rm, severity || :medium)
-      end
-    end
-
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :read!)
-
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, fun, var, :read!, severity || :high)
-      else
-        print_file_finding(line_no, filename, fun_name, fun, var, :read!, severity || :medium)
-      end
-    end
-
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :write!)
-
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, fun, var, :write!, severity || :high)
-      else
-        print_file_finding(line_no, filename, fun_name, fun, var, :write!, severity || :medium)
-      end
-    end
-
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :rm!)
-
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, fun, var, :rm!, severity || :high)
-      else
-        print_file_finding(line_no, filename, fun_name, fun, var, :rm!, severity || :medium)
-      end
-    end
-
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :rm_rf)
-
-    Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_file_finding(line_no, filename, fun_name, fun, var, :rm_rf, severity || :high)
-      else
-        print_file_finding(line_no, filename, fun_name, fun, var, :rm_rf, severity || :medium)
-      end
-    end
   end
 
   def parse_file_def(fun, type) do
