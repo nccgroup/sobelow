@@ -408,6 +408,7 @@ defmodule Sobelow.Utils do
 
     if !Enum.empty?(vars) do
       [vars|_] = vars
+      vars = if is_list(vars), do: vars, else: []
     end
 
     reflected_vars = Enum.filter(vars, fn var ->
