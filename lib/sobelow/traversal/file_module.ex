@@ -63,6 +63,16 @@ defmodule Sobelow.Traversal.FileModule do
         print_file_finding(line_no, filename, fun_name, fun, var, :rm!, severity || :medium)
       end
     end
+
+    {vars, params, {fun_name, [{_, line_no}]}} = parse_file_def(fun, :rm_rf)
+
+    Enum.each vars, fn var ->
+      if Enum.member?(params, var) || var === "conn.params" do
+        print_file_finding(line_no, filename, fun_name, fun, var, :rm_rf, severity || :high)
+      else
+        print_file_finding(line_no, filename, fun_name, fun, var, :rm_rf, severity || :medium)
+      end
+    end
   end
 
   def parse_file_def(fun, type) do
