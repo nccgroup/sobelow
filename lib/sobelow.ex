@@ -151,7 +151,7 @@ defmodule Sobelow do
       :gt ->
         IO.error """
         A new version of Sobelow is available:
-        {{ARCHIVE INSTALL COMMAND}}
+        mix archive.install https://github.com/nccgroup/sobelow/releases/download/v0.2.0/sobelow.ez
         """
       _ -> nil
     end
