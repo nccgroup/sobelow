@@ -156,6 +156,7 @@ defmodule Sobelow.Utils do
 
   ## Extract opts from piped functions separately.
   def extract_opts({:pipe, {:send_file, _, opts}}), do: parse_opts(Enum.at(opts, 1))
+  def extract_opts({:pipe, {{:., _, [_, :send_file]}, _, opts}}), do: parse_opts(Enum.at(opts, 1))
   def extract_opts({:pipe, {{:., _, [_, :query]}, _, opts}}), do: parse_opts(List.first(opts))
   def extract_opts({:pipe, {_, opts}}, idx), do: parse_opts(Enum.at(opts, idx))
   def extract_opts({:send_file, _, opts}), do: parse_opts(Enum.at(opts, 2))
