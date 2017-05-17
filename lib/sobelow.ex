@@ -133,7 +133,7 @@ defmodule Sobelow do
 
     case :httpc.request('https://griffinbyatt.com/static/sobelow-version') do
       {:ok, {{_, 200, _}, _, vsn}} ->
-        Version.parse! to_string(vsn)
+        Version.parse! String.trim(to_string(vsn))
       _ ->
         IO.error("Error fetching version number.\n")
         @v
