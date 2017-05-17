@@ -42,6 +42,9 @@ defmodule Mix.Tasks.Sobelow do
   * Traversal.FileModule
   * Misc
   * Misc.BinToTerm
+  * CI
+  * CI.System
+  * CI.OS
 
   """
   @switches [with_code: :boolean,

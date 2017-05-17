@@ -12,6 +12,7 @@ security issues:
 * Insecure configuration
 * Cross-Site Scripting
 * SQL injection
+* Command injection
 * Directory traversal
 * Unsafe serialization
 
@@ -91,6 +92,9 @@ The following is the current list of supported modules:
 * Traversal.FileModule
 * Misc
 * Misc.BinToTerm
+* CI
+* CI.System
+* CI.OS
     
 This list (and other helpful information), can also be found 
 on the command line:
