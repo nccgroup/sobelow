@@ -8,7 +8,8 @@ defmodule Sobelow do
                Sobelow.SQL,
                Sobelow.Traversal,
                Sobelow.Misc,
-               Sobelow.Config]
+               Sobelow.Config,
+               Sobelow.CI]
 
   alias Sobelow.Utils
   alias Sobelow.Config
@@ -176,6 +177,9 @@ defmodule Sobelow do
       "Traversal" -> Sobelow.Traversal
       "Traversal.SendFile" -> Sobelow.Traversal.SendFile
       "Traversal.FileModule" -> Sobelow.Traversal.FileModule
+      "CI" -> Sobelow.CI
+      "CI.System" -> Sobelow.CI.System
+      "CI.OS" -> Sobelow.CI.OS
       _ -> nil
     end
   end

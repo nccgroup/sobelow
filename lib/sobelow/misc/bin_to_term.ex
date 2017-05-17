@@ -31,7 +31,7 @@ defmodule Sobelow.Misc.BinToTerm do
     IO.puts color <> "Unsafe `binary_to_term` - #{confidence} Confidence" <> IO.ANSI.reset()
     IO.puts "File: #{filename} - #{fun_name}:#{line_no}"
     IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :binary_to_term)
+    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :binary_to_term, :erlang)
     IO.puts "\n-----------------------------------------------\n"
   end
 

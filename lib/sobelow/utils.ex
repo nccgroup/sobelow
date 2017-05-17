@@ -14,7 +14,7 @@ defmodule Sobelow.Utils do
     IO.puts "\n"
     IO.puts IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset()
   end
-  def print_code(fun, var, call \\ nil) do
+  def print_code(fun, var, call \\ nil, module \\ nil) do
     acc = ""
     func_string = Macro.to_string fun, fn ast, string ->
       s = case ast do
@@ -24,9 +24,9 @@ defmodule Sobelow.Utils do
           maybe_highlight(string, ast, var)
         {{:., _,[{:__aliases__, _, _}, ^call]}, _, _} ->
           maybe_highlight(string, ast, var)
-        {:|>, _, [_, {{:., _, [:erlang, ^call]}, _, _}]} ->
+        {:|>, _, [_, {{:., _, [^module, ^call]}, _, _}]} ->
           maybe_highlight(string, ast, var)
-        {{:., _, [:erlang, ^call]}, _, _} ->
+        {{:., _, [^module, ^call]}, _, _} ->
           maybe_highlight(string, ast, var)
         _ -> string
       end
@@ -74,13 +74,18 @@ defmodule Sobelow.Utils do
   end
 
   def get_erlang_funs_of_type(ast, type) do
-    {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type))
+    {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type, :erlang))
     acc
   end
-  def get_erlang_funs_of_type({{:., _, [:erlang, type]}, _, _} = ast, acc, type) do
+  def get_erlang_funs_of_type({{:., _, [module, type]}, _, _} = ast, acc, type, module) do
     {ast, [ast|acc]}
   end
-  def get_erlang_funs_of_type(ast, acc, _type), do: {ast, acc}
+  def get_erlang_funs_of_type(ast, acc, _type, _module), do: {ast, acc}
+
+  def get_erlang_aliased_funs_of_type(ast, type, module) do
+    {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type, module))
+    acc
+  end
 
   ## This is used to get aliased function calls such as `File.read`
   ## or `Ecto.Adapters.SQL.query`.
