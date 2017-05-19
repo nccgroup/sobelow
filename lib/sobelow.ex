@@ -152,7 +152,7 @@ defmodule Sobelow do
       :gt ->
         IO.error """
         A new version of Sobelow is available:
-        mix archive.install https://github.com/nccgroup/sobelow/raw/master/sobelow.ez
+        mix archive.install hex sobelow
         """
       _ -> nil
     end
