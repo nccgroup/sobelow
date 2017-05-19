@@ -7,7 +7,10 @@ defmodule Sobelow.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps()]
+     deps: deps(),
+     package: package(),
+     description: "Security-focused static analysis for the Phoenix framework",
+     name: "Sobelow"]
   end
 
   # Configuration for the OTP application
@@ -28,6 +31,12 @@ defmodule Sobelow.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:ex_doc, "~> 0.14", only: :dev}]
+  end
+
+  defp package() do
+    [licenses: ["Apache 2"],
+     maintainers: ["Griffin Byatt"],
+     links: %{"GitHub" => "https://github.com/nccgroup/sobelow"}]
   end
 end
