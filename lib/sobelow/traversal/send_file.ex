@@ -42,7 +42,7 @@ defmodule Sobelow.Traversal.SendFile do
     |> Enum.flat_map(&Utils.get_funs_of_type(&1, :send_file))
 
     pipefiles = pipefuns
-    |> Enum.map(&Utils.extract_opts({:pipe, &1}))
+    |> Enum.map(&Utils.extract_opts(&1, 1))
     |> List.flatten
 
     files = Utils.get_funs_of_type(fun, :send_file) -- pipefuns
@@ -62,7 +62,7 @@ defmodule Sobelow.Traversal.SendFile do
     |> Enum.flat_map(&Utils.get_aliased_funs_of_type(&1, :send_file, [:Plug, :Conn]))
 
     pipefiles = pipefuns
-    |> Enum.map(&Utils.extract_opts({:pipe, &1}))
+    |> Enum.map(&Utils.extract_opts(&1, 1))
     |> List.flatten
 
     aliased_files = Utils.get_aliased_funs_of_type(fun, :send_file, [:Plug, :Conn]) -- pipefuns

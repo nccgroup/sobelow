@@ -42,7 +42,7 @@ defmodule Sobelow.SQL.Inject do
     |> Enum.flat_map(&Utils.get_aliased_funs_of_type(&1, :query, :SQL))
 
     pipevars = pipefuns
-    |> Enum.map(&Utils.extract_opts({:pipe, &1}))
+    |> Enum.map(&Utils.extract_opts(&1, 0))
     |> List.flatten
 
     interp_vars = Utils.get_aliased_funs_of_type(fun, :query, :SQL) -- pipefuns
