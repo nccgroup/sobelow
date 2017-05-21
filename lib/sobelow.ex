@@ -39,8 +39,7 @@ defmodule Sobelow do
     root_defs = Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
     |> Enum.map(fn file ->
-      filename = root <> file
-      {filename, Utils.get_def_funs(filename)}
+      {file, Utils.get_def_funs(root <> file)}
     end)
 
     libroot_defs =
@@ -49,8 +48,7 @@ defmodule Sobelow do
           Utils.all_files(lib_root)
           |> Enum.reject(&is_nil/1)
           |> Enum.map(fn file ->
-            filename = lib_root <> file
-            {filename, Utils.get_def_funs(filename)}
+            {file, Utils.get_def_funs(lib_root <> file)}
           end)
         _ -> []
       end
