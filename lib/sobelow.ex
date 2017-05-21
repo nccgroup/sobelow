@@ -23,7 +23,7 @@ defmodule Sobelow do
     if !get_env(:private), do: version_check(project_root)
 
     app_name = Utils.get_app_name(project_root <> "mix.exs")
-    if is_nil(app_name), do: file_error()
+    if !is_binary(app_name), do: file_error()
     {web_root, lib_root} = get_root(app_name, project_root)
 
     root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: web_root
