@@ -19,8 +19,6 @@ defmodule Sobelow do
   # into a web directory), there are a number of different "roots" in
   # use.
   def run() do
-    IO.info print_banner()
-
     project_root = get_env(:root) <> "/"
     if !get_env(:private), do: version_check(project_root)
 
@@ -35,23 +33,50 @@ defmodule Sobelow do
     ignored = get_ignored()
     allowed = @submodules -- ignored
 
-    if Enum.member?(allowed, Config), do: Config.fetch(project_root, web_root)
-
-    Utils.all_files(root)
+    # Pulling out function definitions before kicking
+    # off the test pipeline to avoid dumping warning
+    # messages into the findings output.
+    root_defs = Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
-    |> Enum.each(fn file ->
-        Utils.get_def_funs(root <> file)
-        |> Enum.each(&get_fun_vulns(&1, file, web_root <> "web/", allowed -- [Config]))
+    |> Enum.map(fn file ->
+      filename = root <> file
+      {filename, Utils.get_def_funs(filename)}
     end)
 
-    if web_root !== lib_root do
-      Utils.all_files(lib_root)
-      |> Enum.reject(&is_nil/1)
-      |> Enum.each(fn file ->
-        Utils.get_def_funs(lib_root <> file)
-        |> Enum.each(&get_fun_vulns(&1, file, web_root, allowed -- [Config]))
-      end)
-    end
+    libroot_defs =
+      case web_root !== lib_root do
+        true ->
+          Utils.all_files(lib_root)
+          |> Enum.reject(&is_nil/1)
+          |> Enum.map(fn file ->
+            filename = lib_root <> file
+            {filename, Utils.get_def_funs(filename)}
+          end)
+        _ -> []
+      end
+
+    # This is where the core testing-pipeline starts.
+    #
+    # - Print banner
+    # - Check configuration
+    # - Remove config check from "allowed" modules
+    # - Scan funcs from the root
+    # - Scan funcs from the libroot
+    IO.info print_banner()
+
+    if Enum.member?(allowed, Config), do: Config.fetch(project_root, web_root)
+
+    allowed = allowed -- [Config]
+
+    Enum.each(root_defs, fn {filename, defs} ->
+      defs
+      |> Enum.each(&get_fun_vulns(&1, filename, web_root <> "web/", allowed))
+    end)
+
+    Enum.each(libroot_defs, fn {filename, defs} ->
+      defs
+      |> Enum.each(&get_fun_vulns(&1, filename, web_root, allowed))
+    end)
 
     IO.info "... SCAN COMPLETE ..."
   end
