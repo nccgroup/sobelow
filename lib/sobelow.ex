@@ -48,7 +48,8 @@ defmodule Sobelow do
           Utils.all_files(lib_root)
           |> Enum.reject(&is_nil/1)
           |> Enum.map(fn file ->
-            {file, Utils.get_def_funs(lib_root <> file)}
+            filename = lib_root <> file
+            {filename, Utils.get_def_funs(filename)}
           end)
         _ -> []
       end
@@ -73,7 +74,7 @@ defmodule Sobelow do
 
     Enum.each(libroot_defs, fn {filename, defs} ->
       defs
-      |> Enum.each(&get_fun_vulns(&1, filename, web_root, allowed))
+      |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
     end)
 
     IO.info "... SCAN COMPLETE ..."
