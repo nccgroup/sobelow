@@ -46,7 +46,7 @@ defmodule Sobelow.SQL.Inject do
     |> List.flatten
 
     interp_vars = Utils.get_aliased_funs_of_type(fun, :query, :SQL) -- pipefuns
-    |> Enum.map(&Utils.extract_opts/1)
+    |> Enum.map(&Utils.extract_opts(&1, 1))
     |> List.flatten
 
     {interp_vars ++ pipevars, params, {fun_name, line_no}}

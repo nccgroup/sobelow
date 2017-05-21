@@ -46,7 +46,7 @@ defmodule Sobelow.Traversal.SendFile do
     |> List.flatten
 
     files = Utils.get_funs_of_type(fun, :send_file) -- pipefuns
-    |> Enum.map(&Utils.extract_opts/1)
+    |> Enum.map(&Utils.extract_opts(&1, 2))
     |> List.flatten
 
     {aliased_files, _, _} = parse_aliased_send_file_def(fun)
@@ -66,7 +66,7 @@ defmodule Sobelow.Traversal.SendFile do
     |> List.flatten
 
     aliased_files = Utils.get_aliased_funs_of_type(fun, :send_file, [:Plug, :Conn]) -- pipefuns
-    |> Enum.map(&Utils.extract_opts/1)
+    |> Enum.map(&Utils.extract_opts(&1, 2))
     |> List.flatten
 
     {aliased_files ++ pipefiles, params, {fun_name, line_no}}

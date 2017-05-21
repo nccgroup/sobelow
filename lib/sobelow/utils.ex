@@ -159,17 +159,8 @@ defmodule Sobelow.Utils do
   def get_do_block([do: _block] = ast, acc), do: {[], [ast|acc]}
   def get_do_block(ast, acc), do: {ast, acc}
 
-  def extract_opts({:send_file, _, opts}), do: parse_opts(Enum.at(opts, 2))
   def extract_opts({:send_resp, _, nil}), do: []
   def extract_opts({:send_resp, _, opts}), do: parse_opts(List.last(opts))
-  ## This is what an ecto query looks like. Don't need to validate the aliases here,
-  ## because that is done in the fetching phase.
-  def extract_opts({{:., _, [_, :query]}, _, opts}) do
-    parse_opts(Enum.at(opts, 1))
-  end
-  def extract_opts({{:., _, [_, :send_file]}, _, opts}) do
-    parse_opts(Enum.at(opts, 2))
-  end
   def extract_opts({{:., _, _}, _, _opts} = fun) do
     parse_opts(fun)
   end
