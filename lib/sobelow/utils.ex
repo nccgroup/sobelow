@@ -67,6 +67,43 @@ defmodule Sobelow.Utils do
   end
   def find_call(ast, acc, _call), do: {ast, acc <> Macro.to_string(ast)}
 
+  def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type) do
+    IO.puts finding_header(type, severity)
+    IO.puts finding_file_metadata(filename, fun_name, line_no)
+    IO.puts finding_variable(var)
+    maybe_print_code(fun, var)
+    IO.puts finding_break()
+  end
+
+  def finding_header(type, severity) do
+    {color, confidence} = finding_confidence(severity)
+    color <> type <> " - #{confidence} Confidence" <> IO.ANSI.reset()
+  end
+
+  def finding_file_metadata(filename, fun_name, line_no) do
+    "File: #{filename} - #{fun_name}:#{line_no}"
+  end
+
+  def finding_variable(var) do
+    "Variable: #{var}"
+  end
+
+  def finding_confidence(severity) do
+    case severity do
+      :high -> {IO.ANSI.red(), "High"}
+      :medium -> {IO.ANSI.yellow(), "Medium"}
+      :low -> {IO.ANSI.green(), "Low"}
+    end
+  end
+
+  def finding_break() do
+    "\n-----------------------------------------------\n"
+  end
+
+  def maybe_print_code(fun, var) do
+    if Sobelow.get_env(:with_code), do: print_code(fun, var, :query)
+  end
+
   ## Function parsing
   def get_def_funs(filepath) do
     ast = ast(filepath)
