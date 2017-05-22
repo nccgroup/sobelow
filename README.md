@@ -76,28 +76,8 @@ can then be used to either ignore classes of findings (via the
 `ignore` option) or to get vulnerability details (via the 
 `details` option).
  
-The following is the current list of supported modules:
-
-* XSS
-* XSS.Raw
-* XSS.SendResp
-* SQL
-* SQL.Inject
-* Config
-* Config.CSRF
-* Config.HTTPS
-* Config.Secrets
-* Traversal
-* Traversal.SendFile
-* Traversal.FileModule
-* Misc
-* Misc.BinToTerm
-* CI
-* CI.System
-* CI.OS
-    
-This list (and other helpful information), can also be found 
-on the command line:
+This list, and other helpful information, can be found on the 
+command line:
 
     $ mix help sobelow
 

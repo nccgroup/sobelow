@@ -32,7 +32,8 @@ defmodule Mix.Tasks.Sobelow do
   * XSS.Raw
   * XSS.SendResp
   * SQL
-  * SQL.Inject
+  * SQL.Query
+  * SQL.Stream
   * Config
   * Config.CSRF
   * Config.HTTPS

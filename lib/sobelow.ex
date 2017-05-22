@@ -191,7 +191,8 @@ defmodule Sobelow do
       "XSS.Raw" -> Sobelow.XSS.Raw
       "XSS.SendResp" -> Sobelow.XSS.SendResp
       "SQL" -> Sobelow.SQL
-      "SQL.Inject" -> Sobelow.SQL.Inject
+      "SQL.Query" -> Sobelow.SQL.Query
+      "SQL.Stream" -> Sobelow.SQL.Stream
       "Misc" -> Sobelow.Misc
       "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
       "Config" -> Sobelow.Config
