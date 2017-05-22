@@ -44,17 +44,10 @@ defmodule Sobelow.Traversal.FileModule do
     {files ++ pipefiles, params, {fun_name, line_no}}
   end
 
-  def print_file_finding(line_no, con, fun_name, fun, var, type, severity) do
-    {color, confidence} = case severity do
-      :high -> {IO.ANSI.red(), "High"}
-      :medium -> {IO.ANSI.yellow(), "Medium"}
-      :low -> {IO.ANSI.green(), "Low"}
-    end
-    IO.puts color <> "Directory Traversal in `File.#{type}` - #{confidence} Confidence" <> IO.ANSI.reset()
-    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
-    IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, type)
-    IO.puts "\n-----------------------------------------------\n"
+  def print_file_finding(line_no, filename, fun_name, fun, var, type, severity) do
+    Utils.print_finding_metadata(line_no, filename, fun,
+                                   fun_name, var, severity,
+                                   "Directory Traversal in `File.#{type}`", type, [:File])
   end
 
   def get_details() do

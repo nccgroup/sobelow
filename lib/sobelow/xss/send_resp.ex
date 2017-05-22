@@ -44,16 +44,9 @@ defmodule Sobelow.XSS.SendResp do
     Sobelow.XSS.details()
   end
 
-  defp print_resp_finding(line_no, con, fun_name, fun, var, severity) do
-    {color, confidence} = case severity do
-      :high -> {IO.ANSI.red(), "High"}
-      :medium -> {IO.ANSI.yellow(), "Medium"}
-      :low -> {IO.ANSI.green(), "Low"}
-    end
-    IO.puts color <> "XSS in `send_resp` - #{confidence} Confidence" <> IO.ANSI.reset()
-    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
-    IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :send_resp)
-    IO.puts "\n-----------------------------------------------\n"
+  defp print_resp_finding(line_no, filename, fun_name, fun, var, severity) do
+    Utils.print_finding_metadata(line_no, filename, fun,
+                                   fun_name, var, severity,
+                                   "XSS in `send_resp`", :send_resp)
   end
 end

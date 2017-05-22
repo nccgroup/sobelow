@@ -67,11 +67,11 @@ defmodule Sobelow.Utils do
   end
   def find_call(ast, acc, _call), do: {ast, acc <> Macro.to_string(ast)}
 
-  def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type) do
+  def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
     IO.puts finding_header(type, severity)
     IO.puts finding_file_metadata(filename, fun_name, line_no)
     IO.puts finding_variable(var)
-    maybe_print_code(fun, var)
+    maybe_print_code(fun, var, call, module)
     IO.puts finding_break()
   end
 
@@ -100,8 +100,8 @@ defmodule Sobelow.Utils do
     "\n-----------------------------------------------\n"
   end
 
-  def maybe_print_code(fun, var) do
-    if Sobelow.get_env(:with_code), do: print_code(fun, var, :query)
+  def maybe_print_code(fun, var, call, module) do
+    if Sobelow.get_env(:with_code), do: print_code(fun, var, call, module)
   end
 
   ## Function parsing

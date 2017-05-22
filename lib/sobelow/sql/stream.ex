@@ -34,17 +34,8 @@ defmodule Sobelow.SQL.Stream do
     {interp_vars ++ pipevars, params, {fun_name, line_no}}
   end
 
-  defp print_finding(line_no, con, fun, fun_name, var, severity) do
-    {color, confidence} = case severity do
-      :high -> {IO.ANSI.red(), "High"}
-      :medium -> {IO.ANSI.yellow(), "Medium"}
-      :low -> {IO.ANSI.green(), "Low"}
-    end
-    IO.puts color <> "SQL injection - #{confidence} Confidence" <> IO.ANSI.reset()
-    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
-    IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :stream)
-    IO.puts "\n-----------------------------------------------\n"
+  defp print_finding(line_no, filename, fun, fun_name, var, severity) do
+    Utils.print_finding_metadata(line_no, filename, fun, fun_name, var, severity, "SQL injection", :stream)
   end
 
   def get_details() do

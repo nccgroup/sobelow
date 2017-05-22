@@ -32,17 +32,10 @@ defmodule Sobelow.CI.System do
     {sys ++ pipesys, params, {fun_name, line_no}}
   end
 
-  def print_sys_finding(line_no, con, fun_name, fun, var, severity) do
-    {color, confidence} = case severity do
-      :high -> {IO.ANSI.red(), "High"}
-      :medium -> {IO.ANSI.yellow(), "Medium"}
-      :low -> {IO.ANSI.green(), "Low"}
-    end
-    IO.puts color <> "Command Injection in `System.cmd` - #{confidence} Confidence" <> IO.ANSI.reset()
-    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
-    IO.puts "Variable: #{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :cmd)
-    IO.puts "\n-----------------------------------------------\n"
+  def print_sys_finding(line_no, filename, fun_name, fun, var, severity) do
+    Utils.print_finding_metadata(line_no, filename, fun,
+                                   fun_name, var, severity,
+                                   "Command Injection in `System.cmd`", :cmd, [:System])
   end
 
   def get_details() do
