@@ -214,6 +214,7 @@ defmodule Sobelow.Utils do
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
   # A more general extract_opts. May be able to replace some of the
   # function specific extractions.
+  def extract_opts({_, _, nil}, idx), do: []
   def extract_opts({_, _, opts}, idx) do
     parse_opts(Enum.at(opts, idx))
   end
