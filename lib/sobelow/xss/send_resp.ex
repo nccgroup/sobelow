@@ -28,16 +28,45 @@ defmodule Sobelow.XSS.SendResp do
     end
   end
 
-  def parse_send_resp_def(fun) do
+  defp parse_send_resp_def(fun) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
-    resps = Utils.get_funs_of_type(fun, :send_resp)
-    |> Enum.map(&Utils.extract_opts/1)
+    pipefuns = Utils.get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&Utils.get_funs_of_type(&1, :send_resp))
+
+    pipevars = pipefuns
+    |> Enum.map(&Utils.extract_opts(&1, 1))
+    |> List.flatten
+
+    vars = Utils.get_funs_of_type(fun, :send_resp) -- pipefuns
+    |> Enum.map(&Utils.extract_opts(&1, 2))
+    |> List.flatten
 
     is_html = Utils.get_funs_of_type(fun, :put_resp_content_type)
     |> Enum.any?(&Utils.is_content_type_html/1)
 
-    {resps, is_html, params, {fun_name, line_no}}
+    {aliased_vars, _, _} = parse_aliased_send_resp_def(fun)
+
+    {vars ++ pipevars ++ aliased_vars, is_html, params, {fun_name, line_no}}
+  end
+
+  defp parse_aliased_send_resp_def(fun) do
+    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
+
+    pipefuns = Utils.get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&Utils.get_aliased_funs_of_type(&1, :send_resp, [:Plug, :Conn]))
+
+    pipevars = pipefuns
+    |> Enum.map(&Utils.extract_opts(&1, 1))
+    |> List.flatten
+
+    aliased_vars = Utils.get_aliased_funs_of_type(fun, :send_resp, [:Plug, :Conn]) -- pipefuns
+    |> Enum.map(&Utils.extract_opts(&1, 2))
+    |> List.flatten
+
+    {aliased_vars ++ pipevars, params, {fun_name, line_no}}
   end
 
   def get_details() do
