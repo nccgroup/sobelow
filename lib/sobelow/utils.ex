@@ -214,7 +214,7 @@ defmodule Sobelow.Utils do
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
   # A more general extract_opts. May be able to replace some of the
   # function specific extractions.
-  def extract_opts({_, _, nil}, idx), do: []
+  def extract_opts({_, _, nil}, _idx), do: []
   def extract_opts({_, _, opts}, idx) do
     parse_opts(Enum.at(opts, idx))
   end
@@ -275,11 +275,11 @@ defmodule Sobelow.Utils do
     {_,acc} = Macro.prewalk(ast, [], &get_pipe_val(&1, &2, pipe_fun))
     acc
   end
-  def get_pipe_val({:|>, _, [{:|>,_,opts},pipefun]} = ast, acc, pipefun) do
+  def get_pipe_val({:|>, _, [{:|>,_,opts},pipefun]}, acc, pipefun) do
     key = extract_opts(List.last(opts))
     {[], [key|acc]}
   end
-  def get_pipe_val({:|>, _, [opts,pipefun]} = ast, acc, pipefun) do
+  def get_pipe_val({:|>, _, [opts,pipefun]}, acc, pipefun) do
     key = extract_opts(opts)
     {[], [key|acc]}
   end
