@@ -322,12 +322,18 @@ defmodule Sobelow.Utils do
   end
 
   ## File listing
+  ## In normal situations, this shouldn't fail. However,
+  ## if there is a failure in path or app_name, it could
+  ## lead to an issue here. In these situations, the scan
+  ## will now proceed normally, but print an error message
+  ## for the user.
   def all_files(filepath, directory \\ "") do
     case File.ls(filepath) do
       {:ok, files} ->
         Enum.flat_map(files, &list_files(&1, filepath, directory))
       {:error, _} ->
-        IO.puts(IO.ANSI.red() <> "ERROR reading: #{Path.expand(filepath, "")}" <> IO.ANSI.reset())
+        IO.puts(IO.ANSI.red() <> "ERROR reading: #{Path.expand(filepath, "")}\n" <> IO.ANSI.reset())
+        []
     end
   end
   defp list_files(filename, filepath, directory) do
