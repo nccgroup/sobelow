@@ -37,11 +37,16 @@ defmodule Sobelow.Config.Secrets do
   defp enumerate_secrets(secrets, file) do
     file = Path.expand(file, "")
     Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
-      if is_binary(val) && String.length(val) > 0 do
+      if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
         print_finding(file, lineno, fun, key, val)
       end
     end
   end
+
+  def is_env_var?("${" <> rest) do
+    String.ends_with?(rest, "}")
+  end
+  def is_env_var?(_), do: false
 
   defp print_finding(file, line_no, fun, key, val) do
     IO.puts IO.ANSI.red() <> "Hardcoded Secret - High Confidence" <> IO.ANSI.reset()
