@@ -26,7 +26,7 @@ defmodule Sobelow do
     if !is_binary(app_name), do: file_error()
     {web_root, lib_root} = get_root(app_name, project_root)
 
-    root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: web_root
+    root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: lib_root
 
     if !File.exists?(web_root <> "web/router.ex"), do: file_error()
 
@@ -42,8 +42,12 @@ defmodule Sobelow do
       {file, Utils.get_def_funs(root <> file)}
     end)
 
+    # If web_root ends with the app_name, then it is the
+    # more recent version of Phoenix. Meaning, all files are
+    # in the lib directory, so we don't need to re-scan
+    # lib_root separately.
     libroot_defs =
-      case web_root !== lib_root do
+      case !String.ends_with?(web_root, "/#{app_name}/") do
         true ->
           Utils.all_files(lib_root)
           |> Enum.reject(&is_nil/1)
@@ -69,7 +73,7 @@ defmodule Sobelow do
 
     Enum.each(root_defs, fn {filename, defs} ->
       defs
-      |> Enum.each(&get_fun_vulns(&1, filename, web_root <> "web/", allowed))
+      |> Enum.each(&get_fun_vulns(&1, filename, root, allowed))
     end)
 
     Enum.each(libroot_defs, fn {filename, defs} ->
@@ -113,9 +117,9 @@ defmodule Sobelow do
   end
 
   defp get_root(app_name, project_root) do
-    lib_root = project_root <> "lib/#{String.downcase(app_name)}/"
-    if File.exists?(project_root <> "lib/#{String.downcase(app_name)}/web/router.ex") do
-      {lib_root, lib_root}
+    lib_root = project_root <> "lib/"
+    if File.exists?(project_root <> "lib/#{app_name}/web/router.ex") do
+      {lib_root <> "#{app_name}/", lib_root}
     else
       {project_root <> "./", lib_root}
     end

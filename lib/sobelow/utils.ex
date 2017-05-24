@@ -328,12 +328,16 @@ defmodule Sobelow.Utils do
   ## will now proceed normally, but print an error message
   ## for the user.
   def all_files(filepath, directory \\ "") do
-    case File.ls(filepath) do
-      {:ok, files} ->
-        Enum.flat_map(files, &list_files(&1, filepath, directory))
-      {:error, _} ->
-        IO.puts(IO.ANSI.red() <> "ERROR reading: #{Path.expand(filepath, "")}\n" <> IO.ANSI.reset())
-        []
+    if String.ends_with?(filepath, "/mix/") do
+      []
+    else
+      case File.ls(filepath) do
+        {:ok, files} ->
+          Enum.flat_map(files, &list_files(&1, filepath, directory))
+        {:error, _} ->
+          IO.puts(IO.ANSI.red() <> "ERROR reading: #{Path.expand(filepath, "")}\n" <> IO.ANSI.reset())
+          []
+      end
     end
   end
   defp list_files(filename, filepath, directory) do
@@ -445,7 +449,7 @@ defmodule Sobelow.Utils do
   def parse_render_opts({:render, _, opts}, params, meta) do
     # Reject tuple vals from opts. Basically, this will leave the template
     # and the keyword list if there is one.
-    opts = Enum.reject(opts, fn opt -> is_tuple(opt) end)
+    opts = if is_nil(opts), do: [], else: Enum.reject(opts, fn opt -> is_tuple(opt) end)
     [template|vars] =
       case Enum.empty?(opts) do
         false ->
