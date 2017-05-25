@@ -3,30 +3,29 @@ defmodule Sobelow.XSS.Raw do
   use Sobelow.Finding
 
   def run(fun, filename, web_root, controller) do
-    render_funs = parse_render_def(fun)
+    {vars, _, {fun_name, [{_, line_no}]}} = parse_render_def(fun)
 
-    Enum.each render_funs, fn {template_name, ref_vars, vars, params, {fun_name, [{_, line_no}]}} ->
-      if is_atom(template_name) do
-        template_name = Atom.to_string(template_name) <> ".html"
-      end
+    Enum.each vars, fn {template, ref_vars, vars} ->
+      template =
+        cond do
+          is_atom(template) -> Atom.to_string(template) <> ".html"
+          is_binary(template) -> template
+          true -> ""
+        end
 
-      if is_list(template_name) do
-        template_name = ".html"
-      end
-
-      p = web_root <> "templates/" <> controller <> "/" <> template_name <> ".eex"
-      if File.exists?(p) do
-        raw_vals = Utils.get_template_raw_vars(p)
+      template_path = web_root <> "templates/" <> controller <> "/" <> template <> ".eex"
+      if File.exists?(template_path) do
+        raw_vals = Utils.get_template_raw_vars(template_path)
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
-            t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
+            t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
             print_finding(t_name, line_no, filename, fun_name, fun, var, :high)
           end
         end)
 
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
-            t_name = String.replace_prefix(Path.expand(p, ""), "/", "")
+            t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
             print_finding(t_name, line_no, filename, fun_name, fun, var, :medium)
           end
         end)
@@ -37,8 +36,18 @@ defmodule Sobelow.XSS.Raw do
   def parse_render_def(fun) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
-    Utils.get_funs_of_type(fun, :render)
-    |> Enum.map(&Utils.parse_render_opts(&1, params, {fun_name, line_no}))
+    pipefuns = Utils.get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&Utils.get_funs_of_type(&1, :render))
+
+    pipevars = pipefuns
+    |> Enum.map(&Utils.parse_render_opts(&1, params, 0))
+    |> List.flatten
+
+    vars = Utils.get_funs_of_type(fun, :render) -- pipefuns
+    |> Enum.map(&Utils.parse_render_opts(&1, params, 1))
+
+    {vars ++ pipevars, params, {fun_name, line_no}}
   end
 
   def get_details() do

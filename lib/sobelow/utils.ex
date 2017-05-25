@@ -444,24 +444,10 @@ defmodule Sobelow.Utils do
     |> Enum.any?(&String.contains?(&1, "html"))
   end
 
-  # The `render` function is parsed separately. This may change in the future,
-  # but some unique properties made it simpler to start with this.
-  def parse_render_opts({:render, _, opts}, params, meta) do
-    # Reject tuple vals from opts. Basically, this will leave the template
-    # and the keyword list if there is one.
-    opts = if is_nil(opts), do: [], else: Enum.reject(opts, fn opt -> is_tuple(opt) end)
-    [template|vars] =
-      case Enum.empty?(opts) do
-        false ->
-          opts
-        true ->
-          ["", []]
-      end
+  def parse_render_opts({:render, _, opts}, params, idx) do
+    {_, vars} = Macro.prewalk(opts, [], &extract_render_opts/2)
 
-    if !Enum.empty?(vars) do
-      [vars|_] = vars
-      vars = if is_list(vars), do: vars, else: []
-    end
+    template = if is_nil(opts) || Enum.empty?(opts), do: "", else: Enum.at(opts, idx)
 
     reflected_vars = Enum.filter(vars, fn var ->
       (is_reflected_var?(var) && is_in_params?(var, params)) || is_conn_params?(var)
@@ -469,12 +455,23 @@ defmodule Sobelow.Utils do
 
     var_keys =
       Enum.map vars, fn {key, val} ->
-        if !is_binary(val), do: key
+        case val do
+          {_,_,_} -> key
+          _ -> nil
+        end
       end
 
     reflected_var_keys = Keyword.keys(reflected_vars)
 
-    {template, reflected_var_keys, var_keys -- reflected_var_keys, params, meta}
+    {template, reflected_var_keys, var_keys -- reflected_var_keys}
+  end
+
+  def extract_render_opts(ast, acc) do
+    if Keyword.keyword?(ast) do
+      {ast, ast}
+    else
+      {ast, acc}
+    end
   end
 
   defp is_reflected_var?({_, {_, _, nil}}), do: true
