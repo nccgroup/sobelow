@@ -31,6 +31,17 @@ defmodule Sobelow.XSS.Raw do
         end)
       end
     end
+
+    if String.ends_with?(filename, "_view.ex") do
+      {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
+      Enum.each vars, fn var ->
+        if Enum.member?(params, var) || var === "conn.params" do
+          print_view_finding(line_no, filename, fun_name, fun, var, :medium)
+        else
+          print_view_finding(line_no, filename, fun_name, fun, var, :low)
+        end
+      end
+    end
   end
 
   def parse_render_def(fun) do
@@ -50,6 +61,24 @@ defmodule Sobelow.XSS.Raw do
     {vars ++ pipevars, params, {fun_name, line_no}}
   end
 
+  def parse_raw_def(fun) do
+    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
+
+    pipefuns = Utils.get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&Utils.get_funs_of_type(&1, :raw))
+
+    pipevars = pipefuns
+    |> Enum.map(&Utils.get_pipe_val(fun, &1))
+    |> List.flatten
+
+    vars = Utils.get_funs_of_type(fun, :raw) -- pipefuns
+    |> Enum.map(&Utils.extract_opts(&1, 0))
+    |> List.flatten
+
+    {vars ++ pipevars, params, {fun_name, line_no}}
+  end
+
   def get_details() do
     Sobelow.XSS.details()
   end
@@ -65,5 +94,11 @@ defmodule Sobelow.XSS.Raw do
     IO.puts "Template: #{t_name} - @#{var}"
     if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :render)
     IO.puts "\n-----------------------------------------------\n"
+  end
+
+  defp print_view_finding(line_no, filename, fun_name, fun, var, severity) do
+    Utils.print_finding_metadata(line_no, filename, fun,
+                                   fun_name, var, severity,
+                                   "XSS", :raw)
   end
 end

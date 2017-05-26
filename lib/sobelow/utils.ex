@@ -18,6 +18,8 @@ defmodule Sobelow.Utils do
     acc = ""
     func_string = Macro.to_string fun, fn ast, string ->
       s = case ast do
+        {:|>, _, [_, {^call, _, _}]} ->
+          maybe_highlight(string, ast, var)
         {^call, _, _} ->
           maybe_highlight(string, ast, var)
         {:|>, _, [_, {{:., _,[{:__aliases__, _, _}, ^call]}, _, _}]} ->
