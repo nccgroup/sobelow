@@ -35,41 +35,10 @@ defmodule Sobelow.Traversal.SendFile do
   ## for traversal won't be at a definite location. This is a
   ## simple solution to the problem.
   defp parse_send_file_def(fun) do
-    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
+    {files, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 2, :send_file)
+    {aliased_files,_,_} = Utils.get_fun_vars_and_meta(fun, 2, :send_file, [:Plug, :Conn])
 
-    pipefuns = Utils.get_pipe_funs(fun)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&Utils.get_funs_of_type(&1, :send_file))
-
-    pipefiles = pipefuns
-    |> Enum.map(&Utils.extract_opts(&1, 1))
-    |> List.flatten
-
-    files = Utils.get_funs_of_type(fun, :send_file) -- pipefuns
-    |> Enum.map(&Utils.extract_opts(&1, 2))
-    |> List.flatten
-
-    {aliased_files, _, _} = parse_aliased_send_file_def(fun)
-
-    {files ++ pipefiles ++ aliased_files, params, {fun_name, line_no}}
-  end
-
-  defp parse_aliased_send_file_def(fun) do
-    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
-
-    pipefuns = Utils.get_pipe_funs(fun)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&Utils.get_aliased_funs_of_type(&1, :send_file, [:Plug, :Conn]))
-
-    pipefiles = pipefuns
-    |> Enum.map(&Utils.extract_opts(&1, 1))
-    |> List.flatten
-
-    aliased_files = Utils.get_aliased_funs_of_type(fun, :send_file, [:Plug, :Conn]) -- pipefuns
-    |> Enum.map(&Utils.extract_opts(&1, 2))
-    |> List.flatten
-
-    {aliased_files ++ pipefiles, params, {fun_name, line_no}}
+    {files ++ aliased_files, params, {fun_name, line_no}}
   end
 
   def print_finding(line_no, filename, fun_name, fun, var, severity) do

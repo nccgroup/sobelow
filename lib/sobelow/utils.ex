@@ -112,6 +112,59 @@ defmodule Sobelow.Utils do
     get_funs_of_type(ast, [:def, :defp])
   end
 
+  def get_fun_vars_and_meta(fun, idx, type, module \\ nil) do
+    {params, {fun_name, line_no}} = get_fun_declaration(fun)
+
+    pipefuns = get_funs_from_pipe(fun, type, module)
+    pipevars = get_pipefuns_vars(pipefuns, fun, idx)
+    vars = get_funs(fun, type, module) -- pipefuns
+    |> get_funs_vars(idx, type, module)
+
+    {vars ++ pipevars, params, {fun_name, line_no}}
+  end
+
+  defp get_funs(fun, type, nil) do
+    get_funs_of_type(fun, type)
+  end
+  defp get_funs(fun, type, module) do
+    get_aliased_funs_of_type(fun, type, module)
+  end
+
+  defp get_funs_from_pipe(fun, type, nil) do
+    get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&get_funs_of_type(&1, type))
+  end
+  defp get_funs_from_pipe(fun, type, module) do
+    get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&get_aliased_funs_of_type(&1, type, module))
+  end
+
+  defp get_funs_vars(funs, idx, type, nil) do
+    funs
+    |> Enum.map(&extract_opts(&1, idx))
+    |> List.flatten
+  end
+  defp get_funs_vars(funs, idx, type, module) do
+    funs
+    |> Enum.map(&extract_opts(&1, idx))
+    |> List.flatten
+  end
+
+  defp get_pipefuns_vars(pipefuns, fun, 0) do
+    pipefuns
+    |> Enum.flat_map(&get_pipe_val(fun, &1))
+    |> List.flatten
+  end
+  defp get_pipefuns_vars(pipefuns, fun, idx) do
+    idx = idx - 1
+
+    pipefuns
+    |> Enum.map(&extract_opts(&1, idx))
+    |> List.flatten
+  end
+
   def get_erlang_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type, :erlang))
     acc
