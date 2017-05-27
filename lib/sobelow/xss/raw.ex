@@ -62,21 +62,7 @@ defmodule Sobelow.XSS.Raw do
   end
 
   def parse_raw_def(fun) do
-    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
-
-    pipefuns = Utils.get_pipe_funs(fun)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&Utils.get_funs_of_type(&1, :raw))
-
-    pipevars = pipefuns
-    |> Enum.map(&Utils.get_pipe_val(fun, &1))
-    |> List.flatten
-
-    vars = Utils.get_funs_of_type(fun, :raw) -- pipefuns
-    |> Enum.map(&Utils.extract_opts(&1, 0))
-    |> List.flatten
-
-    {vars ++ pipevars, params, {fun_name, line_no}}
+    Utils.get_fun_vars_and_meta(fun, 0, :raw)
   end
 
   def get_details() do

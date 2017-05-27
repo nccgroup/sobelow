@@ -41,6 +41,10 @@ defmodule Sobelow.Traversal.SendFile do
     {files ++ aliased_files, params, {fun_name, line_no}}
   end
 
+  defp parse_aliased_send_file_def(fun) do
+    Utils.get_fun_vars_and_meta(fun, 2, :send_file, [:Plug, :Conn])
+  end
+
   def print_finding(line_no, filename, fun_name, fun, var, severity) do
     Utils.print_finding_metadata(line_no, filename, fun,
                                    fun_name, var, severity,

@@ -31,9 +31,6 @@ defmodule Sobelow.Misc.BinToTerm do
   def parse_binary_term_def(fun) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
-    # For something like `bin |> :erlang.binary_to_term()`, the desired
-    # variable is outside the function. For now, this should be the
-    # go-to way to handle this situation.
     pipefuns = Utils.get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&Utils.get_erlang_funs_of_type(&1, :binary_to_term))
