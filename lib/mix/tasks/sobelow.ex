@@ -53,7 +53,8 @@ defmodule Mix.Tasks.Sobelow do
              ignore: :string,
              details: :string,
              all_details: :boolean,
-             private: :boolean]
+             private: :boolean,
+             diff: :string]
 
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details]
 
@@ -65,6 +66,7 @@ defmodule Mix.Tasks.Sobelow do
     details = Keyword.get(opts, :details, nil)
     all_details = Keyword.get(opts, :all_details)
     private = Keyword.get(opts, :private, false)
+    diff = Keyword.get(opts, :diff, false)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
@@ -77,18 +79,29 @@ defmodule Mix.Tasks.Sobelow do
 
     set_env(:ignored, ignored)
 
-    if !is_nil(all_details) do
-      Sobelow.all_details()
+    cond do
+      diff ->
+        run_diff(argv)
+      !is_nil(all_details) ->
+        Sobelow.all_details()
+      !is_nil(details) ->
+        Sobelow.details()
+      true ->
+        Sobelow.run()
     end
 
-    if is_nil(all_details) && !is_nil(details) do
-      Sobelow.details()
-    end
+  end
 
-    if is_nil(all_details) && is_nil(details) do
-      Sobelow.run()
-    end
-
+  # This diff check is strictly used for testing/debugging and
+  # isn't meant for general use.
+  def run_diff(argv) do
+    diff_idx = Enum.find_index(argv, fn i -> i === "--diff" end)
+    {_, list} = List.pop_at(argv, diff_idx)
+    {diff_target, list} = List.pop_at(list, diff_idx)
+    args = Enum.join(list, " ") |> to_charlist()
+    diff_target = to_charlist(diff_target)
+    :os.cmd('mix sobelow ' ++ args ++ ' > sobelow.tempdiff')
+    IO.puts :os.cmd('diff sobelow.tempdiff ' ++ diff_target)
   end
 
   def set_env(key, value) do
