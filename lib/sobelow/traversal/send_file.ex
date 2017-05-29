@@ -48,7 +48,7 @@ defmodule Sobelow.Traversal.SendFile do
   def print_finding(line_no, filename, fun_name, fun, var, severity) do
     Utils.print_finding_metadata(line_no, filename, fun,
                                    fun_name, var, severity,
-                                   "Directory Traversal in `send_file`", :send_file)
+                                   "Directory Traversal in `send_file`", :send_file, [:Plug, :Conn])
   end
 
   def get_details() do

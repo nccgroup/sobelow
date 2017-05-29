@@ -21,7 +21,7 @@ defmodule Sobelow.SQL.Stream do
   end
 
   defp print_finding(line_no, filename, fun, fun_name, var, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun, fun_name, var, severity, "SQL injection", :stream)
+    Utils.print_finding_metadata(line_no, filename, fun, fun_name, var, severity, "SQL injection", :stream, :SQL)
   end
 
   def get_details() do

@@ -45,6 +45,6 @@ defmodule Sobelow.XSS.SendResp do
   defp print_resp_finding(line_no, filename, fun_name, fun, var, severity) do
     Utils.print_finding_metadata(line_no, filename, fun,
                                    fun_name, var, severity,
-                                   "XSS in `send_resp`", :send_resp)
+                                   "XSS in `send_resp`", :send_resp, [:Plug, :Conn])
   end
 end

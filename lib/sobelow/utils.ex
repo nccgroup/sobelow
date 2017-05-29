@@ -22,10 +22,10 @@ defmodule Sobelow.Utils do
           maybe_highlight(string, ast, var)
         {^call, _, _} ->
           maybe_highlight(string, ast, var)
-        {:|>, _, [_, {{:., _,[{:__aliases__, _, _}, ^call]}, _, _}]} ->
-          maybe_highlight(string, ast, var)
-        {{:., _,[{:__aliases__, _, _}, ^call]}, _, _} ->
-          maybe_highlight(string, ast, var)
+        {:|>, _, [_, {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}]} ->
+          maybe_highlight(string, ast, var, module, mod)
+        {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _} ->
+          maybe_highlight(string, ast, var, module, mod)
         {:|>, _, [_, {{:., _, [^module, ^call]}, _, _}]} ->
           maybe_highlight(string, ast, var)
         {{:., _, [^module, ^call]}, _, _} ->
@@ -42,6 +42,13 @@ defmodule Sobelow.Utils do
   defp maybe_highlight(string, ast, var) do
     if is_fun_with_var?(ast, var) do
       IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+    else
+      string
+    end
+  end
+  defp maybe_highlight(string, ast, var, module, mod) do
+    if module === mod || Enum.member?(mod, module) do
+      maybe_highlight(string, ast, var)
     else
       string
     end

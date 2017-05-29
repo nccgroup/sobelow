@@ -18,9 +18,9 @@ defmodule Sobelow.SQL.Query do
 
     Enum.each(interp_vars, fn var ->
       if Enum.member?(params, var) do
-        print_finding(line_no, filename, fun, fun_name, var, severity || :high)
+        print_repo_finding(line_no, filename, fun, fun_name, var, severity || :high)
       else
-        print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
+        print_repo_finding(line_no, filename, fun, fun_name, var, severity || :medium)
       end
     end)
   end
@@ -35,7 +35,10 @@ defmodule Sobelow.SQL.Query do
   end
 
   defp print_finding(line_no, filename, fun, fun_name, var, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun, fun_name, var, severity, "SQL injection", :query)
+    Utils.print_finding_metadata(line_no, filename, fun, fun_name, var, severity, "SQL injection", :query, :SQL)
+  end
+  defp print_repo_finding(line_no, filename, fun, fun_name, var, severity) do
+    Utils.print_finding_metadata(line_no, filename, fun, fun_name, var, severity, "SQL injection", :query, :Repo)
   end
 
   def get_details() do
