@@ -13,11 +13,25 @@ defmodule Sobelow.SQL.Query do
         print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
       end
     end)
+
+    {interp_vars, params, {fun_name, [{_, line_no}]}} = parse_repo_query_def(fun)
+
+    Enum.each(interp_vars, fn var ->
+      if Enum.member?(params, var) do
+        print_finding(line_no, filename, fun, fun_name, var, severity || :high)
+      else
+        print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
+      end
+    end)
   end
 
   ## query(repo, sql, params \\ [], opts \\ [])
   def parse_sql_def(fun) do
     Utils.get_fun_vars_and_meta(fun, 1, :query, :SQL)
+  end
+
+  def parse_repo_query_def(fun) do
+    Utils.get_fun_vars_and_meta(fun, 0, :query, :Repo)
   end
 
   defp print_finding(line_no, filename, fun, fun_name, var, severity) do
