@@ -69,11 +69,32 @@ The `ignore` option takes a comma-separated list of modules:
 The `details` option takes a single module:
 
     $ mix sobelow -d Config.CSRF
+    
+## False Positives
+Sobelow favors over-reporting versus under-reporting. As such, 
+you may find a number of false positives in a typical scan. 
+These findings may be individually ignored by adding a 
+`@sobelow_skip` mark, along with a list of modules, before 
+the function definition. 
+
+```elixir
+@sobelow_skip ["Traversal"]
+def vuln_func(...) do
+  ...
+end
+```
+
+Then, run the scan with the `--skip` flag.
+
+    $ mix sobelow --skip
+
+Config findings cannot be skipped in this way. Instead, use 
+the standard `ignore` option.
 
 ## Modules
 Findings categories are broken up into modules. These modules 
 can then be used to either ignore classes of findings (via the 
-`ignore` option) or to get vulnerability details (via the 
+`ignore` and `skip` options) or to get vulnerability details (via the 
 `details` option).
  
 This list, and other helpful information, can be found on the 
