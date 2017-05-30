@@ -20,7 +20,7 @@ defmodule Sobelow.XSS do
 
   use Sobelow.Finding
 
-  def get_vulns(fun, filename, web_root) do
+  def get_vulns(fun, filename, web_root, skip_mods \\ []) do
     controller = String.replace_suffix(filename, "_controller.ex", "")
     controller = String.replace_prefix(controller, "/controllers/", "")
     controller = String.replace_prefix(controller, "/web/controllers/", "")
@@ -28,7 +28,7 @@ defmodule Sobelow.XSS do
     path = web_root <> String.replace_prefix(filename, "/web/", "")
     |> Path.expand("")
     |> String.replace_prefix("/", "")
-    allowed = @submodules -- Sobelow.get_ignored()
+    allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)
 
     Enum.each allowed, fn mod ->
       if mod === Raw do

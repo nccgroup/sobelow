@@ -129,11 +129,11 @@ defmodule Sobelow do
   end
 
   defp get_fun_vulns({fun, skips}, filename, web_root, mods) do
-    fun_skip = skips
+    skip_mods = skips
     |> Enum.map(&get_mod/1)
 
-    Enum.each mods -- fun_skip, fn mod ->
-      apply(mod, :get_vulns, [fun, filename, web_root])
+    Enum.each mods -- skip_mods, fn mod ->
+      apply(mod, :get_vulns, [fun, filename, web_root, skip_mods])
     end
   end
   defp get_fun_vulns(fun, filename, web_root, mods) do
