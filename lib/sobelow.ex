@@ -66,6 +66,7 @@ defmodule Sobelow do
     # - Scan funcs from the root
     # - Scan funcs from the libroot
     IO.info print_banner()
+    Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, web_root)
 
@@ -73,11 +74,13 @@ defmodule Sobelow do
 
     Enum.each(root_defs, fn {filename, defs} ->
       defs
+      |> combine_skips()
       |> Enum.each(&get_fun_vulns(&1, filename, root, allowed))
     end)
 
     Enum.each(libroot_defs, fn {filename, defs} ->
       defs
+      |> combine_skips()
       |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
     end)
 
@@ -125,10 +128,33 @@ defmodule Sobelow do
     end
   end
 
+  defp get_fun_vulns({fun, skips}, filename, web_root, mods) do
+    fun_skip = skips
+    |> Enum.map(&get_mod/1)
+
+    Enum.each mods -- fun_skip, fn mod ->
+      apply(mod, :get_vulns, [fun, filename, web_root])
+    end
+  end
   defp get_fun_vulns(fun, filename, web_root, mods) do
     Enum.each mods, fn mod ->
       apply(mod, :get_vulns, [fun, filename, web_root])
     end
+  end
+
+  defp combine_skips([]), do: []
+  defp combine_skips([head|tail] = funs) do
+    if get_env(:skip), do: combine_skips(head, tail), else: funs
+  end
+  defp combine_skips(prev, []), do: [prev]
+  defp combine_skips(prev, [{:@, _, [{:sobelow_skip, _, [skips]}]} | []]), do: [{prev, skips}]
+  defp combine_skips(prev, [{:@, _, [{:sobelow_skip, _, [skips]}]} | tail]) do
+    [h|t] = tail
+    [{prev, skips}|combine_skips(h, t)]
+  end
+  defp combine_skips(prev, rest) do
+    [h|t] = rest
+    [prev|combine_skips(h, t)]
   end
 
   defp file_error() do

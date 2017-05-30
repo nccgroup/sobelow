@@ -232,6 +232,9 @@ defmodule Sobelow.Utils do
     {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, type))
     acc
   end
+  def get_funs_of_type({:@, _, [{:sobelow_skip, _, _}]} = ast, acc, types) when is_list(types) do
+    if Sobelow.get_env(:skip), do: {ast, [ast|acc]}, else: {ast, acc}
+  end
   def get_funs_of_type({type, _, _} = ast, acc, types) when is_list(types) do
     if Enum.member?(types, type) do
       {ast, [ast|acc]}

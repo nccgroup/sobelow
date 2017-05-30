@@ -24,6 +24,7 @@ defmodule Sobelow.XSS do
     controller = String.replace_suffix(filename, "_controller.ex", "")
     controller = String.replace_prefix(controller, "/controllers/", "")
     controller = String.replace_prefix(controller, "/web/controllers/", "")
+    controller = String.replace_prefix(controller, "/#{Sobelow.get_env(:app_name)}/web/controllers/", "")
     path = web_root <> String.replace_prefix(filename, "/web/", "")
     |> Path.expand("")
     |> String.replace_prefix("/", "")

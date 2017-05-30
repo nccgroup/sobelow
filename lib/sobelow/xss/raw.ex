@@ -4,6 +4,11 @@ defmodule Sobelow.XSS.Raw do
 
   def run(fun, filename, web_root, controller) do
     {vars, _, {fun_name, [{_, line_no}]}} = parse_render_def(fun)
+    web_root = if String.ends_with?(web_root, "/lib/") do
+      web_root <> Sobelow.get_env(:app_name) <> "/web/"
+    else
+      web_root
+    end
 
     Enum.each vars, fn {template, ref_vars, vars} ->
       template =
