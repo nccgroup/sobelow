@@ -34,7 +34,7 @@ defmodule Sobelow do
         router -> router
       end
 
-    if !router, do: file_error()
+    if !File.exists?(router), do: no_router()
 
     ignored = get_ignored()
     allowed = @submodules -- ignored
@@ -161,6 +161,17 @@ defmodule Sobelow do
   defp combine_skips(prev, rest) do
     [h|t] = rest
     [prev|combine_skips(h, t)]
+  end
+
+  defp no_router() do
+    message = """
+    ERROR: Sobelow cannot find the router. Ensure that this is a Phoenix 
+    application, or use the `--router` flag to specify the router's 
+    location.
+    """
+    IO.error(message)
+    ignored = get_env(:ignored)
+    Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF"])
   end
 
   defp file_error() do
