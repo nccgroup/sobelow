@@ -56,7 +56,8 @@ defmodule Mix.Tasks.Sobelow do
              all_details: :boolean,
              private: :boolean,
              diff: :string,
-             skip: :boolean]
+             skip: :boolean,
+             router: :string]
 
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details]
 
@@ -70,12 +71,14 @@ defmodule Mix.Tasks.Sobelow do
     private = Keyword.get(opts, :private, false)
     diff = Keyword.get(opts, :diff, false)
     skip = Keyword.get(opts, :skip, false)
+    router = Keyword.get(opts, :router)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
     set_env(:details, details)
     set_env(:private, private)
     set_env(:skip, skip)
+    set_env(:router, router)
 
     ignored =
       Keyword.get(opts, :ignore, "")

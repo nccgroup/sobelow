@@ -28,7 +28,13 @@ defmodule Sobelow do
 
     root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: lib_root
 
-    if !File.exists?(web_root <> "web/router.ex"), do: file_error()
+    router = 
+      case get_env(:router) do
+        nil -> web_root <> "web/router.ex"
+        router -> router
+      end
+
+    if !router, do: file_error()
 
     ignored = get_ignored()
     allowed = @submodules -- ignored
@@ -68,7 +74,7 @@ defmodule Sobelow do
     IO.info print_banner()
     Application.put_env(:sobelow, :app_name, app_name)
 
-    if Enum.member?(allowed, Config), do: Config.fetch(project_root, web_root)
+    if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
 
     allowed = allowed -- [Config]
 
@@ -121,7 +127,7 @@ defmodule Sobelow do
 
   defp get_root(app_name, project_root) do
     lib_root = project_root <> "lib/"
-    if File.exists?(project_root <> "lib/#{app_name}/web/router.ex") do
+    if File.dir?(project_root <> "lib/#{app_name}/web/") do
       {lib_root <> "#{app_name}/", lib_root}
     else
       {project_root <> "./", lib_root}

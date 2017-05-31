@@ -7,11 +7,11 @@ defmodule Sobelow.Config do
 
   use Sobelow.Finding
 
-  def fetch(root, web_root) do
+  def fetch(root, router) do
     allowed = @submodules -- Sobelow.get_ignored()
 
     Enum.each allowed, fn mod ->
-      path = if mod === CSRF, do: web_root, else: root
+      path = if mod === CSRF, do: router, else: root
       apply(mod, :run, [path])
     end
   end
