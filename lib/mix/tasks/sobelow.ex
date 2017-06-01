@@ -18,6 +18,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
   * `--skip` - Skip functions flagged with `@sobelow_skip`
+  * `--router` - Specify router location
 
   ## Ignoring modules
 

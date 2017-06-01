@@ -53,6 +53,7 @@ following from the project root:
   * `--details -d` - Get module details
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
+  * `--router` - Specify router location
   
 The `root` option takes a path argument:
 
