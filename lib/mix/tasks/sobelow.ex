@@ -19,6 +19,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--private` - Skip update checks
   * `--skip` - Skip functions flagged with `@sobelow_skip`
   * `--router` - Specify router location
+  * `--exit` - Return non-zero exit status
 
   ## Ignoring modules
 
@@ -45,6 +46,7 @@ defmodule Mix.Tasks.Sobelow do
   * Traversal.FileModule
   * Misc
   * Misc.BinToTerm
+  * Misc.StringToAtom
   * CI
   * CI.System
   * CI.OS
