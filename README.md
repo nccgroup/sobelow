@@ -54,6 +54,7 @@ following from the project root:
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
   * `--router` - Specify router location
+  * `--exit` - Return non-zero exit status
   
 The `root` option takes a path argument:
 
@@ -70,6 +71,11 @@ The `ignore` option takes a comma-separated list of modules:
 The `details` option takes a single module:
 
     $ mix sobelow -d Config.CSRF
+    
+The `exit` option accepts a confidence threshold (low, medium, or high), 
+and will return a non-zero exit status above that threshold.
+
+    $ mix sobelow --exit Low
     
 ## False Positives
 Sobelow favors over-reporting versus under-reporting. As such, 
