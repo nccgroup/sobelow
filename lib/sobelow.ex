@@ -272,6 +272,7 @@ defmodule Sobelow do
       "SQL.Stream" -> Sobelow.SQL.Stream
       "Misc" -> Sobelow.Misc
       "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
+      "Misc.StringToAtom" -> Sobelow.Misc.StringToAtom
       "Config" -> Sobelow.Config
       "Config.CSRF" -> Sobelow.Config.CSRF
       "Config.Secrets" -> Sobelow.Config.Secrets
