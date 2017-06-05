@@ -8,10 +8,10 @@ defmodule Sobelow.SQL.Query do
 
     Enum.each(interp_vars, fn var ->
       if Enum.member?(params, var) do
-        log_finding("SQLi", severity || :high)
+        Sobelow.log_finding("SQLi", severity || :high)
         print_finding(line_no, filename, fun, fun_name, var, severity || :high)
       else
-        log_finding("SQLi", severity || :medium)
+        Sobelow.log_finding("SQLi", severity || :medium)
         print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
       end
     end)
@@ -20,10 +20,10 @@ defmodule Sobelow.SQL.Query do
 
     Enum.each(interp_vars, fn var ->
       if Enum.member?(params, var) do
-        log_finding("SQLi", severity || :high)
+        Sobelow.log_finding("SQLi", severity || :high)
         print_repo_finding(line_no, filename, fun, fun_name, var, severity || :high)
       else
-        log_finding("SQLi", severity || :medium)
+        Sobelow.log_finding("SQLi", severity || :medium)
         print_repo_finding(line_no, filename, fun, fun_name, var, severity || :medium)
       end
     end)

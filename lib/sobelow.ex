@@ -130,6 +130,10 @@ defmodule Sobelow do
     end
   end
 
+  def log_finding(finding, severity) do
+    FindingLog.add(finding, severity)
+  end
+
   def all_details() do
     @submodules
     |> Enum.each(&apply(&1, :details, []))

@@ -17,10 +17,10 @@ defmodule Sobelow.Traversal.FileModule do
 
       Enum.each vars, fn var ->
         if Enum.member?(params, var) || var === "conn.params" do
-          log_finding("Directory Traversal", severity || :high)
+          Sobelow.log_finding("Directory Traversal", severity || :high)
           print_file_finding(line_no, filename, fun_name, fun, var, file_func, severity || :high)
         else
-          log_finding("Directory Traversal", severity || :medium)
+          Sobelow.log_finding("Directory Traversal", severity || :medium)
           print_file_finding(line_no, filename, fun_name, fun, var, file_func, severity || :medium)
         end
       end

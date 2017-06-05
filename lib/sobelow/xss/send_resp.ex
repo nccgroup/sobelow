@@ -9,23 +9,23 @@ defmodule Sobelow.XSS.SendResp do
       if is_list(var) do
         Enum.each var, fn v ->
           if (Enum.member?(params, v) || v === "conn.params") && is_html do
-            log_finding("XSS", :high)
+            Sobelow.log_finding("XSS", :high)
             print_resp_finding(line_no, filename, fun_name, fun, v, :high)
           end
 
           if is_html && !Enum.member?(params, v) do
-            log_finding("XSS", :medium)
+            Sobelow.log_finding("XSS", :medium)
             print_resp_finding(line_no, filename, fun_name, fun, v, :medium)
           end
         end
       else
         if (Enum.member?(params, var) || var === "conn.params") && is_html do
-          log_finding("XSS", :high)
+          Sobelow.log_finding("XSS", :high)
           print_resp_finding(line_no, filename, fun_name, fun, var, :high)
         end
 
         if is_html && !Enum.member?(params, var) && var != "conn.params" do
-          log_finding("XSS", :medium)
+          Sobelow.log_finding("XSS", :medium)
           print_resp_finding(line_no, filename, fun_name, fun, var, :medium)
         end
       end

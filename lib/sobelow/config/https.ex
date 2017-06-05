@@ -27,11 +27,11 @@ defmodule Sobelow.Config.HTTPS do
 
   defp handle_https(opts, file) do
     if length(opts) === 0 do
-      log_finding("HTTPS", :high)
+      Sobelow.log_finding("HTTPS", :high)
       print_finding(:https)
     else
       if length(Utils.get_configs(:force_ssl, file)) === 0 do
-        log_finding("HSTS", :high)
+        Sobelow.log_finding("HSTS", :high)
         print_finding(:hsts)
       end
     end
