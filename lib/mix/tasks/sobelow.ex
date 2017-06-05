@@ -74,10 +74,10 @@ defmodule Mix.Tasks.Sobelow do
     diff = Keyword.get(opts, :diff, false)
     skip = Keyword.get(opts, :skip, false)
     router = Keyword.get(opts, :router)
-    exit_on = case Keyword.get(opts, :exit, nil) do
-      "High" -> :high
-      "Medium" -> :medium
-      "Low" -> :low
+    exit_on = case String.downcase(Keyword.get(opts, :exit, "None")) do
+      "high" -> :high
+      "medium" -> :medium
+      "low" -> :low
       _ -> false
     end
 
