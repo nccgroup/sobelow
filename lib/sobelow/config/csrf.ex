@@ -27,6 +27,7 @@ defmodule Sobelow.Config.CSRF do
 
   defp is_vuln_pipeline(pipeline) do
     if Utils.is_vuln_pipeline(pipeline) do
+      log_finding("CSRF", :high)
       print_finding(pipeline)
     end
   end

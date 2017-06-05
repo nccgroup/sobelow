@@ -18,6 +18,7 @@ defmodule Sobelow.Misc.BinToTerm do
     {vars, _params, {fun_name, [{_, line_no}]}} = parse_binary_term_def(fun)
 
     Enum.each vars, fn var ->
+      log_finding("Unsafe `binary_to_term`", :high)
       print_finding(line_no, filename, fun_name, fun, var, :high)
     end
   end

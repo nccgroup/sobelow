@@ -38,6 +38,7 @@ defmodule Sobelow.Config.Secrets do
     file = Path.expand(file, "")
     Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
+        log_finding("Hardcoded Secret", :high)
         print_finding(file, lineno, fun, key, val)
       end
     end

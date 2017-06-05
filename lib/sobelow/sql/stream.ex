@@ -8,8 +8,10 @@ defmodule Sobelow.SQL.Stream do
 
     Enum.each(interp_vars, fn var ->
       if Enum.member?(params, var) do
+        log_finding("SQLi", severity || :high)
         print_finding(line_no, filename, fun, fun_name, var, severity || :high)
       else
+        log_finding("SQLi", severity || :medium)
         print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
       end
     end)

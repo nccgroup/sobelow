@@ -13,6 +13,7 @@ defmodule Sobelow do
 
   alias Sobelow.Utils
   alias Sobelow.Config
+  alias Sobelow.FindingLog
   alias Mix.Shell.IO
   # In order to support the old application structure, as well as the
   # upcoming application structure (ie all in lib directory, vs pulled
@@ -64,6 +65,8 @@ defmodule Sobelow do
         _ -> []
       end
 
+    FindingLog.start_link()
+
     # This is where the core testing-pipeline starts.
     #
     # - Print banner
@@ -91,6 +94,29 @@ defmodule Sobelow do
     end)
 
     IO.info "... SCAN COMPLETE ..."
+    exit_with_status()
+  end
+
+  defp exit_with_status() do
+    exit_on = get_env(:exit_on)
+    finding_logs = FindingLog.log()
+
+    high_count = length(finding_logs[:high])
+    medium_count = length(finding_logs[:medium])
+    low_count = length(finding_logs[:low])
+
+    status =
+      case exit_on do
+        :high ->
+          if high_count > 0, do: 1
+        :medium ->
+          if high_count + medium_count > 0, do: 1
+        :low ->
+          if high_count + medium_count + low_count > 0, do: 1
+        _ -> 0
+      end
+
+    System.halt(status)
   end
 
   def details() do
