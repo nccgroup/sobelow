@@ -469,10 +469,14 @@ defmodule Sobelow.Utils do
     if is_list(accepts) && Enum.member?(accepts, "html") && !csrf, do: true, else: false
   end
 
+  def get_plug_accepts({:plug, _, [:accepts, {:sigil_w, _, opts}]}), do: parse_accepts(opts)
   def get_plug_accepts({:plug, _, [:accepts, accepts]}), do: accepts
   def get_plug_accepts(_), do: false
+
   def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
   def get_plug_csrf(_), do: false
+
+  def parse_accepts([{:<<>>, _, [accepts|_]}, []]), do: String.split(accepts, " ")
 
   def get_configs(key, filepath) do
     ast = ast(filepath)
