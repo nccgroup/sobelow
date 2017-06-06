@@ -13,6 +13,7 @@ security issues:
 * Cross-Site Scripting
 * SQL injection
 * Command injection
+* Denial of Service
 * Directory traversal
 * Unsafe serialization
 
