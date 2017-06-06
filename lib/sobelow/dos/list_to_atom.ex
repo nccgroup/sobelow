@@ -1,15 +1,15 @@
-defmodule Sobelow.Misc.StringToAtom do
+defmodule Sobelow.DOS.ListToAtom do
   @moduledoc """
-  # Insecure use of `String.to_atom`
+  # Denial of Service via `List.to_atom`
 
   In Elixir, atoms are not garbage collected. As such, if user input
-  is passed to the `String.to_atom` function, it may result in memory
-  exhaustion. Prefer the `String.to_existing_atom` function for untrusted
+  is passed to the `List.to_atom` function, it may result in memory
+  exhaustion. Prefer the `List.to_existing_atom` function for untrusted
   user input.
 
-  `String.to_atom` checks can be ignored with the following command:
+  `List.to_atom` checks can be ignored with the following command:
 
-      $ mix sobelow -i Misc.StringToAtom
+      $ mix sobelow -i DOS.ListToAtom
   """
   alias Sobelow.Utils
   use Sobelow.Finding
@@ -20,10 +20,10 @@ defmodule Sobelow.Misc.StringToAtom do
 
     Enum.each vars, fn var ->
       if Enum.member?(params, var) || var === "conn.params" do
-        Sobelow.log_finding("Unsafe `String.to_atom`", severity || :high)
+        Sobelow.log_finding("Unsafe `List.to_atom`", severity || :high)
         print_finding(line_no, filename, fun_name, fun, var, severity || :high)
       else
-        Sobelow.log_finding("Unsafe `String.to_atom`", severity || :medium)
+        Sobelow.log_finding("Unsafe `List.to_atom`", severity || :medium)
         print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
       end
     end
@@ -32,10 +32,10 @@ defmodule Sobelow.Misc.StringToAtom do
   defp print_finding(line_no, filename, fun_name, fun, var, severity) do
     Utils.print_finding_metadata(line_no, filename, fun,
                                    fun_name, var, severity,
-                                   "Unsafe `String.to_atom`", :to_atom, [:String])
+                                   "Unsafe `List.to_atom`", :to_atom, [:List])
   end
 
   def parse_def(fun) do
-    Utils.get_fun_vars_and_meta(fun, 0, :to_atom, [:String])
+    Utils.get_fun_vars_and_meta(fun, 0, :to_atom, [:List])
   end
 end

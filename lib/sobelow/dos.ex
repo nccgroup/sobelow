@@ -1,5 +1,5 @@
-defmodule Sobelow.Misc do
-  @submodules [Sobelow.Misc.BinToTerm]
+defmodule Sobelow.DOS do
+  @submodules [Sobelow.DOS.StringToAtom, Sobelow.DOS.ListToAtom]
   use Sobelow.Finding
 
   def get_vulns(fun, filename, web_root, skip_mods \\ []) do

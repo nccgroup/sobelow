@@ -46,10 +46,12 @@ defmodule Mix.Tasks.Sobelow do
   * Traversal.FileModule
   * Misc
   * Misc.BinToTerm
-  * Misc.StringToAtom
   * CI
   * CI.System
   * CI.OS
+  * DOS
+  * DOS.StringToAtom
+  * DOS.ListToAtom
 
   """
   @switches [with_code: :boolean,

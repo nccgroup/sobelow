@@ -9,7 +9,8 @@ defmodule Sobelow do
                Sobelow.Traversal,
                Sobelow.Misc,
                Sobelow.Config,
-               Sobelow.CI]
+               Sobelow.CI,
+               Sobelow.DOS]
 
   alias Sobelow.Utils
   alias Sobelow.Config
@@ -272,7 +273,6 @@ defmodule Sobelow do
       "SQL.Stream" -> Sobelow.SQL.Stream
       "Misc" -> Sobelow.Misc
       "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
-      "Misc.StringToAtom" -> Sobelow.Misc.StringToAtom
       "Config" -> Sobelow.Config
       "Config.CSRF" -> Sobelow.Config.CSRF
       "Config.Secrets" -> Sobelow.Config.Secrets
@@ -283,6 +283,9 @@ defmodule Sobelow do
       "CI" -> Sobelow.CI
       "CI.System" -> Sobelow.CI.System
       "CI.OS" -> Sobelow.CI.OS
+      "DOS" -> Sobelow.DOS
+      "DOS.StringToAtom" -> Sobelow.DOS.StringToAtom
+      "DOS.ListToAtom" -> Sobelow.DOS.ListToAtom
       _ -> nil
     end
   end

@@ -30,7 +30,7 @@ defmodule Sobelow.Utils do
           maybe_highlight(string, ast, var)
         {{:., _, [^module, ^call]}, _, _} ->
           maybe_highlight(string, ast, var)
-        _ -> string
+        _ -> if is_nil(string), do: "", else: string
       end
       acc <> s
     end
