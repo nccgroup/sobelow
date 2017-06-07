@@ -46,6 +46,7 @@ defmodule Mix.Tasks.Sobelow do
   * Traversal.FileModule
   * Misc
   * Misc.BinToTerm
+  * Misc.FilePath
   * CI
   * CI.System
   * CI.OS
