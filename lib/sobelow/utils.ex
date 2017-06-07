@@ -17,18 +17,23 @@ defmodule Sobelow.Utils do
   def print_code(fun, var, call \\ nil, module \\ nil) do
     acc = ""
     func_string = Macro.to_string fun, fn ast, string ->
+      s = print_highlighted(string, ast, var, call, module)
+      acc <> s
+    end
+
+    IO.puts "\n"
+    IO.puts func_string
+  end
+
+  def print_file_path_code(fun, var) do
+    acc = ""
+    func_string = Macro.to_string fun, fn ast, string ->
       s = case ast do
-        {:|>, _, [_, {^call, _, _}]} ->
+        {:=, _, [{^var, _, nil}|_]} ->
           maybe_highlight(string, ast, var)
-        {^call, _, _} ->
+        {{:., _,[{:__aliases__, _, [:Path]}, _]}, _, _} ->
           maybe_highlight(string, ast, var)
-        {:|>, _, [_, {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}]} ->
-          maybe_highlight(string, ast, var, module, mod)
-        {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _} ->
-          maybe_highlight(string, ast, var, module, mod)
-        {:|>, _, [_, {{:., _, [^module, ^call]}, _, _}]} ->
-          maybe_highlight(string, ast, var)
-        {{:., _, [^module, ^call]}, _, _} ->
+        {{:., _,[{:__aliases__, _, [:File]}, _]}, _, _} ->
           maybe_highlight(string, ast, var)
         _ -> if is_nil(string), do: "", else: string
       end
@@ -37,6 +42,24 @@ defmodule Sobelow.Utils do
 
     IO.puts "\n"
     IO.puts func_string
+  end
+
+  def print_highlighted(string, ast, var, call, module) do
+    case ast do
+      {:|>, _, [_, {^call, _, _}]} ->
+        maybe_highlight(string, ast, var)
+      {^call, _, _} ->
+        maybe_highlight(string, ast, var)
+      {:|>, _, [_, {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}]} ->
+        maybe_highlight(string, ast, var, module, mod)
+      {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _} ->
+        maybe_highlight(string, ast, var, module, mod)
+      {:|>, _, [_, {{:., _, [^module, ^call]}, _, _}]} ->
+        maybe_highlight(string, ast, var)
+      {{:., _, [^module, ^call]}, _, _} ->
+        maybe_highlight(string, ast, var)
+      _ -> if is_nil(string), do: "", else: string
+    end
   end
 
   defp maybe_highlight(string, ast, var) do
@@ -84,6 +107,14 @@ defmodule Sobelow.Utils do
     IO.puts finding_break()
   end
 
+  def print_file_path_finding_metadata(line_no, filename, fun, fun_name, var, severity) do
+    IO.puts finding_header("Insecure use of `File` and `Path`", severity)
+    IO.puts finding_file_metadata(filename, fun_name, line_no)
+    IO.puts finding_variable(var)
+    maybe_print_file_path_code(fun, var)
+    IO.puts finding_break()
+  end
+
   def finding_header(type, severity) do
     {color, confidence} = finding_confidence(severity)
     color <> type <> " - #{confidence} Confidence" <> IO.ANSI.reset()
@@ -111,6 +142,10 @@ defmodule Sobelow.Utils do
 
   def maybe_print_code(fun, var, call, module) do
     if Sobelow.get_env(:with_code), do: print_code(fun, var, call, module)
+  end
+
+  def maybe_print_file_path_code(fun, var) do
+    if Sobelow.get_env(:with_code), do: print_file_path_code(fun, var)
   end
 
   ## Function parsing
@@ -185,6 +220,30 @@ defmodule Sobelow.Utils do
     {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type, module))
     acc
   end
+
+  def get_funs_by_module(ast, module) do
+    {_, acc} = Macro.prewalk(ast, [], &contains_module(&1, &2, module))
+    acc
+  end
+
+  def get_assigns_from(fun, module) when is_list(module) do
+    assigns = get_funs_of_type(fun, :=)
+    |> Enum.filter(&contains_module?(&1, module))
+    |> Enum.map(&get_assign/1)
+  end
+
+  defp contains_module?(ast, module) do
+    {_, acc} = Macro.prewalk(ast, [], &contains_module(&1, &2, module))
+    if length(acc) > 0, do: true, else: false
+  end
+  defp contains_module({{:., _, [{:__aliases__, _, module}, _]}, _, _} = ast, acc, module) do
+    {module, [ast|acc]}
+  end
+  defp contains_module(ast,acc,_), do: {ast, acc}
+
+  defp get_assign({_,_,[{val,_,_}|_]}), do: val
+  defp get_assign(_), do: ""
+
 
   ## This is used to get aliased function calls such as `File.read`
   ## or `Ecto.Adapters.SQL.query`.
