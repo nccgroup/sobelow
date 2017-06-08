@@ -2,9 +2,12 @@ defmodule Sobelow.Vuln do
   @moduledoc """
   # Known Vulnerable Dependencies
 
-  Known Vulnerable Dependencies checks can be ignored with the following command:
+  An application with known vulnerabilities is more easily subjected
+  to automated or targeted attacks.
 
-      $ mix sobelow -i Config.Vuln
+  Known Vulnerable checks can be ignored with the following command:
+
+      $ mix sobelow -i Vuln
   """
   alias Sobelow.Utils
   @submodules [Sobelow.Vuln.PlugNull, Sobelow.Vuln.CookieRCE, Sobelow.Vuln.HeaderInject, Sobelow.Vuln.Redirect]
