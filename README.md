@@ -10,6 +10,7 @@ Currently Sobelow detects some types of the following
 security issues: 
 
 * Insecure configuration
+* Known-vulnerable Dependencies
 * Cross-Site Scripting
 * SQL injection
 * Command injection
@@ -96,8 +97,8 @@ Then, run the scan with the `--skip` flag.
 
     $ mix sobelow --skip
 
-Config findings cannot be skipped in this way. Instead, use 
-the standard `ignore` option.
+Config and Vulnerable Dependency findings cannot be skipped in 
+this way. For these, use the standard `ignore` option.
 
 ## Modules
 Findings categories are broken up into modules. These modules 
