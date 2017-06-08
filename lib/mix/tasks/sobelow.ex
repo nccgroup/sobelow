@@ -41,6 +41,11 @@ defmodule Mix.Tasks.Sobelow do
   * Config.CSRF
   * Config.HTTPS
   * Config.Secrets
+  * Vuln
+  * Vuln.CookieRCE
+  * Vuln.HeaderInject
+  * Vuln.PlugNull
+  * Vuln.Redirect
   * Traversal
   * Traversal.SendFile
   * Traversal.FileModule
