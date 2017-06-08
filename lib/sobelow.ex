@@ -10,10 +10,12 @@ defmodule Sobelow do
                Sobelow.Misc,
                Sobelow.Config,
                Sobelow.CI,
-               Sobelow.DOS]
+               Sobelow.DOS,
+               Sobelow.Vuln]
 
   alias Sobelow.Utils
   alias Sobelow.Config
+  alias Sobelow.Vuln
   alias Sobelow.FindingLog
   alias Mix.Shell.IO
   # In order to support the old application structure, as well as the
@@ -79,8 +81,9 @@ defmodule Sobelow do
     Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
+    if Enum.member?(allowed, Vuln), do: Vuln.get_vulns(project_root)
 
-    allowed = allowed -- [Config]
+    allowed = allowed -- [Config, Vuln]
 
     Enum.each(root_defs, fn {filename, defs} ->
       defs
@@ -278,6 +281,11 @@ defmodule Sobelow do
       "Config.CSRF" -> Sobelow.Config.CSRF
       "Config.Secrets" -> Sobelow.Config.Secrets
       "Config.HTTPS" -> Sobelow.Config.HTTPS
+      "Vuln" -> Sobelow.Vuln
+      "Vuln.CookieRCE" -> Sobelow.CookeRCE
+      "Vuln.HeaderInject" -> Sobelow.Vuln.HeaderInject
+      "Vuln.PlugNull" -> Sobelow.Vuln.PlugNull
+      "Vuln.Redirect" -> Sobelow.Vuln.Redirect
       "Traversal" -> Sobelow.Traversal
       "Traversal.SendFile" -> Sobelow.Traversal.SendFile
       "Traversal.FileModule" -> Sobelow.Traversal.FileModule

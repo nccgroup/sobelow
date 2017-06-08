@@ -557,6 +557,15 @@ defmodule Sobelow.Utils do
     {ast, acc}
   end
 
+  def get_version(filepath) do
+    ast = ast(filepath)
+    {_ast, acc} = Macro.prewalk(ast, [], &get_version(&1, &2))
+    acc
+  end
+  def get_version({:@, _, nil} = ast, acc), do: {ast, acc}
+  def get_version({:@, _, [{:version, _, [vsn]}]}, _acc) when is_binary(vsn), do: {vsn, vsn}
+  def get_version(ast, acc), do: {ast, acc}
+
   # XSS Utils
 
   def get_template_raw_vars(filepath) do
