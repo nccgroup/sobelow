@@ -75,7 +75,7 @@ The `details` option takes a single module:
     $ mix sobelow -d Config.CSRF
     
 The `exit` option accepts a confidence threshold (low, medium, or high), 
-and will return a non-zero exit status above that threshold.
+and will return a non-zero exit status at or above that threshold.
 
     $ mix sobelow --exit Low
     
