@@ -43,14 +43,12 @@ defmodule Sobelow.Misc.FilePath do
     type = "Insecure use of `File` and `Path`"
     case Sobelow.format() do
       "json" ->
-        finding = """
-        {
-            "type": "#{type}",
-            "file": "#{filename}",
-            "function": "#{fun_name}:#{line_no}",
-            "variable": "#{var}"
-        }
-        """
+        finding = [
+          type: type,
+          file: filename,
+          function: "#{fun_name}:#{line_no}",
+          variable: var
+        ]
         Sobelow.log_finding(finding, severity)
       _ ->
         Sobelow.log_finding(type, severity)

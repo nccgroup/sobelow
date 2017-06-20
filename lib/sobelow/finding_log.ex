@@ -1,6 +1,21 @@
 defmodule Sobelow.FindingLog do
   use GenServer
 
+  @json_template """
+  {
+    "sobelow_version": "<%= @version %>",
+    "created_by": "Griffin Byatt - @griffinbyatt",
+    "company": "NCC Group - https://nccgroup.trust",
+    "findings": {<%= for {confidence, items} <- @findings do %>
+      "<%= confidence %>": [<% last = List.last(items) %><%= for item <- items do %>
+        {<% {lk, _} = List.last(item) %><%= for {k, v} <- item do %>
+          "<%= k %>": "<%= v %>"<%= if lk != k do %>,<% end %><% end %>
+        }<%= if last != item do %>,<% end %><% end %>
+      ]<%= if confidence != :low_confidence do %>,<% end %><% end %>
+    }
+  }
+  """
+
   def start_link() do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -13,14 +28,13 @@ defmodule Sobelow.FindingLog do
     GenServer.call(__MODULE__, :log)
   end
 
-  def json() do
-    %{high: high, medium: med, low: low} = log()
+  def json(vsn) do
+    %{high: highs, medium: meds, low: lows} = log()
 
-    """
-    {
-
-    }
-    """
+    EEx.eval_string(@json_template, assigns: [
+        findings: [high_confidence: highs, medium_confidence: meds, low_confidence: lows],
+        version: vsn
+    ])
   end
 
   def init(:ok) do

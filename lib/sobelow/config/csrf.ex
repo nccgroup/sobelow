@@ -35,12 +35,10 @@ defmodule Sobelow.Config.CSRF do
     type = "Missing CSRF Protections"
     case Sobelow.format() do
       "json" ->
-        finding = """
-        {
-            "type": "#{type}",
-            "pipeline": "#{pipeline_name}:#{line_no}"
-        }
-        """
+        finding = [
+          type: type,
+          pipeline: "#{pipeline_name}:#{line_no}"
+        ]
         Sobelow.log_finding(finding, :high)
       _ ->
         Sobelow.log_finding(type, :high)

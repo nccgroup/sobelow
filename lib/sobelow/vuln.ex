@@ -25,11 +25,7 @@ defmodule Sobelow.Vuln do
     type = "Known Vulnerable Dependency - #{package} v#{vsn}"
     case Sobelow.format() do
       "json" ->
-        finding = """
-        {
-            "type": "#{type}"
-        }
-        """
+        finding = [type: type]
         Sobelow.log_finding(finding, :high)
       _ ->
         Sobelow.log_finding(type, :high)

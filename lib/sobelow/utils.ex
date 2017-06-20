@@ -122,15 +122,12 @@ defmodule Sobelow.Utils do
   end
 
   def log_json_finding(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
-    finding = """
-    {
-        "type": "#{type}",
-        "file": "#{filename}",
-        "function": "#{fun_name}:#{line_no}",
-        "variable": "#{var}"
-    },
-    """
-#    IO.puts finding
+    finding = [
+      type: type,
+      file: filename,
+      function: "#{fun_name}:#{line_no}",
+      variable: var
+    ]
     Sobelow.log_finding(finding, severity)
   end
 

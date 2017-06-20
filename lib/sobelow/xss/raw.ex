@@ -82,15 +82,13 @@ defmodule Sobelow.XSS.Raw do
     type = "XSS"
     case Sobelow.format() do
       "json" ->
-        finding = """
-        {
-            "type": "#{type}",
-            "file": "#{filename}",
-            "function": "#{fun_name}:#{line_no}",
-            "variable": "@#{var}"
-            "template": "#{t_name}"
-        }
-        """
+        finding = [
+          type: type,
+          file: filename,
+          function: "#{fun_name}:#{line_no}",
+          variable: "@#{var}",
+          template: "#{t_name}"
+        ]
         Sobelow.log_finding(finding, severity)
       _ ->
         Sobelow.log_finding(type, severity)

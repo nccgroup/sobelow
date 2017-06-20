@@ -39,11 +39,7 @@ defmodule Sobelow.Config.HTTPS do
     type = "HTTPS Not Enabled"
     case Sobelow.format() do
       "json" ->
-        finding = """
-        {
-            "type": "#{type}"
-        }
-        """
+        finding = [type: type]
         Sobelow.log_finding(finding, :high)
       _ ->
         Sobelow.log_finding(type, :high)
@@ -58,11 +54,7 @@ defmodule Sobelow.Config.HTTPS do
     type = "HSTS Not Enabled"
     case Sobelow.format() do
       "json" ->
-        finding = """
-        {
-            "type": "#{type}"
-        }
-        """
+        finding = [type: type]
         Sobelow.log_finding(finding, :medium)
       _ ->
         Sobelow.log_finding(type, :medium)

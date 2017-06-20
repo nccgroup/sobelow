@@ -52,11 +52,7 @@ defmodule Sobelow.Config.Secrets do
     type = "Hardcoded Secret"
     case Sobelow.get_env(:format) do
       "json" ->
-        finding = """
-        {
-            "type": "#{type}"
-        }
-        """
+        finding = [type: type]
         Sobelow.log_finding(finding, :high)
       _ ->
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()

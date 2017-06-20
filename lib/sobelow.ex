@@ -77,7 +77,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    IO.info print_banner()
+    Elixir.IO.puts :stderr, print_banner()
     Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
@@ -97,11 +97,20 @@ defmodule Sobelow do
       |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
     end)
 
+    Elixir.IO.puts :stderr, "... SCAN COMPLETE ...\n"
+
     if format() != "txt" do
-      Elixir.IO.puts FindingLog.json()
+      print_output()
     end
-    IO.info "... SCAN COMPLETE ..."
+
     exit_with_status()
+  end
+
+  defp print_output() do
+    case format() do
+      "json" -> Elixir.IO.puts FindingLog.json(@v)
+      _ -> nil
+    end
   end
 
   defp exit_with_status() do
