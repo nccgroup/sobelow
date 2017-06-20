@@ -17,12 +17,6 @@ defmodule Sobelow.Vuln.CookieRCE do
     end
   end
 
-  def print_finding(vsn) do
-    IO.puts IO.ANSI.red() <> "Arbitrary Code Execution in Cookie Serialization" <> IO.ANSI.reset()
-    if Sobelow.get_env(:with_code), do: IO.puts("Plug Version: #{vsn}")
-    IO.puts "\n-----------------------------------------------\n"
-  end
-
   def get_details() do
     Sobelow.Vuln.details()
   end

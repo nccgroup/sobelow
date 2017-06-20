@@ -23,17 +23,17 @@ defmodule Sobelow.XSS.Raw do
         raw_vals = Utils.get_template_raw_vars(template_path)
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
-            Sobelow.log_finding("XSS", :high)
+#            Sobelow.log_finding("XSS", :high)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
-            print_finding(t_name, line_no, filename, fun_name, fun, var, :high)
+            add_finding(t_name, line_no, filename, fun_name, fun, var, :high)
           end
         end)
 
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
-            Sobelow.log_finding("XSS", :medium)
+#            Sobelow.log_finding("XSS", :medium)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
-            print_finding(t_name, line_no, filename, fun_name, fun, var, :medium)
+            add_finding(t_name, line_no, filename, fun_name, fun, var, :medium)
           end
         end)
       end
@@ -78,22 +78,34 @@ defmodule Sobelow.XSS.Raw do
     Sobelow.XSS.details()
   end
 
-  defp print_finding(t_name, line_no, con, fun_name, fun, var, severity) do
-    {color, confidence} = case severity do
-      :high -> {IO.ANSI.red(), "High"}
-      :medium -> {IO.ANSI.yellow(), "Medium"}
-      :low -> {IO.ANSI.green(), "Low"}
+  defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity) do
+    type = "XSS"
+    case Sobelow.format() do
+      "json" ->
+        finding = """
+        {
+            "type": "#{type}",
+            "file": "#{filename}",
+            "function": "#{fun_name}:#{line_no}",
+            "variable": "@#{var}"
+            "template": "#{t_name}"
+        }
+        """
+        IO.puts finding
+      _ ->
+        Sobelow.log_finding(type, severity)
+
+        IO.puts Utils.finding_header(type, severity)
+        IO.puts Utils.finding_file_metadata(filename, fun_name, line_no)
+        IO.puts "Template: #{t_name} - @#{var}"
+        if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :render)
+        IO.puts Utils.finding_break()
     end
-    IO.puts color <> "XSS - #{confidence} Confidence" <> IO.ANSI.reset()
-    IO.puts "File: #{con} - #{fun_name}:#{line_no}"
-    IO.puts "Template: #{t_name} - @#{var}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :render)
-    IO.puts "\n-----------------------------------------------\n"
   end
 
   defp print_view_finding(line_no, filename, fun_name, fun, var, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun,
-                                   fun_name, var, severity,
-                                   "XSS", :raw)
+    Utils.add_finding(line_no, filename, fun,
+                      fun_name, var, severity,
+                      "XSS", :raw)
   end
 end

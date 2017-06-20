@@ -27,15 +27,27 @@ defmodule Sobelow.Config.CSRF do
 
   defp is_vuln_pipeline(pipeline) do
     if Utils.is_vuln_pipeline(pipeline) do
-      Sobelow.log_finding("CSRF", :high)
-      print_finding(pipeline)
+      add_finding(pipeline)
     end
   end
 
-  defp print_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline) do
-    IO.puts IO.ANSI.red() <> "Missing CSRF Protections - High Confidence" <> IO.ANSI.reset()
-    IO.puts "Pipeline: #{pipeline_name}:#{line_no}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(pipeline, pipeline_name)
-    IO.puts "\n-----------------------------------------------\n"
+  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline) do
+    type = "Missing CSRF Protections"
+    case Sobelow.format() do
+      "json" ->
+        finding = """
+        {
+            "type": "#{type}",
+            "pipeline": "#{pipeline_name}:#{line_no}"
+        }
+        """
+        IO.puts finding
+      _ ->
+        Sobelow.log_finding(type, :high)
+        IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
+        IO.puts "Pipeline: #{pipeline_name}:#{line_no}"
+        if Sobelow.get_env(:with_code), do: Utils.print_code(pipeline, pipeline_name)
+        IO.puts "\n-----------------------------------------------\n"
+    end
   end
 end

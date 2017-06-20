@@ -12,10 +12,10 @@ defmodule Sobelow.Traversal.SendFile do
       {vars, params, {fun_name, [{_, line_no}]}} = parse_send_file_def(fun)
       Enum.each vars, fn var ->
         if Enum.member?(params, var) || var === "conn.params" do
-          Sobelow.log_finding("Directory Traversal", severity || :high)
+#          Sobelow.log_finding("Directory Traversal", severity || :high)
           print_finding(line_no, filename, fun_name, fun, var, severity || :high)
         else
-          Sobelow.log_finding("Directory Traversal", severity || :medium)
+#          Sobelow.log_finding("Directory Traversal", severity || :medium)
           print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
         end
       end
@@ -23,10 +23,8 @@ defmodule Sobelow.Traversal.SendFile do
       {vars, params, {fun_name, [{_, line_no}]}} = parse_aliased_send_file_def(fun)
       Enum.each vars, fn var ->
         if Enum.member?(params, var) || var === "conn.params" do
-          Sobelow.log_finding("Directory Traversal", severity || :high)
           print_finding(line_no, filename, fun_name, fun, var, severity || :high)
         else
-          Sobelow.log_finding("Directory Traversal", severity || :medium)
           print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
         end
       end
@@ -50,9 +48,9 @@ defmodule Sobelow.Traversal.SendFile do
   end
 
   def print_finding(line_no, filename, fun_name, fun, var, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun,
-                                   fun_name, var, severity,
-                                   "Directory Traversal in `send_file`", :send_file, [:Plug, :Conn])
+    Utils.add_finding(line_no, filename, fun,
+                      fun_name, var, severity,
+                      "Directory Traversal in `send_file`", :send_file, [:Plug, :Conn])
   end
 
   def get_details() do

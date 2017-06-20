@@ -143,6 +143,10 @@ defmodule Sobelow do
     |> Enum.each(&apply(&1, :details, []))
   end
 
+  def format() do
+    get_env(:format)
+  end
+
   def get_env(key) do
     Application.get_env(:sobelow, key)
   end

@@ -17,11 +17,9 @@ defmodule Sobelow.Traversal.FileModule do
 
       Enum.each vars, fn var ->
         if Enum.member?(params, var) || var === "conn.params" do
-          Sobelow.log_finding("Directory Traversal", severity || :high)
-          print_file_finding(line_no, filename, fun_name, fun, var, file_func, severity || :high)
+          add_finding(line_no, filename, fun_name, fun, var, file_func, severity || :high)
         else
-          Sobelow.log_finding("Directory Traversal", severity || :medium)
-          print_file_finding(line_no, filename, fun_name, fun, var, file_func, severity || :medium)
+          add_finding(line_no, filename, fun_name, fun, var, file_func, severity || :medium)
         end
       end
     end
@@ -32,10 +30,11 @@ defmodule Sobelow.Traversal.FileModule do
     Utils.get_fun_vars_and_meta(fun, 0, type, [:File])
   end
 
-  def print_file_finding(line_no, filename, fun_name, fun, var, type, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun,
-                                   fun_name, var, severity,
-                                   "Directory Traversal in `File.#{type}`", type, [:File])
+  def add_finding(line_no, filename, fun_name, fun, var, type, severity) do
+    title = "Directory Traversal in `File.#{type}`"
+    Utils.add_finding(line_no, filename, fun,
+                      fun_name, var, severity,
+                      title, type, [:File])
   end
 
   def get_details() do

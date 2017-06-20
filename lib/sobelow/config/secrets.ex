@@ -38,8 +38,7 @@ defmodule Sobelow.Config.Secrets do
     file = Path.expand(file, "")
     Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
-        Sobelow.log_finding("Hardcoded Secret", :high)
-        print_finding(file, lineno, fun, key, val)
+        add_finding(file, lineno, fun, key, val)
       end
     end
   end
@@ -49,11 +48,22 @@ defmodule Sobelow.Config.Secrets do
   end
   def is_env_var?(_), do: false
 
-  defp print_finding(file, line_no, fun, key, val) do
-    IO.puts IO.ANSI.red() <> "Hardcoded Secret - High Confidence" <> IO.ANSI.reset()
-    IO.puts "File: #{file} - line #{line_no}"
-    IO.puts "Type: #{key}"
-    if Sobelow.get_env(:with_code), do: Utils.print_code(fun, :highlight_all)
-    IO.puts "\n-----------------------------------------------\n"
+  defp add_finding(file, line_no, fun, key, val) do
+    type = "Hardcoded Secret"
+    case Sobelow.get_env(:format) do
+      "json" ->
+        finding = """
+        {
+            "type": "#{type}"
+        }
+        """
+        IO.puts finding
+      _ ->
+        IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
+        IO.puts "File: #{file} - line #{line_no}"
+        IO.puts "Type: #{key}"
+        if Sobelow.get_env(:with_code), do: Utils.print_code(fun, :highlight_all)
+        IO.puts "\n-----------------------------------------------\n"
+    end
   end
 end

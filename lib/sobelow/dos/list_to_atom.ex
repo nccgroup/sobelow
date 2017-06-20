@@ -20,19 +20,17 @@ defmodule Sobelow.DOS.ListToAtom do
 
     Enum.each vars, fn var ->
       if Enum.member?(params, var) || var === "conn.params" do
-        Sobelow.log_finding("Unsafe `List.to_atom`", severity || :high)
         print_finding(line_no, filename, fun_name, fun, var, severity || :high)
       else
-        Sobelow.log_finding("Unsafe `List.to_atom`", severity || :medium)
         print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
       end
     end
   end
 
   defp print_finding(line_no, filename, fun_name, fun, var, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun,
-                                   fun_name, var, severity,
-                                   "Unsafe `List.to_atom`", :to_atom, [:List])
+    Utils.add_finding(line_no, filename, fun,
+                      fun_name, var, severity,
+                      "Unsafe `List.to_atom`", :to_atom, [:List])
   end
 
   def parse_def(fun) do

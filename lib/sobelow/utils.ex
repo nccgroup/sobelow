@@ -99,6 +99,20 @@ defmodule Sobelow.Utils do
   end
   def find_call(ast, acc, _call), do: {ast, acc <> Macro.to_string(ast)}
 
+  def add_finding(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
+    case Sobelow.format() do
+      "json" ->
+        log_json_finding(line_no, filename, fun,
+                         fun_name, var, severity,
+                         type, call, module)
+      _ ->
+        Sobelow.log_finding(type, severity)
+        print_finding_metadata(line_no, filename, fun,
+                               fun_name, var, severity,
+                               type, call, module)
+    end
+  end
+
   def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
     IO.puts finding_header(type, severity)
     IO.puts finding_file_metadata(filename, fun_name, line_no)
@@ -107,12 +121,17 @@ defmodule Sobelow.Utils do
     IO.puts finding_break()
   end
 
-  def print_file_path_finding_metadata(line_no, filename, fun, fun_name, var, severity) do
-    IO.puts finding_header("Insecure use of `File` and `Path`", severity)
-    IO.puts finding_file_metadata(filename, fun_name, line_no)
-    IO.puts finding_variable(var)
-    maybe_print_file_path_code(fun, var)
-    IO.puts finding_break()
+  def log_json_finding(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
+    finding = """
+    {
+        "type": "#{type}",
+        "file": "#{filename}",
+        "function": "#{fun_name}:#{line_no}",
+        "variable": "#{var}"
+    }
+    """
+    IO.puts finding
+#    Sobelow.log_finding(finding, severity)
   end
 
   def finding_header(type, severity) do

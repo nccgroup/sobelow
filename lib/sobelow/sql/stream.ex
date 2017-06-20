@@ -8,10 +8,8 @@ defmodule Sobelow.SQL.Stream do
 
     Enum.each(interp_vars, fn var ->
       if Enum.member?(params, var) do
-        Sobelow.log_finding("SQLi", severity || :high)
         print_finding(line_no, filename, fun, fun_name, var, severity || :high)
       else
-        Sobelow.log_finding("SQLi", severity || :medium)
         print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
       end
     end)
@@ -23,7 +21,7 @@ defmodule Sobelow.SQL.Stream do
   end
 
   defp print_finding(line_no, filename, fun, fun_name, var, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun, fun_name, var, severity, "SQL injection", :stream, :SQL)
+    Utils.add_finding(line_no, filename, fun, fun_name, var, severity, "SQL injection", :stream, :SQL)
   end
 
   def get_details() do

@@ -23,10 +23,6 @@ defmodule Sobelow.Vuln.HeaderInject do
 
   end
 
-  def print_finding(vsn) do
-    Vuln.print_finding(vsn, "Plug", "Header Injection")
-  end
-
   def get_details() do
     Sobelow.Vuln.details()
   end

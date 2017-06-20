@@ -22,9 +22,21 @@ defmodule Sobelow.Vuln do
   end
 
   def print_finding(vsn, package, detail, cve \\ "TBA") do
-    IO.puts IO.ANSI.red() <> "Known Vulnerable Dependency - #{package} v#{vsn}" <> IO.ANSI.reset()
-    if Sobelow.get_env(:with_code), do: print_detail(detail, cve)
-    IO.puts "\n-----------------------------------------------\n"
+    type = "Known Vulnerable Dependency - #{package} v#{vsn}"
+    case Sobelow.format() do
+      "json" ->
+        finding = """
+        {
+            "type": "#{type}"
+        }
+        """
+        IO.puts finding
+      _ ->
+        Sobelow.log_finding(type, :high)
+        IO.puts IO.ANSI.red() <> type <> IO.ANSI.reset()
+        if Sobelow.get_env(:with_code), do: print_detail(detail, cve)
+        IO.puts "\n-----------------------------------------------\n"
+    end
   end
 
   defp print_detail(detail, cve) do

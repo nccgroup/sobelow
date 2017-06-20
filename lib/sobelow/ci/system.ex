@@ -8,10 +8,8 @@ defmodule Sobelow.CI.System do
 
     Enum.each vars, fn var ->
       if Enum.member?(params, var) || var === "conn.params" do
-        Sobelow.log_finding("Command Injection", severity || :high)
         print_sys_finding(line_no, filename, fun_name, fun, var, severity || :high)
       else
-        Sobelow.log_finding("Command Injection", severity || :medium)
         print_sys_finding(line_no, filename, fun_name, fun, var, severity || :medium)
       end
     end
@@ -22,9 +20,9 @@ defmodule Sobelow.CI.System do
   end
 
   def print_sys_finding(line_no, filename, fun_name, fun, var, severity) do
-    Utils.print_finding_metadata(line_no, filename, fun,
-                                   fun_name, var, severity,
-                                   "Command Injection in `System.cmd`", :cmd, [:System])
+    Utils.add_finding(line_no, filename, fun,
+                      fun_name, var, severity,
+                      "Command Injection in `System.cmd`", :cmd, [:System])
   end
 
   def get_details() do

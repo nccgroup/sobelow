@@ -69,7 +69,8 @@ defmodule Mix.Tasks.Sobelow do
              diff: :string,
              skip: :boolean,
              router: :string,
-             exit: :string]
+             exit: :string,
+             format: :string]
 
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details]
 
@@ -90,6 +91,7 @@ defmodule Mix.Tasks.Sobelow do
       "low" -> :low
       _ -> false
     end
+    format = Keyword.get(opts, :format, "txt") |> String.downcase()
 
     set_env(:with_code, with_code)
     set_env(:root, root)
@@ -98,6 +100,7 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:skip, skip)
     set_env(:router, router)
     set_env(:exit_on, exit_on)
+    set_env(:format, format)
 
     ignored =
       Keyword.get(opts, :ignore, "")

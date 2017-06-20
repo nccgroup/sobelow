@@ -27,26 +27,50 @@ defmodule Sobelow.Config.HTTPS do
 
   defp handle_https(opts, file) do
     if length(opts) === 0 do
-      Sobelow.log_finding("HTTPS", :high)
-      print_finding(:https)
+      add_finding(:https)
     else
       if length(Utils.get_configs(:force_ssl, file)) === 0 do
-        Sobelow.log_finding("HSTS", :high)
-        print_finding(:hsts)
+        add_finding(:hsts)
       end
     end
   end
 
-  defp print_finding(:https) do
-    IO.puts IO.ANSI.red() <> "HTTPS Not Enabled - High Confidence" <> IO.ANSI.reset()
-    if Sobelow.get_env(:with_code), do: print_info("HTTPS")
-    IO.puts "\n-----------------------------------------------\n"
+  defp add_finding(:https) do
+    type = "HTTPS Not Enabled"
+    case Sobelow.format() do
+      "json" ->
+        finding = """
+        {
+            "type": "#{type}"
+        }
+        """
+        IO.puts finding
+      _ ->
+        Sobelow.log_finding(type, :high)
+
+        IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
+        if Sobelow.get_env(:with_code), do: print_info("HTTPS")
+        IO.puts "\n-----------------------------------------------\n"
+    end
   end
 
-  defp print_finding(:hsts) do
-    IO.puts IO.ANSI.yellow() <> "HSTS Not Enabled - Medium Confidence" <> IO.ANSI.reset()
-    if Sobelow.get_env(:with_code), do: print_info("HSTS")
-    IO.puts "\n-----------------------------------------------\n"
+  defp add_finding(:hsts) do
+    type = "HSTS Not Enabled"
+    case Sobelow.format() do
+      "json" ->
+        finding = """
+        {
+            "type": "#{type}"
+        }
+        """
+        IO.puts finding
+      _ ->
+        Sobelow.log_finding(type, :medium)
+
+        IO.puts IO.ANSI.yellow() <> type <> " - Medium Confidence" <> IO.ANSI.reset()
+        if Sobelow.get_env(:with_code), do: print_info("HSTS")
+        IO.puts "\n-----------------------------------------------\n"
+    end
   end
 
   defp print_info(type) do
