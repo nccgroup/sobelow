@@ -51,7 +51,7 @@ defmodule Sobelow.Misc.FilePath do
             "variable": "#{var}"
         }
         """
-        IO.puts finding
+        Sobelow.log_finding(finding, severity)
       _ ->
         Sobelow.log_finding(type, severity)
 

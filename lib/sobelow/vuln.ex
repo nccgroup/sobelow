@@ -30,7 +30,7 @@ defmodule Sobelow.Vuln do
             "type": "#{type}"
         }
         """
-        IO.puts finding
+        Sobelow.log_finding(finding, :high)
       _ ->
         Sobelow.log_finding(type, :high)
         IO.puts IO.ANSI.red() <> type <> IO.ANSI.reset()

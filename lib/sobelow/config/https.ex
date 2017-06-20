@@ -44,7 +44,7 @@ defmodule Sobelow.Config.HTTPS do
             "type": "#{type}"
         }
         """
-        IO.puts finding
+        Sobelow.log_finding(finding, :high)
       _ ->
         Sobelow.log_finding(type, :high)
 
@@ -63,7 +63,7 @@ defmodule Sobelow.Config.HTTPS do
             "type": "#{type}"
         }
         """
-        IO.puts finding
+        Sobelow.log_finding(finding, :medium)
       _ ->
         Sobelow.log_finding(type, :medium)
 

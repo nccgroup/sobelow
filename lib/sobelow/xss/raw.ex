@@ -91,7 +91,7 @@ defmodule Sobelow.XSS.Raw do
             "template": "#{t_name}"
         }
         """
-        IO.puts finding
+        Sobelow.log_finding(finding, severity)
       _ ->
         Sobelow.log_finding(type, severity)
 

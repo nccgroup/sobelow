@@ -41,7 +41,7 @@ defmodule Sobelow.Config.CSRF do
             "pipeline": "#{pipeline_name}:#{line_no}"
         }
         """
-        IO.puts finding
+        Sobelow.log_finding(finding, :high)
       _ ->
         Sobelow.log_finding(type, :high)
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()

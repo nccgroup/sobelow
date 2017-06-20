@@ -13,6 +13,16 @@ defmodule Sobelow.FindingLog do
     GenServer.call(__MODULE__, :log)
   end
 
+  def json() do
+    %{high: high, medium: med, low: low} = log()
+
+    """
+    {
+
+    }
+    """
+  end
+
   def init(:ok) do
     {:ok, %{:high => [], :medium => [], :low => []}}
   end

@@ -97,6 +97,9 @@ defmodule Sobelow do
       |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
     end)
 
+    if format() != "txt" do
+      Elixir.IO.puts FindingLog.json()
+    end
     IO.info "... SCAN COMPLETE ..."
     exit_with_status()
   end

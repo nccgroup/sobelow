@@ -128,10 +128,10 @@ defmodule Sobelow.Utils do
         "file": "#{filename}",
         "function": "#{fun_name}:#{line_no}",
         "variable": "#{var}"
-    }
+    },
     """
-    IO.puts finding
-#    Sobelow.log_finding(finding, severity)
+#    IO.puts finding
+    Sobelow.log_finding(finding, severity)
   end
 
   def finding_header(type, severity) do
