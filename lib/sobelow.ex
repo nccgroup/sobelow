@@ -97,10 +97,10 @@ defmodule Sobelow do
       |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
     end)
 
-    Elixir.IO.puts :stderr, "... SCAN COMPLETE ...\n"
-
     if format() != "txt" do
       print_output()
+    else
+      Elixir.IO.puts :stderr, "... SCAN COMPLETE ...\n"
     end
 
     exit_with_status()

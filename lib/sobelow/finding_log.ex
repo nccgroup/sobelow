@@ -4,8 +4,7 @@ defmodule Sobelow.FindingLog do
   @json_template """
   {
     "sobelow_version": "<%= @version %>",
-    "created_by": "Griffin Byatt - @griffinbyatt",
-    "company": "NCC Group - https://nccgroup.trust",
+    "total_findings": "<%= @total_findings %>",
     "findings": {<%= for {confidence, items} <- @findings do %>
       "<%= confidence %>": [<% last = List.last(items) %><%= for item <- items do %>
         {<% {lk, _} = List.last(item) %><%= for {k, v} <- item do %>
@@ -33,6 +32,7 @@ defmodule Sobelow.FindingLog do
 
     EEx.eval_string(@json_template, assigns: [
         findings: [high_confidence: highs, medium_confidence: meds, low_confidence: lows],
+        total_findings: length(highs) + length(meds) + length(lows),
         version: vsn
     ])
   end
