@@ -20,6 +20,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--skip` - Skip functions flagged with `@sobelow_skip`
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
+  * `--format` - Specify findings output format
 
   ## Ignoring modules
 
@@ -72,7 +73,7 @@ defmodule Mix.Tasks.Sobelow do
              exit: :string,
              format: :string]
 
-  @aliases  [v: :with_code, r: :root, i: :ignore, d: :details]
+  @aliases  [v: :with_code, r: :root, i: :ignore, d: :details, f: :format]
 
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)

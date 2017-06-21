@@ -57,6 +57,7 @@ following from the project root:
   * `--private` - Skip update checks
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
+  * `--format -f` - Specify findings output format
   
 The `root` option takes a path argument:
 
@@ -78,6 +79,11 @@ The `exit` option accepts a confidence threshold (low, medium, or high),
 and will return a non-zero exit status at or above that threshold.
 
     $ mix sobelow --exit Low
+    
+The `format` option accepts an output format for findings. Current formats 
+include `txt` (the default) and `json`.
+
+    $ mix sobelow --format json
     
 ## False Positives
 Sobelow favors over-reporting versus under-reporting. As such, 
