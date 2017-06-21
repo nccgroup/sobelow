@@ -81,7 +81,11 @@ and will return a non-zero exit status at or above that threshold.
     $ mix sobelow --exit Low
     
 The `format` option accepts an output format for findings. Current formats 
-include `txt` (the default) and `json`.
+include `txt` (the default) and `json`. 
+
+Note: The `json` format option does not support the `--with-code` flag. 
+All findings are organized by confidence level, and contain a "type" 
+key. However, other keys may vary between finding types.
 
     $ mix sobelow --format json
     
