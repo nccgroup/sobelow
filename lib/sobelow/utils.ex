@@ -167,8 +167,14 @@ defmodule Sobelow.Utils do
   ## Function parsing
   def get_def_funs(filepath) do
     ast = ast(filepath)
-    get_funs_of_type(ast, [:def, :defp])
+    {_, acc} = Macro.prewalk(ast, [], &get_def_funs(&1, &2))
+    acc
   end
+  def get_def_funs({:def, _, nil} = ast, acc), do: {ast, acc}
+  def get_def_funs({:defp, _, nil} = ast, acc), do: {ast, acc}
+  def get_def_funs({:def, _, _} = ast, acc), do: {ast, [ast|acc]}
+  def get_def_funs({:defp, _, _} = ast, acc), do: {ast, [ast|acc]}
+  def get_def_funs(ast, acc), do: {ast, acc}
 
   def get_fun_vars_and_meta(fun, idx, type, module \\ nil) do
     {params, {fun_name, line_no}} = get_fun_declaration(fun)
