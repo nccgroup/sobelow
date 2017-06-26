@@ -35,7 +35,7 @@ defmodule Sobelow.Config.Secrets do
   end
 
   defp enumerate_secrets(secrets, file) do
-    file = Path.expand(file, "")
+    file = Path.expand(file, "") |> String.replace_prefix("/", "")
     Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
         add_finding(file, lineno, fun, key, val)
