@@ -297,6 +297,7 @@ defmodule Sobelow do
       "Config.CSRF" -> Sobelow.Config.CSRF
       "Config.Secrets" -> Sobelow.Config.Secrets
       "Config.HTTPS" -> Sobelow.Config.HTTPS
+      "Config.HSTS" -> Sobelow.Config.HSTS
       "Vuln" -> Sobelow.Vuln
       "Vuln.CookieRCE" -> Sobelow.CookeRCE
       "Vuln.HeaderInject" -> Sobelow.Vuln.HeaderInject

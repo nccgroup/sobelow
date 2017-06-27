@@ -3,10 +3,11 @@ defmodule Sobelow.Config do
   alias Sobelow.Config.CSRF
   @submodules [Sobelow.Config.CSRF,
                Sobelow.Config.Secrets,
-               Sobelow.Config.HTTPS]
+               Sobelow.Config.HTTPS,
+               Sobelow.Config.HSTS]
 
   use Sobelow.Finding
-  @skip_files ["dev.exs", "test.exs", "dev.secret.exs", "test.secret.exs", "config.exs"]
+  @skip_files ["dev.exs", "test.exs", "dev.secret.exs", "test.secret.exs"]
 
   def fetch(root, router) do
     allowed = @submodules -- Sobelow.get_ignored()

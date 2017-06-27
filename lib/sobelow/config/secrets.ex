@@ -17,14 +17,15 @@ defmodule Sobelow.Config.Secrets do
   alias Sobelow.Config
   alias Sobelow.Utils
   use Sobelow.Finding
-  @prod_path "config/prod.exs"
-  @prod_secret_path "config/prod.secret.exs"
 
   def run(dir_path, configs) do
     Enum.each configs, fn conf ->
       path = dir_path <> conf
-      Config.get_configs_by_file(:secret_key_base, path)
-      |> enumerate_secrets(path)
+
+      if conf != "config.exs" do
+        Config.get_configs_by_file(:secret_key_base, path)
+        |> enumerate_secrets(path)
+      end
 
       Config.get_configs_by_file(:password, path)
       |> enumerate_secrets(path)

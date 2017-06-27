@@ -3,14 +3,12 @@ defmodule Sobelow.Config.HTTPS do
   # HTTPS
 
   Without HTTPS, attackers in a priveleged network position can
-  intercept and modify traffic. The HTTP Strict Transport Security
-  (HSTS) header helps defend against man-in-the-middle attacks by
-  preventing unencrypted connections.
+  intercept and modify traffic.
 
-  Sobelow detects missing HTTPS/HSTS by checking the prod
+  Sobelow detects missing HTTPS by checking the prod
   configuration.
 
-  HTTPS/HSTS checks can be ignored with the following command:
+  HTTPS checks can be ignored with the following command:
 
       $ mix sobelow -i Config.HTTPS
   """
@@ -19,30 +17,18 @@ defmodule Sobelow.Config.HTTPS do
   use Sobelow.Finding
 
   def run(dir_path, configs) do
-    Enum.each configs, fn conf ->
-      path = dir_path <> conf
-      Config.get_configs_by_file(:https, path)
-      |> handle_https(path)
+    path = dir_path <> "prod.exs"
+    Config.get_configs_by_file(:https, path)
+    |> handle_https()
+  end
+
+  defp handle_https(opts) do
+    if length(opts) === 0 do
+      add_finding()
     end
   end
 
-  defp handle_https(opts, file) do
-    # If no HTTPS configs were found and this is the prod
-    # config file, add a missing HTTPS finding.
-    #
-    # Otherwise, if HTTPS configs *were* found in any other
-    # config file, and there are no accompanying HSTS configs,
-    # add an HSTS finding.
-    if length(opts) === 0 && Path.basename(file) === "prod.exs" do
-      add_finding(:https)
-    else
-      if length(opts) > 0 && length(Utils.get_configs(:force_ssl, file)) === 0 do
-        add_finding(:hsts)
-      end
-    end
-  end
-
-  defp add_finding(:https) do
+  defp add_finding() do
     type = "HTTPS Not Enabled"
     case Sobelow.format() do
       "json" ->
@@ -52,27 +38,12 @@ defmodule Sobelow.Config.HTTPS do
         Sobelow.log_finding(type, :high)
 
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
-        if Sobelow.get_env(:with_code), do: print_info("HTTPS")
+        if Sobelow.get_env(:with_code), do: print_info()
         IO.puts "\n-----------------------------------------------\n"
     end
   end
 
-  defp add_finding(:hsts) do
-    type = "HSTS Not Enabled"
-    case Sobelow.format() do
-      "json" ->
-        finding = [type: type]
-        Sobelow.log_finding(finding, :medium)
-      _ ->
-        Sobelow.log_finding(type, :medium)
-
-        IO.puts IO.ANSI.yellow() <> type <> " - Medium Confidence" <> IO.ANSI.reset()
-        if Sobelow.get_env(:with_code), do: print_info("HSTS")
-        IO.puts "\n-----------------------------------------------\n"
-    end
-  end
-
-  defp print_info(type) do
-    IO.puts "\n#{type} configuration details could not be found in `prod.exs` or `prod.secret.exs`."
+  defp print_info() do
+    IO.puts "\nHTTPS configuration details could not be found in `prod.exs`."
   end
 end
