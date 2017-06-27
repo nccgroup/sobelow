@@ -20,18 +20,15 @@ defmodule Sobelow.Config.Secrets do
   @prod_path "config/prod.exs"
   @prod_secret_path "config/prod.secret.exs"
 
-  def run(root) do
-    Config.get_configs_by_file(:secret_key_base, root <> @prod_path)
-    |> enumerate_secrets(root <> @prod_path)
+  def run(dir_path, configs) do
+    Enum.each configs, fn conf ->
+      path = dir_path <> conf
+      Config.get_configs_by_file(:secret_key_base, path)
+      |> enumerate_secrets(path)
 
-    Config.get_configs_by_file(:secret_key_base, root <> @prod_secret_path)
-    |> enumerate_secrets(root <> @prod_secret_path)
-
-    Config.get_configs_by_file(:password, root <> @prod_path)
-    |> enumerate_secrets(root <> @prod_path)
-
-    Config.get_configs_by_file(:password, root <> @prod_secret_path)
-    |> enumerate_secrets(root <> @prod_secret_path)
+      Config.get_configs_by_file(:password, path)
+      |> enumerate_secrets(path)
+    end
   end
 
   defp enumerate_secrets(secrets, file) do

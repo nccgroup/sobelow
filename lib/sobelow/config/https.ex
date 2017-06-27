@@ -18,18 +18,25 @@ defmodule Sobelow.Config.HTTPS do
   alias Sobelow.Utils
   use Sobelow.Finding
 
-  @prod_path "config/prod.exs"
-
-  def run(root) do
-    Config.get_configs_by_file(:https, root <> @prod_path)
-    |> handle_https(root <> @prod_path)
+  def run(dir_path, configs) do
+    Enum.each configs, fn conf ->
+      path = dir_path <> conf
+      Config.get_configs_by_file(:https, path)
+      |> handle_https(path)
+    end
   end
 
   defp handle_https(opts, file) do
-    if length(opts) === 0 do
+    # If no HTTPS configs were found and this is the prod
+    # config file, add a missing HTTPS finding.
+    #
+    # Otherwise, if HTTPS configs *were* found in any other
+    # config file, and there are no accompanying HSTS configs,
+    # add an HSTS finding.
+    if length(opts) === 0 && Path.basename(file) === "prod.exs" do
       add_finding(:https)
     else
-      if length(Utils.get_configs(:force_ssl, file)) === 0 do
+      if length(opts) > 0 && length(Utils.get_configs(:force_ssl, file)) === 0 do
         add_finding(:hsts)
       end
     end

@@ -20,7 +20,7 @@ defmodule Sobelow.Config.CSRF do
   alias Sobelow.Utils
   use Sobelow.Finding
 
-  def run(router) do
+  def run(router, _) do
     Utils.get_pipelines(router)
     |> Enum.each(&is_vuln_pipeline/1)
   end

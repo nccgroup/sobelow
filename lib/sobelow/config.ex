@@ -6,14 +6,24 @@ defmodule Sobelow.Config do
                Sobelow.Config.HTTPS]
 
   use Sobelow.Finding
+  @skip_files ["dev.exs", "test.exs", "dev.secret.exs", "test.secret.exs", "config.exs"]
 
   def fetch(root, router) do
     allowed = @submodules -- Sobelow.get_ignored()
 
+    dir_path = root <> "config/"
+    configs =
+      File.ls!(dir_path)
+      |> Enum.filter(&want_to_scan?/1)
+
     Enum.each allowed, fn mod ->
-      path = if mod === CSRF, do: router, else: root
-      apply(mod, :run, [path])
+      path = if mod === CSRF, do: router, else: dir_path
+      apply(mod, :run, [path, configs])
     end
+  end
+
+  defp want_to_scan?(conf) do
+    if Path.extname(conf) === ".exs" && !Enum.member?(@skip_files, conf), do: conf
   end
 
   def get_configs_by_file(secret, file) do
