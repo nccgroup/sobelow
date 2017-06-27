@@ -559,15 +559,34 @@ defmodule Sobelow.Utils do
 
   def parse_accepts([{:<<>>, _, [accepts|_]}, []]), do: String.split(accepts, " ")
 
+  def get_fuzzy_configs(key, filepath) do
+    ast = ast(filepath)
+    {_, acc} = Macro.prewalk(ast, [], &extract_fuzzy_configs(&1, &2, key))
+    acc
+  end
   def get_configs(key, filepath) do
     ast = ast(filepath)
-    {_ast, acc} = Macro.prewalk(ast, [], &extract_configs(&1, &2, key))
+    {_, acc} = Macro.prewalk(ast, [], &extract_configs(&1, &2, key))
     acc
+  end
+
+  defp extract_fuzzy_configs({:config, _, opts} = ast, acc, key) do
+    opt = List.last(opts)
+    vals = if Keyword.keyword?(opt), do: fuzzy_get(opt, key), else: nil
+
+    if is_nil(vals) do
+      {ast, acc}
+    else
+      {ast, [{ast, vals}|acc]}
+    end
+  end
+  defp extract_fuzzy_configs(ast, acc, _key) do
+    {ast, acc}
   end
 
   defp extract_configs({:config, _, opts} = ast, acc, key) do
     opt = List.last(opts)
-    val = if is_list(opt), do: Keyword.get(opt, key), else: nil
+    val = if Keyword.keyword?(opt), do: Keyword.get(opt, key), else: nil
 
     if is_nil(val) do
       {ast, acc}
@@ -577,6 +596,16 @@ defmodule Sobelow.Utils do
   end
   defp extract_configs(ast, acc, _key) do
     {ast, acc}
+  end
+
+  defp fuzzy_get(opt, key) do
+    keys = Keyword.keys(opt)
+    Enum.map(keys, fn k ->
+      if is_atom(k) && k != :secret_key_base do
+        s = Atom.to_string(k) |> String.downcase()
+        if String.contains?(s, key), do: {k, Keyword.get(opt, k)}
+      end
+    end) |> Enum.reject(&is_nil/1)
   end
 
   def get_version(filepath) do

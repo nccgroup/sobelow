@@ -27,8 +27,11 @@ defmodule Sobelow.Config.Secrets do
         |> enumerate_secrets(path)
       end
 
-      Config.get_configs_by_file(:password, path)
-      |> enumerate_secrets(path)
+      Utils.get_fuzzy_configs("password", path)
+      |> enumerate_fuzzy_secrets(path)
+
+      Utils.get_fuzzy_configs("secret", path)
+      |> enumerate_fuzzy_secrets(path)
     end
   end
 
@@ -37,6 +40,17 @@ defmodule Sobelow.Config.Secrets do
     Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
         add_finding(file, lineno, fun, key, val)
+      end
+    end
+  end
+
+  defp enumerate_fuzzy_secrets(secrets, file) do
+    file = Path.expand(file, "") |> String.replace_prefix("/", "")
+    Enum.each secrets, fn {{_, [line: lineno], _} = fun, vals} ->
+      Enum.each vals, fn {k, v} ->
+        if is_binary(v) && String.length(v) > 0 && !is_env_var?(v) do
+          add_finding(file, lineno, fun, k, v)
+        end
       end
     end
   end
