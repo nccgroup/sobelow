@@ -572,7 +572,7 @@ defmodule Sobelow.Utils do
 
   defp extract_fuzzy_configs({:config, _, opts} = ast, acc, key) do
     opt = List.last(opts)
-    vals = if Keyword.keyword?(opt), do: fuzzy_get(opt, key), else: nil
+    vals = if Keyword.keyword?(opt), do: fuzzy_keyword_get(opt, key), else: nil
 
     if is_nil(vals) do
       {ast, acc}
@@ -598,7 +598,7 @@ defmodule Sobelow.Utils do
     {ast, acc}
   end
 
-  defp fuzzy_get(opt, key) do
+  defp fuzzy_keyword_get(opt, key) do
     keys = Keyword.keys(opt)
     Enum.map(keys, fn k ->
       if is_atom(k) && k != :secret_key_base do
@@ -610,7 +610,7 @@ defmodule Sobelow.Utils do
 
   def get_version(filepath) do
     ast = ast(filepath)
-    {_ast, acc} = Macro.prewalk(ast, [], &get_version(&1, &2))
+    {_, acc} = Macro.prewalk(ast, [], &get_version(&1, &2))
     acc
   end
   def get_version({:@, _, nil} = ast, acc), do: {ast, acc}
@@ -621,9 +621,7 @@ defmodule Sobelow.Utils do
 
   def get_template_raw_vars(filepath) do
     ast = EEx.compile_string(File.read!(filepath))
-
     {_, acc} = Macro.prewalk(ast, [], &extract_raw_vars(&1, &2))
-
     acc
   end
   defp extract_raw_vars({:raw, _, [{_, _, [_, raw]}]} = ast, acc) do
