@@ -18,8 +18,11 @@ defmodule Sobelow.Config.HTTPS do
 
   def run(dir_path, configs) do
     path = dir_path <> "prod.exs"
-    Config.get_configs_by_file(:https, path)
-    |> handle_https()
+
+    if File.exists?(path) do
+      Config.get_configs_by_file(:https, path)
+      |> handle_https()
+    end
   end
 
   defp handle_https(opts) do
