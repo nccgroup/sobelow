@@ -13,13 +13,16 @@ defmodule Sobelow.Config do
     allowed = @submodules -- Sobelow.get_ignored()
 
     dir_path = root <> "config/"
-    configs =
-      File.ls!(dir_path)
-      |> Enum.filter(&want_to_scan?/1)
 
-    Enum.each allowed, fn mod ->
-      path = if mod === CSRF, do: router, else: dir_path
-      apply(mod, :run, [path, configs])
+    if File.dir?(dir_path) do
+      configs =
+        File.ls!(dir_path)
+        |> Enum.filter(&want_to_scan?/1)
+
+      Enum.each allowed, fn mod ->
+        path = if mod === CSRF, do: router, else: dir_path
+        apply(mod, :run, [path, configs])
+      end
     end
   end
 
