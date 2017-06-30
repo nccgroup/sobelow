@@ -1,5 +1,5 @@
 defmodule Sobelow.Misc.FilePath do
-  @moduledoc """
+  @moduledoc ~S"""
   # Insecure use of `File` and `Path`
 
   In Elixir, `File` methods are null-terminated, while `Path`
@@ -16,7 +16,7 @@ defmodule Sobelow.Misc.FilePath do
   ```
 
   Because `Path` functions are not null-terminated, this
-  will attempt to read the file, "/var/www/secret.txt\0/public.txt".
+  will attempt to read the file, "/var/www/secret.txt\\0/public.txt".
   However, due to the null-byte termination of `File` functions
   "secret.txt" will ultimately be read.
 
