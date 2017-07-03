@@ -72,55 +72,63 @@ defmodule Mix.Tasks.Sobelow do
              skip: :boolean,
              router: :string,
              exit: :string,
-             format: :string]
+             format: :string,
+             config: :boolean]
 
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details, f: :format]
 
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
 
-    with_code = Keyword.get(opts, :with_code, false)
     root = Keyword.get(opts, :root, ".")
-    details = Keyword.get(opts, :details, nil)
-    all_details = Keyword.get(opts, :all_details)
-    private = Keyword.get(opts, :private, false)
-    diff = Keyword.get(opts, :diff, false)
-    skip = Keyword.get(opts, :skip, false)
-    router = Keyword.get(opts, :router)
-    exit_on = case String.downcase(Keyword.get(opts, :exit, "None")) do
-      "high" -> :high
-      "medium" -> :medium
-      "low" -> :low
-      _ -> false
+    config = Keyword.get(opts, :config, false)
+    conf_file = root <> "/.sobelow-conf"
+    if config && File.exists?(conf_file) do
+      File.read!(conf_file)
+      |> Code.string_to_quoted!()
+      |> opts_from_config()
+    else
+      with_code = Keyword.get(opts, :with_code, false)
+      details = Keyword.get(opts, :details, nil)
+      all_details = Keyword.get(opts, :all_details)
+      private = Keyword.get(opts, :private, false)
+      diff = Keyword.get(opts, :diff, false)
+      skip = Keyword.get(opts, :skip, false)
+      router = Keyword.get(opts, :router)
+      exit_on = case String.downcase(Keyword.get(opts, :exit, "None")) do
+        "high" -> :high
+        "medium" -> :medium
+        "low" -> :low
+        _ -> false
+      end
+      format = Keyword.get(opts, :format, "txt") |> String.downcase()
+
+      set_env(:with_code, with_code)
+      set_env(:root, root)
+      set_env(:details, details)
+      set_env(:private, private)
+      set_env(:skip, skip)
+      set_env(:router, router)
+      set_env(:exit_on, exit_on)
+      set_env(:format, format)
+
+      ignored =
+        Keyword.get(opts, :ignore, "")
+        |> String.split(",")
+
+      set_env(:ignored, ignored)
+
+      cond do
+        diff ->
+          run_diff(argv)
+        !is_nil(all_details) ->
+          Sobelow.all_details()
+        !is_nil(details) ->
+          Sobelow.details()
+        true ->
+          Sobelow.run()
+      end
     end
-    format = Keyword.get(opts, :format, "txt") |> String.downcase()
-
-    set_env(:with_code, with_code)
-    set_env(:root, root)
-    set_env(:details, details)
-    set_env(:private, private)
-    set_env(:skip, skip)
-    set_env(:router, router)
-    set_env(:exit_on, exit_on)
-    set_env(:format, format)
-
-    ignored =
-      Keyword.get(opts, :ignore, "")
-      |> String.split(",")
-
-    set_env(:ignored, ignored)
-
-    cond do
-      diff ->
-        run_diff(argv)
-      !is_nil(all_details) ->
-        Sobelow.all_details()
-      !is_nil(details) ->
-        Sobelow.details()
-      true ->
-        Sobelow.run()
-    end
-
   end
 
   # This diff check is strictly used for testing/debugging and
@@ -137,5 +145,13 @@ defmodule Mix.Tasks.Sobelow do
 
   def set_env(key, value) do
     Application.put_env(:sobelow, key, value)
+  end
+
+  defp opts_from_config(opts) do
+    IO.inspect opts
+  end
+
+  defp opts_from_cli(opts) do
+
   end
 end
