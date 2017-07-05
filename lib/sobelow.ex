@@ -132,7 +132,8 @@ defmodule Sobelow do
         _ -> 0
       end
 
-    System.halt(status)
+    exit_status = if is_nil(status), do: 0, else: status
+    System.halt(exit_status)
   end
 
   def details() do
