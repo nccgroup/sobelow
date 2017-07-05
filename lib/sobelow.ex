@@ -124,11 +124,11 @@ defmodule Sobelow do
     status =
       case exit_on do
         :high ->
-          if high_count > 0, do: 1
+          if high_count > 0, do: 1, else: 0
         :medium ->
-          if high_count + medium_count > 0, do: 1
+          if high_count + medium_count > 0, do: 1, else: 0
         :low ->
-          if high_count + medium_count + low_count > 0, do: 1
+          if high_count + medium_count + low_count > 0, do: 1, else: 0
         _ -> 0
       end
 
