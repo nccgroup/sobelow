@@ -13,10 +13,9 @@ defmodule Sobelow.Config.HTTPS do
       $ mix sobelow -i Config.HTTPS
   """
   alias Sobelow.Config
-  alias Sobelow.Utils
   use Sobelow.Finding
 
-  def run(dir_path, configs) do
+  def run(dir_path, _configs) do
     path = dir_path <> "prod.exs"
 
     if File.exists?(path) do

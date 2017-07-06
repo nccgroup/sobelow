@@ -60,7 +60,7 @@ defmodule Sobelow.Config.Secrets do
   end
   def is_env_var?(_), do: false
 
-  defp add_finding(file, line_no, fun, key, val) do
+  defp add_finding(file, line_no, fun, key, _val) do
     type = "Hardcoded Secret"
     case Sobelow.get_env(:format) do
       "json" ->
