@@ -17,7 +17,7 @@ defmodule Sobelow do
   alias Sobelow.Config
   alias Sobelow.Vuln
   alias Sobelow.FindingLog
-  alias Mix.Shell.IO
+  alias Mix.Shell.IO, as: MixIO
   # In order to support the old application structure, as well as the
   # upcoming application structure (ie all in lib directory, vs pulled
   # into a web directory), there are a number of different "roots" in
@@ -77,7 +77,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    Elixir.IO.puts :stderr, print_banner()
+    IO.puts :stderr, print_banner()
     Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
@@ -100,7 +100,7 @@ defmodule Sobelow do
     if format() != "txt" do
       print_output()
     else
-      Elixir.IO.puts :stderr, "... SCAN COMPLETE ...\n"
+      IO.puts :stderr, "... SCAN COMPLETE ...\n"
     end
 
     exit_with_status()
@@ -108,7 +108,7 @@ defmodule Sobelow do
 
   defp print_output() do
     case format() do
-      "json" -> Elixir.IO.puts FindingLog.json(@v)
+      "json" -> IO.puts FindingLog.json(@v)
       _ -> nil
     end
   end
@@ -141,7 +141,7 @@ defmodule Sobelow do
     |> get_mod
 
     if is_nil(mod) do
-      IO.error "A valid module was not selected."
+      MixIO.error "A valid module was not selected."
     else
       apply(mod, :details, [])
     end
@@ -220,13 +220,13 @@ defmodule Sobelow do
     application, or use the `--router` flag to specify the router's 
     location.
     """
-    IO.error(message)
+    MixIO.error(message)
     ignored = get_env(:ignored)
     Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF"])
   end
 
   defp file_error() do
-    IO.error("This does not appear to be a Phoenix application.")
+    MixIO.error("This does not appear to be a Phoenix application.")
     System.halt(0)
   end
 
@@ -257,7 +257,7 @@ defmodule Sobelow do
       {:ok, {{_, 200, _}, _, vsn}} ->
         Version.parse! String.trim(to_string(vsn))
       _ ->
-        IO.error("Error fetching version number.\n")
+        MixIO.error("Error fetching version number.\n")
         @v
     end
   after
@@ -272,7 +272,7 @@ defmodule Sobelow do
 
     case cmp do
       :gt ->
-        IO.error """
+        MixIO.error """
         A new version of Sobelow is available:
         mix archive.install hex sobelow
         """
@@ -300,7 +300,7 @@ defmodule Sobelow do
       "Config.HTTPS" -> Sobelow.Config.HTTPS
       "Config.HSTS" -> Sobelow.Config.HSTS
       "Vuln" -> Sobelow.Vuln
-      "Vuln.CookieRCE" -> Sobelow.CookeRCE
+      "Vuln.CookieRCE" -> Sobelow.Vuln.CookieRCE
       "Vuln.HeaderInject" -> Sobelow.Vuln.HeaderInject
       "Vuln.PlugNull" -> Sobelow.Vuln.PlugNull
       "Vuln.Redirect" -> Sobelow.Vuln.Redirect
