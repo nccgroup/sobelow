@@ -9,7 +9,6 @@ defmodule Sobelow.Vuln do
 
       $ mix sobelow -i Vuln
   """
-  alias Sobelow.Utils
   @submodules [Sobelow.Vuln.PlugNull, Sobelow.Vuln.CookieRCE, Sobelow.Vuln.HeaderInject, Sobelow.Vuln.Redirect]
   use Sobelow.Finding
 
