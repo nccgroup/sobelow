@@ -1,5 +1,4 @@
 defmodule Sobelow.Vuln.PlugNull do
-  alias Sobelow.Config
   alias Sobelow.Utils
   alias Sobelow.Vuln
   use Sobelow.Finding

@@ -121,7 +121,7 @@ defmodule Sobelow.Utils do
     IO.puts finding_break()
   end
 
-  def log_json_finding(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
+  def log_json_finding(line_no, filename, _fun, fun_name, var, severity, type, _call, _module \\ nil) do
     finding = [
       type: type,
       file: filename,
@@ -208,12 +208,12 @@ defmodule Sobelow.Utils do
     |> Enum.flat_map(&get_aliased_funs_of_type(&1, type, module))
   end
 
-  defp get_funs_vars(funs, idx, type, nil) do
+  defp get_funs_vars(funs, idx, _type, nil) do
     funs
     |> Enum.map(&extract_opts(&1, idx))
     |> List.flatten
   end
-  defp get_funs_vars(funs, idx, type, module) do
+  defp get_funs_vars(funs, idx, _type, _module) do
     funs
     |> Enum.map(&extract_opts(&1, idx))
     |> List.flatten
@@ -224,7 +224,7 @@ defmodule Sobelow.Utils do
     |> Enum.flat_map(&get_pipe_val(fun, &1))
     |> List.flatten
   end
-  defp get_pipefuns_vars(pipefuns, fun, idx) do
+  defp get_pipefuns_vars(pipefuns, _fun, idx) do
     idx = idx - 1
 
     pipefuns
@@ -252,7 +252,7 @@ defmodule Sobelow.Utils do
   end
 
   def get_assigns_from(fun, module) when is_list(module) do
-    assigns = get_funs_of_type(fun, :=)
+    get_funs_of_type(fun, :=)
     |> Enum.filter(&contains_module?(&1, module))
     |> Enum.map(&get_assign/1)
   end
@@ -384,7 +384,7 @@ defmodule Sobelow.Utils do
   # This is what an accessor func looks like, eg conn.params
   defp parse_opts({{:., _, [{val, _, nil}, _]}, _, _}), do: val
   defp parse_opts({:., _, [{val, _, nil}, _]}), do: val
-  defp parse_opts({{:.,_,opts}, _, _} = fun) do
+  defp parse_opts({{:.,_,opts}, _, _} = _fun) do
     parse_opts(opts)
   end
 

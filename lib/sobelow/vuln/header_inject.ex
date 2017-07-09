@@ -1,5 +1,4 @@
 defmodule Sobelow.Vuln.HeaderInject do
-  alias Sobelow.Config
   alias Sobelow.Utils
   alias Sobelow.Vuln
   use Sobelow.Finding
