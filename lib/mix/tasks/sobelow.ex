@@ -81,8 +81,53 @@ defmodule Mix.Tasks.Sobelow do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
 
     root = Keyword.get(opts, :root, ".")
+
+    {with_code, diff, details,
+        private, skip, router,
+        exit_on, format, ignored, all_details} = get_opts(opts, root)
+
+    set_env(:with_code, with_code)
+    set_env(:root, root)
+    set_env(:details, details)
+    set_env(:private, private)
+    set_env(:skip, skip)
+    set_env(:router, router)
+    set_env(:exit_on, exit_on)
+    set_env(:format, format)
+    set_env(:ignored, ignored)
+
+    cond do
+      diff ->
+        run_diff(argv)
+      !is_nil(all_details) ->
+        Sobelow.all_details()
+      !is_nil(details) ->
+        Sobelow.details()
+      true ->
+        Sobelow.run()
+    end
+  end
+
+  # This diff check is strictly used for testing/debugging and
+  # isn't meant for general use.
+  def run_diff(argv) do
+    diff_idx = Enum.find_index(argv, fn i -> i === "--diff" end)
+    {_, list} = List.pop_at(argv, diff_idx)
+    {diff_target, list} = List.pop_at(list, diff_idx)
+    args = Enum.join(list, " ") |> to_charlist()
+    diff_target = to_charlist(diff_target)
+    :os.cmd('mix sobelow ' ++ args ++ ' > sobelow.tempdiff')
+    IO.puts :os.cmd('diff sobelow.tempdiff ' ++ diff_target)
+  end
+
+  def set_env(key, value) do
+    Application.put_env(:sobelow, key, value)
+  end
+
+  defp get_opts(opts, root) do
     config = Keyword.get(opts, :config, false)
     conf_file = root <> "/.sobelow-conf"
+
     if config && File.exists?(conf_file) do
       File.read!(conf_file)
       |> Code.string_to_quoted!()
@@ -103,48 +148,12 @@ defmodule Mix.Tasks.Sobelow do
       end
       format = Keyword.get(opts, :format, "txt") |> String.downcase()
 
-      set_env(:with_code, with_code)
-      set_env(:root, root)
-      set_env(:details, details)
-      set_env(:private, private)
-      set_env(:skip, skip)
-      set_env(:router, router)
-      set_env(:exit_on, exit_on)
-      set_env(:format, format)
-
       ignored =
         Keyword.get(opts, :ignore, "")
         |> String.split(",")
 
-      set_env(:ignored, ignored)
-
-      cond do
-        diff ->
-          run_diff(argv)
-        !is_nil(all_details) ->
-          Sobelow.all_details()
-        !is_nil(details) ->
-          Sobelow.details()
-        true ->
-          Sobelow.run()
-      end
+      {with_code, diff, details, private, skip, router, exit_on, format, ignored, all_details}
     end
-  end
-
-  # This diff check is strictly used for testing/debugging and
-  # isn't meant for general use.
-  def run_diff(argv) do
-    diff_idx = Enum.find_index(argv, fn i -> i === "--diff" end)
-    {_, list} = List.pop_at(argv, diff_idx)
-    {diff_target, list} = List.pop_at(list, diff_idx)
-    args = Enum.join(list, " ") |> to_charlist()
-    diff_target = to_charlist(diff_target)
-    :os.cmd('mix sobelow ' ++ args ++ ' > sobelow.tempdiff')
-    IO.puts :os.cmd('diff sobelow.tempdiff ' ++ diff_target)
-  end
-
-  def set_env(key, value) do
-    Application.put_env(:sobelow, key, value)
   end
 
   defp opts_from_config(opts) do
