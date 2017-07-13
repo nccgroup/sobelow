@@ -137,11 +137,11 @@ defmodule Sobelow.Utils do
   end
 
   def finding_file_metadata(filename, fun_name, line_no) do
-    "File: #{filename} - #{handle_fun(fun_name)}:#{line_no}"
+    "File: #{filename} - #{prettify_fun(fun_name)}:#{line_no}"
   end
 
-  defp handle_fun({:unquote, _, [{fn_name, _, _}]}), do: "unquote(#{fn_name})"
-  defp handle_fun(fn_name), do: fn_name
+  defp prettify_fun({:unquote, _, [{fn_name, _, _}]}), do: "unquote(#{fn_name})"
+  defp prettify_fun(fn_name), do: fn_name
 
   def finding_variable(var) do
     "Variable: #{var}"
