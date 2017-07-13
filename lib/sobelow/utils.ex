@@ -136,6 +136,9 @@ defmodule Sobelow.Utils do
     color <> type <> " - #{confidence} Confidence" <> IO.ANSI.reset()
   end
 
+  def finding_file_metadata(filename, {:unquote, _, _} = fun_name, line_no) do
+    finding_file_metadata(filename, Macro.to_string(fun_name), line_no)
+  end
   def finding_file_metadata(filename, fun_name, line_no) do
     "File: #{filename} - #{fun_name}:#{line_no}"
   end
