@@ -140,7 +140,7 @@ defmodule Sobelow.Utils do
     "File: #{filename} - #{prettify_fun(fun_name)}:#{line_no}"
   end
 
-  defp prettify_fun({:unquote, _, [{fn_name, _, _}]}), do: "unquote(#{fn_name})"
+  defp prettify_fun({:unquote, _, _} = fun), do: Macro.to_string(fun)
   defp prettify_fun(fn_name), do: fn_name
 
   def finding_variable(var) do
