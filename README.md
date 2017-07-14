@@ -39,6 +39,11 @@ To install Sobelow, you must have a working Elixir environment.
 Then, execute the following from the command line: 
 
     $ mix archive.install hex sobelow
+
+You may also install directly from GitHub with the following 
+command:
+
+    $ mix archive.install github nccgroup/sobelow
     
 ## Use
 

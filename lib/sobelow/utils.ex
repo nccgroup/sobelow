@@ -121,7 +121,7 @@ defmodule Sobelow.Utils do
     IO.puts finding_break()
   end
 
-  def log_json_finding(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
+  def log_json_finding(line_no, filename, _fun, fun_name, var, severity, type, _call, _module \\ nil) do
     finding = [
       type: type,
       file: filename,
@@ -136,6 +136,9 @@ defmodule Sobelow.Utils do
     color <> type <> " - #{confidence} Confidence" <> IO.ANSI.reset()
   end
 
+  def finding_file_metadata(filename, {:unquote, _, _} = fun_name, line_no) do
+    finding_file_metadata(filename, Macro.to_string(fun_name), line_no)
+  end
   def finding_file_metadata(filename, fun_name, line_no) do
     "File: #{filename} - #{fun_name}:#{line_no}"
   end
@@ -169,6 +172,9 @@ defmodule Sobelow.Utils do
     ast = ast(filepath)
     {_, acc} = Macro.prewalk(ast, [], &get_def_funs(&1, &2))
     acc
+  end
+  def get_def_funs({:@, _, [{:sobelow_skip, _, _}]} = ast, acc) do
+    if Sobelow.get_env(:skip), do: {ast, [ast|acc]}, else: {ast, acc}
   end
   def get_def_funs({:def, _, nil} = ast, acc), do: {ast, acc}
   def get_def_funs({:defp, _, nil} = ast, acc), do: {ast, acc}
@@ -205,12 +211,12 @@ defmodule Sobelow.Utils do
     |> Enum.flat_map(&get_aliased_funs_of_type(&1, type, module))
   end
 
-  defp get_funs_vars(funs, idx, type, nil) do
+  defp get_funs_vars(funs, idx, _type, nil) do
     funs
     |> Enum.map(&extract_opts(&1, idx))
     |> List.flatten
   end
-  defp get_funs_vars(funs, idx, type, module) do
+  defp get_funs_vars(funs, idx, _type, _module) do
     funs
     |> Enum.map(&extract_opts(&1, idx))
     |> List.flatten
@@ -221,7 +227,7 @@ defmodule Sobelow.Utils do
     |> Enum.flat_map(&get_pipe_val(fun, &1))
     |> List.flatten
   end
-  defp get_pipefuns_vars(pipefuns, fun, idx) do
+  defp get_pipefuns_vars(pipefuns, _fun, idx) do
     idx = idx - 1
 
     pipefuns
@@ -249,7 +255,7 @@ defmodule Sobelow.Utils do
   end
 
   def get_assigns_from(fun, module) when is_list(module) do
-    assigns = get_funs_of_type(fun, :=)
+    get_funs_of_type(fun, :=)
     |> Enum.filter(&contains_module?(&1, module))
     |> Enum.map(&get_assign/1)
   end
@@ -312,9 +318,6 @@ defmodule Sobelow.Utils do
   def get_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, type))
     acc
-  end
-  def get_funs_of_type({:@, _, [{:sobelow_skip, _, _}]} = ast, acc, types) when is_list(types) do
-    if Sobelow.get_env(:skip), do: {ast, [ast|acc]}, else: {ast, acc}
   end
   def get_funs_of_type({type, _, _} = ast, acc, types) when is_list(types) do
     if Enum.member?(types, type) do
@@ -384,7 +387,7 @@ defmodule Sobelow.Utils do
   # This is what an accessor func looks like, eg conn.params
   defp parse_opts({{:., _, [{val, _, nil}, _]}, _, _}), do: val
   defp parse_opts({:., _, [{val, _, nil}, _]}), do: val
-  defp parse_opts({{:.,_,opts}, _, _} = fun) do
+  defp parse_opts({{:.,_,opts}, _, _} = _fun) do
     parse_opts(opts)
   end
 
