@@ -367,6 +367,7 @@ defmodule Sobelow.Utils do
   def extract_opts({_, _, opts}, idx) do
     parse_opts(Enum.at(opts, idx))
   end
+  def extract_opts(_), do: []
 
   defp parse_opts({:@, _, _}), do: []
   defp parse_opts({key, _, nil}), do: key
