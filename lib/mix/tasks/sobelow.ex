@@ -81,10 +81,20 @@ defmodule Mix.Tasks.Sobelow do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
 
     root = Keyword.get(opts, :root, ".")
+    config = Keyword.get(opts, :config, false)
+    conf_file = root <> "/.sobelow-conf"
+    conf_file? = config && File.exists?(conf_file)
+
+    opts = if conf_file? do
+      {:ok, opts} = File.read!(conf_file) |> Code.string_to_quoted()
+      opts
+    else
+      opts
+    end
 
     {with_code, diff, details,
         private, skip, router,
-        exit_on, format, ignored, all_details} = get_opts(opts, root)
+        exit_on, format, ignored, all_details} = get_opts(opts, conf_file?)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
@@ -124,43 +134,34 @@ defmodule Mix.Tasks.Sobelow do
     Application.put_env(:sobelow, key, value)
   end
 
-  defp get_opts(opts, root) do
-    config = Keyword.get(opts, :config, false)
-    conf_file = root <> "/.sobelow-conf"
+  defp get_opts(opts, conf_file? \\ false) do
+    with_code = Keyword.get(opts, :with_code, false)
+    details = Keyword.get(opts, :details, nil)
+    all_details = Keyword.get(opts, :all_details)
+    private = Keyword.get(opts, :private, false)
+    diff = Keyword.get(opts, :diff, false)
+    skip = Keyword.get(opts, :skip, false)
+    router = Keyword.get(opts, :router)
+    exit_on = case String.downcase(Keyword.get(opts, :exit, "None")) do
+      "high" -> :high
+      "medium" -> :medium
+      "low" -> :low
+      _ -> false
+    end
+    format = Keyword.get(opts, :format, "txt") |> String.downcase()
 
-    if config && File.exists?(conf_file) do
-      File.read!(conf_file)
-      |> Code.string_to_quoted!()
-      |> opts_from_config()
-    else
-      with_code = Keyword.get(opts, :with_code, false)
-      details = Keyword.get(opts, :details, nil)
-      all_details = Keyword.get(opts, :all_details)
-      private = Keyword.get(opts, :private, false)
-      diff = Keyword.get(opts, :diff, false)
-      skip = Keyword.get(opts, :skip, false)
-      router = Keyword.get(opts, :router)
-      exit_on = case String.downcase(Keyword.get(opts, :exit, "None")) do
-        "high" -> :high
-        "medium" -> :medium
-        "low" -> :low
-        _ -> false
-      end
-      format = Keyword.get(opts, :format, "txt") |> String.downcase()
-
-      ignored =
+    ignored =
+      if conf_file? do
+        Keyword.get(opts, :ignore, [])
+      else
         Keyword.get(opts, :ignore, "")
         |> String.split(",")
+      end
 
-      {with_code, diff, details, private, skip, router, exit_on, format, ignored, all_details}
-    end
+    {with_code, diff, details, private, skip, router, exit_on, format, ignored, all_details}
   end
 
   defp opts_from_config(opts) do
     IO.inspect opts
-  end
-
-  defp opts_from_cli(opts) do
-
   end
 end
