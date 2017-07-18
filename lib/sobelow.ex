@@ -35,6 +35,7 @@ defmodule Sobelow do
     router = 
       case get_env(:router) do
         nil -> web_root <> "web/router.ex"
+        "" -> web_root <> "web/router.ex"
         router -> router
       end
 
@@ -154,6 +155,28 @@ defmodule Sobelow do
   def all_details() do
     @submodules
     |> Enum.each(&apply(&1, :details, []))
+  end
+
+  def save_config(conf_file) do
+    conf = """
+    [
+      with_code: #{get_env(:with_code)},
+      root: "#{get_env(:root)}",
+      private: #{get_env(:private)},
+      skip: #{get_env(:skip)},
+      router: "#{get_env(:router)}",
+      exit_on: #{get_env(:exit_on)},
+      format: "#{get_env(:format)}",
+      ignore: "#{Enum.join get_env(:ignored), ", "}"
+    ]
+    """
+
+    if File.exists?(conf_file) do
+      MixIO.yes?("The file .sobelow-conf already exists. Are you sure you want to overwrite?")
+    end
+
+    File.write!(conf_file, conf)
+    MixIO.info("Updated .sobelow-conf")
   end
 
   def format() do

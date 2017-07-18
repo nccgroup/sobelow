@@ -73,7 +73,8 @@ defmodule Mix.Tasks.Sobelow do
              router: :string,
              exit: :string,
              format: :string,
-             config: :boolean]
+             config: :boolean,
+             save_config: :boolean]
 
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details, f: :format]
 
@@ -94,7 +95,7 @@ defmodule Mix.Tasks.Sobelow do
 
     {with_code, diff, details,
         private, skip, router,
-        exit_on, format, ignored, all_details} = get_opts(opts, conf_file?)
+        exit_on, format, ignored, all_details} = get_opts(opts)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
@@ -106,9 +107,13 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:format, format)
     set_env(:ignored, ignored)
 
+    save_config = Keyword.get(opts, :save_config)
+
     cond do
       diff ->
         run_diff(argv)
+      !is_nil(save_config) ->
+        Sobelow.save_config(conf_file)
       !is_nil(all_details) ->
         Sobelow.all_details()
       !is_nil(details) ->
@@ -134,7 +139,7 @@ defmodule Mix.Tasks.Sobelow do
     Application.put_env(:sobelow, key, value)
   end
 
-  defp get_opts(opts, conf_file? \\ false) do
+  defp get_opts(opts) do
     with_code = Keyword.get(opts, :with_code, false)
     details = Keyword.get(opts, :details, nil)
     all_details = Keyword.get(opts, :all_details)
@@ -151,12 +156,9 @@ defmodule Mix.Tasks.Sobelow do
     format = Keyword.get(opts, :format, "txt") |> String.downcase()
 
     ignored =
-      if conf_file? do
-        Keyword.get(opts, :ignore, [])
-      else
         Keyword.get(opts, :ignore, "")
         |> String.split(",")
-      end
+        |> Enum.map(&String.trim/1)
 
     {with_code, diff, details, private, skip, router, exit_on, format, ignored, all_details}
   end
