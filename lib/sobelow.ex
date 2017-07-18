@@ -165,18 +165,23 @@ defmodule Sobelow do
       private: #{get_env(:private)},
       skip: #{get_env(:skip)},
       router: "#{get_env(:router)}",
-      exit_on: #{get_env(:exit_on)},
+      exit: "#{get_env(:exit_on)}",
       format: "#{get_env(:format)}",
       ignore: "#{Enum.join get_env(:ignored), ", "}"
     ]
     """
 
-    if File.exists?(conf_file) do
-      MixIO.yes?("The file .sobelow-conf already exists. Are you sure you want to overwrite?")
-    end
+    yes? =
+      if File.exists?(conf_file) do
+        MixIO.yes?("The file .sobelow-conf already exists. Are you sure you want to overwrite?")
+      else
+        true
+      end
 
-    File.write!(conf_file, conf)
-    MixIO.info("Updated .sobelow-conf")
+    if yes? do
+      File.write!(conf_file, conf)
+      MixIO.info("Updated .sobelow-conf")
+    end
   end
 
   def format() do
