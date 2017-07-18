@@ -97,7 +97,7 @@ defmodule Mix.Tasks.Sobelow do
     {with_code, diff, details,
         private, skip, router,
         exit_on, format, ignored,
-        ignored_files, all_details} = get_opts(opts, conf_file?)
+        ignored_files, all_details} = get_opts(opts, root, conf_file?)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
@@ -142,7 +142,7 @@ defmodule Mix.Tasks.Sobelow do
     Application.put_env(:sobelow, key, value)
   end
 
-  defp get_opts(opts, conf_file?) do
+  defp get_opts(opts, root, conf_file?) do
     with_code = Keyword.get(opts, :with_code, false)
     details = Keyword.get(opts, :details, nil)
     all_details = Keyword.get(opts, :all_details)
@@ -160,7 +160,7 @@ defmodule Mix.Tasks.Sobelow do
 
     {ignored, ignored_files} =
       if conf_file? do
-        {Keyword.get(opts, :ignore, []), Keyword.get(opts, :ignore_files, []) |> Enum.map(&Path.expand/1)}
+        {Keyword.get(opts, :ignore, []), Keyword.get(opts, :ignore_files, []) |> Enum.map(&Path.expand(&1, root))}
       else
         ignored =
           Keyword.get(opts, :ignore, "")
@@ -170,7 +170,7 @@ defmodule Mix.Tasks.Sobelow do
           Keyword.get(opts, :ignore_files, "")
           |> String.split(",")
           |> Enum.reject(fn file -> file == "" end)
-          |> Enum.map(&Path.expand/1)
+          |> Enum.map(&Path.expand(&1, root))
 
         {ignored, ignored_files}
       end
