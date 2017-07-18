@@ -65,6 +65,7 @@ defmodule Mix.Tasks.Sobelow do
   @switches [with_code: :boolean,
              root: :string,
              ignore: :string,
+             ignore_files: :string,
              details: :string,
              all_details: :boolean,
              private: :boolean,
@@ -95,7 +96,8 @@ defmodule Mix.Tasks.Sobelow do
 
     {with_code, diff, details,
         private, skip, router,
-        exit_on, format, ignored, all_details} = get_opts(opts)
+        exit_on, format, ignored,
+        ignored_files, all_details} = get_opts(opts, conf_file?)
 
     set_env(:with_code, with_code)
     set_env(:root, root)
@@ -106,6 +108,7 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:exit_on, exit_on)
     set_env(:format, format)
     set_env(:ignored, ignored)
+    set_env(:ignored_files, ignored_files)
 
     save_config = Keyword.get(opts, :save_config)
 
@@ -139,7 +142,7 @@ defmodule Mix.Tasks.Sobelow do
     Application.put_env(:sobelow, key, value)
   end
 
-  defp get_opts(opts) do
+  defp get_opts(opts, conf_file?) do
     with_code = Keyword.get(opts, :with_code, false)
     details = Keyword.get(opts, :details, nil)
     all_details = Keyword.get(opts, :all_details)
@@ -155,11 +158,23 @@ defmodule Mix.Tasks.Sobelow do
     end
     format = Keyword.get(opts, :format, "txt") |> String.downcase()
 
-    ignored =
-        Keyword.get(opts, :ignore, "")
-        |> String.split(",")
-        |> Enum.map(&String.trim/1)
+    {ignored, ignored_files} =
+      if conf_file? do
+        {Keyword.get(opts, :ignore, []), Keyword.get(opts, :ignore_files, [])}
+      else
+        ignored =
+          Keyword.get(opts, :ignore, "")
+          |> String.split(",")
+          |> Enum.map(&String.trim/1)
 
-    {with_code, diff, details, private, skip, router, exit_on, format, ignored, all_details}
+        ignored_files =
+          Keyword.get(opts, :ignore_files, "")
+          |> String.split(",")
+          |> Enum.map(&String.trim/1)
+
+        {ignored, ignored_files}
+      end
+
+    {with_code, diff, details, private, skip, router, exit_on, format, ignored, ignored_files, all_details}
   end
 end

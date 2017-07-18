@@ -11,13 +11,14 @@ defmodule Sobelow.Config do
 
   def fetch(root, router) do
     allowed = @submodules -- Sobelow.get_ignored()
+    ignored_files = Sobelow.get_env(:ignored_files)
 
     dir_path = root <> "config/"
 
     if File.dir?(dir_path) do
       configs =
         File.ls!(dir_path)
-        |> Enum.filter(&want_to_scan?/1)
+        |> Enum.filter(&want_to_scan?(dir_path <> &1, ignored_files))
 
       Enum.each allowed, fn mod ->
         path = if mod === CSRF, do: router, else: dir_path
@@ -26,8 +27,10 @@ defmodule Sobelow.Config do
     end
   end
 
-  defp want_to_scan?(conf) do
-    if Path.extname(conf) === ".exs" && !Enum.member?(@skip_files, conf), do: conf
+  defp want_to_scan?(conf, ignored_files) do
+    if Path.extname(conf) === ".exs" &&
+      !Enum.member?(@skip_files, Path.basename(conf)) &&
+      !Enum.member?(ignored_files, conf), do: conf
   end
 
   def get_configs_by_file(secret, file) do

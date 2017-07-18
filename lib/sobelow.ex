@@ -44,11 +44,14 @@ defmodule Sobelow do
     ignored = get_ignored()
     allowed = @submodules -- ignored
 
+    ignored_files = get_env(:ignored_files)
+
     # Pulling out function definitions before kicking
     # off the test pipeline to avoid dumping warning
     # messages into the findings output.
     root_defs = Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
+    |> Enum.reject(&is_ignored_file(&1, ignored_files))
     |> Enum.map(fn file ->
       {file, Utils.get_def_funs(root <> file)}
     end)
@@ -62,6 +65,7 @@ defmodule Sobelow do
         true ->
           Utils.all_files(lib_root)
           |> Enum.reject(&is_nil/1)
+          |> Enum.reject(&is_ignored_file(&1, ignored_files))
           |> Enum.map(fn file ->
             filename = lib_root <> file
             {filename, Utils.get_def_funs(filename)}
@@ -167,7 +171,8 @@ defmodule Sobelow do
       router: "#{get_env(:router)}",
       exit: "#{get_env(:exit_on)}",
       format: "#{get_env(:format)}",
-      ignore: "#{Enum.join get_env(:ignored), ", "}"
+      ignore: ["#{Enum.join(get_env(:ignored), "\", \"")}"],
+      ignore_files: ["#{Enum.join(get_env(:ignored_files), "\", \"")}"]
     ]
     """
 
@@ -348,5 +353,11 @@ defmodule Sobelow do
   def get_ignored() do
     get_env(:ignored)
     |> Enum.map(&get_mod/1)
+  end
+
+  defp is_ignored_file(filename, ignored_files) do
+    Enum.any? ignored_files, fn ignored_file ->
+      String.ends_with?(ignored_file, filename)
+    end
   end
 end

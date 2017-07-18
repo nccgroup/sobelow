@@ -15,10 +15,10 @@ defmodule Sobelow.Config.HTTPS do
   alias Sobelow.Config
   use Sobelow.Finding
 
-  def run(dir_path, _configs) do
+  def run(dir_path, configs) do
     path = dir_path <> "prod.exs"
 
-    if File.exists?(path) do
+    if File.exists?(path) && Enum.member?(configs, "prod.exs") do
       Config.get_configs_by_file(:https, path)
       |> handle_https()
     end
