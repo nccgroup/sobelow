@@ -162,8 +162,4 @@ defmodule Mix.Tasks.Sobelow do
 
     {with_code, diff, details, private, skip, router, exit_on, format, ignored, all_details}
   end
-
-  defp opts_from_config(opts) do
-    IO.inspect opts
-  end
 end
