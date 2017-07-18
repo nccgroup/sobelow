@@ -160,17 +160,17 @@ defmodule Mix.Tasks.Sobelow do
 
     {ignored, ignored_files} =
       if conf_file? do
-        {Keyword.get(opts, :ignore, []), Keyword.get(opts, :ignore_files, [])}
+        {Keyword.get(opts, :ignore, []), Keyword.get(opts, :ignore_files, []) |> Enum.map(&Path.expand/1)}
       else
         ignored =
           Keyword.get(opts, :ignore, "")
           |> String.split(",")
-          |> Enum.map(&String.trim/1)
 
         ignored_files =
           Keyword.get(opts, :ignore_files, "")
           |> String.split(",")
-          |> Enum.map(&String.trim/1)
+          |> Enum.reject(fn file -> file == "" end)
+          |> Enum.map(&Path.expand/1)
 
         {ignored, ignored_files}
       end

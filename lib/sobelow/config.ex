@@ -30,7 +30,7 @@ defmodule Sobelow.Config do
   defp want_to_scan?(conf, ignored_files) do
     if Path.extname(conf) === ".exs" &&
       !Enum.member?(@skip_files, Path.basename(conf)) &&
-      !Enum.member?(ignored_files, conf), do: conf
+      !Enum.member?(ignored_files, Path.expand(conf)), do: conf
   end
 
   def get_configs_by_file(secret, file) do
