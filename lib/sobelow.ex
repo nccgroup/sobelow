@@ -165,7 +165,6 @@ defmodule Sobelow do
     conf = """
     [
       with_code: #{get_env(:with_code)},
-      root: "#{get_env(:root)}",
       private: #{get_env(:private)},
       skip: #{get_env(:skip)},
       router: "#{get_env(:router)}",
