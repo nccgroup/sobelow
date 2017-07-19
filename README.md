@@ -57,6 +57,7 @@ following from the project root:
   * `--root -r` - Specify application root directory
   * `--with-code -v` - Print vulnerable code snippets
   * `--ignore -i` - Ignore modules
+  * `--ignore-files` - Ignore files
   * `--details -d` - Get module details
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
@@ -76,6 +77,12 @@ The `ignore` option takes a comma-separated list of modules:
 
     $ mix sobelow -i XSS.Raw,Traversal
     
+The `ignore-files` option takes a comma-separated list of file 
+names. File names should be absolute paths, or relative to the 
+application root.
+
+    $ mix sobelow --ignore-files config/prod.exs
+    
 The `details` option takes a single module:
 
     $ mix sobelow -d Config.CSRF
@@ -94,6 +101,27 @@ key. However, other keys may vary between finding types.
 
     $ mix sobelow --format json
     
+## Configuration Files
+Sobelow allows users to save frequently used options in a 
+configuration file. For example, if you find yourself constantly 
+running:
+
+    $ mix sobelow -i XSS.Raw,Traversal --with-code --exit Low
+    
+You can use the `--save-config` flag to create your `.sobelow-conf` 
+config file:
+
+    $ mix sobelow -i XSS.Raw,Traversal --with-code --exit Low --save-config
+     
+This command will create the `.sobelow-conf` file at the root 
+of your application. You can edit this file directly to make 
+changes.
+
+Now if you want to run Sobelow with the saved configuration,
+you can run Sobelow with the `--config` flag.
+
+    $ mix sobelow --config
+
 ## False Positives
 Sobelow favors over-reporting versus under-reporting. As such, 
 you may find a number of false positives in a typical scan. 

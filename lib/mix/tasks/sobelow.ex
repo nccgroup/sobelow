@@ -14,6 +14,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--root -r` - Specify application root directory
   * `--with-code -v` - Print vulnerable code snippets
   * `--ignore -i` - Ignore modules
+  * `--ignore-files` - Ignore files
   * `--details -d` - Get module details
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
