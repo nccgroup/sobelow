@@ -48,8 +48,12 @@ defmodule Sobelow.Utils do
     case ast do
       {:|>, _, [_, {^call, _, _}]} ->
         maybe_highlight(string, ast, var)
+      {:&, _,[{:/, _,[{^call, _, _}, idx]}]} ->
+        maybe_highlight(string, ast, var, idx, :fun_cap)
       {^call, _, _} ->
         maybe_highlight(string, ast, var)
+      {:&, _,[{:/, _,[{{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}, idx]}]} ->
+        maybe_highlight(string, ast, var, idx, :fun_cap)
       {:|>, _, [_, {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}]} ->
         maybe_highlight(string, ast, var, module, mod)
       {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _} ->
@@ -62,6 +66,13 @@ defmodule Sobelow.Utils do
     end
   end
 
+  defp maybe_highlight(string, ast, var, idx, :fun_cap) do
+    if "&#{idx}" == var && Macro.to_string(ast) == string do
+      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+    else
+      string
+    end
+  end
   defp maybe_highlight(string, ast, var) do
     if is_fun_with_var?(ast, var) do
       IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
