@@ -102,6 +102,7 @@ defmodule Sobelow.Utils do
   defp is_fun_var({:render, _, [_, keylist]} = ast, acc) when is_list(keylist) do
     {ast, Keyword.keys(keylist) ++ acc}
   end
+  defp is_fun_var({:&, _, [idx]} = ast, acc), do: {ast, ["&#{idx}"|acc]}
   defp is_fun_var({var, _, _} = ast, acc), do: {ast, [var|acc]}
   defp is_fun_var(ast, acc), do: {ast, acc}
 
