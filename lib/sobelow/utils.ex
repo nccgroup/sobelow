@@ -52,7 +52,7 @@ defmodule Sobelow.Utils do
         maybe_highlight(string, ast, var, idx, :fun_cap)
       {^call, _, _} ->
         maybe_highlight(string, ast, var)
-      {:&, _,[{:/, _,[{{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}, idx]}]} ->
+      {:&, _,[{:/, _,[{{:., _,[{:__aliases__, _, _mod}, ^call]}, _, _}, idx]}]} ->
         maybe_highlight(string, ast, var, idx, :fun_cap)
       {:|>, _, [_, {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}]} ->
         maybe_highlight(string, ast, var, module, mod)
