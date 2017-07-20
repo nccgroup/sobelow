@@ -242,6 +242,10 @@ defmodule Sobelow.Utils do
   def get_erlang_funs_of_type({{:., _, [module, type]}, _, _} = ast, acc, type, module) do
     {ast, [ast|acc]}
   end
+  def get_erlang_funs_of_type({:&, _,[{:/, _,[{fun, meta, _}, idx]}]}, acc, type, module) do
+    fun_cap = create_fun_cap(fun, meta, idx)
+    get_erlang_funs_of_type(fun_cap, acc, type, module)
+  end
   def get_erlang_funs_of_type(ast, acc, _type, _module), do: {ast, acc}
 
   def get_erlang_aliased_funs_of_type(ast, type, module) do
@@ -301,6 +305,10 @@ defmodule Sobelow.Utils do
       {ast, acc}
     end
   end
+  def get_strict_aliased_funs_of_type({:&, _,[{:/, _,[{fun, meta, _}, idx]}]}, acc, type, module) do
+    fun_cap = create_fun_cap(fun, meta, idx)
+    get_strict_aliased_funs_of_type(fun_cap, acc, type, module)
+  end
   def get_strict_aliased_funs_of_type(ast, acc, _type, _module) do
     {ast, acc}
   end
@@ -310,6 +318,10 @@ defmodule Sobelow.Utils do
     else
       {ast, acc}
     end
+  end
+  def get_aliased_funs_of_type({:&, _,[{:/, _,[{fun, meta, _}, idx]}]}, acc, type, module) do
+    fun_cap = create_fun_cap(fun, meta, idx)
+    get_aliased_funs_of_type(fun_cap, acc, type, module)
   end
   def get_aliased_funs_of_type(ast, acc, _type, _module) do
     {ast, acc}
@@ -326,10 +338,19 @@ defmodule Sobelow.Utils do
       {ast, acc}
     end
   end
+  def get_funs_of_type({:&, _,[{:/, _,[{fun, meta, _}, idx]}]}, acc, type) do
+    fun_cap = create_fun_cap(fun, meta, idx)
+    get_funs_of_type(fun_cap, acc, type)
+  end
   def get_funs_of_type({type, _, _} = ast, acc, type) do
     {ast, [ast|acc]}
   end
   def get_funs_of_type(ast, acc, _type), do: {ast, acc}
+
+  defp create_fun_cap(fun, meta, idx) do
+    opts = Enum.map(1..idx, fn i -> {:&, [], [i]} end)
+    {fun, meta, opts}
+  end
 
   def get_pipe_funs(ast) do
     all_pipes = get_funs_of_type(ast, :|>)
@@ -391,7 +412,7 @@ defmodule Sobelow.Utils do
   defp parse_opts({{:.,_,opts}, _, _} = _fun) do
     parse_opts(opts)
   end
-
+  defp parse_opts({:&, _, [i]} = cap) when is_integer(i), do: Macro.to_string(cap)
   defp parse_opts({fun, _, opts}) when fun in @operators do
     Enum.map(opts, &parse_opts/1)
   end
