@@ -126,11 +126,11 @@ you can run Sobelow with the `--config` flag.
 Sobelow favors over-reporting versus under-reporting. As such, 
 you may find a number of false positives in a typical scan. 
 These findings may be individually ignored by adding a 
-`@sobelow_skip` mark, along with a list of modules, before 
+`# sobelow_skip` comment, along with a list of modules, before 
 the function definition. 
 
 ```elixir
-@sobelow_skip ["Traversal"]
+# sobelow_skip ["Traversal"]
 def vuln_func(...) do
   ...
 end
