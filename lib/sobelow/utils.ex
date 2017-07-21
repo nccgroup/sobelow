@@ -4,8 +4,17 @@ defmodule Sobelow.Utils do
               :===, :!==, :&&, :&&&, :and, :||, :|||, :or, :=, :|]
   # General Utils
   def ast(filepath) do
-    {:ok, ast} = Code.string_to_quoted(File.read!(filepath))
+    {:ok, ast} = Code.string_to_quoted(read_file(filepath))
     ast
+  end
+
+  defp read_file(filepath) do
+    content = File.read!(filepath)
+    if Sobelow.get_env(:skip) do
+      String.replace(content, ~r/#\s?sobelow_skip (\[(\"[^"]+\"(,|, )?)+\])/, "@sobelow_skip \\g{1}")
+    else
+      content
+    end
   end
   # This should be about as big as it gets, and is still fairly simple
   # to understand. If it gets much more convoluted, an alternate
