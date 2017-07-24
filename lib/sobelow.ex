@@ -32,10 +32,11 @@ defmodule Sobelow do
 
     root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: lib_root
 
-    router = 
+    router_path = if Path.basename(web_root) == "#{app_name}_web", do: "router.ex", else: "web/router.ex"
+    router =
       case get_env(:router) do
-        nil -> web_root <> "web/router.ex"
-        "" -> web_root <> "web/router.ex"
+        nil -> web_root <> router_path
+        "" -> web_root <> router_path
         router -> router
       end
 
@@ -210,10 +211,16 @@ defmodule Sobelow do
 
   defp get_root(app_name, project_root) do
     lib_root = project_root <> "lib/"
-    if File.dir?(project_root <> "lib/#{app_name}/web/") do
-      {lib_root <> "#{app_name}/", lib_root}
-    else
-      {project_root <> "./", lib_root}
+    cond do
+      File.dir?(project_root <> "lib/#{app_name}_web") ->
+        # New phoenix RC structure
+        {lib_root <> "#{app_name}_web/", lib_root}
+      File.dir?(project_root <> "lib/#{app_name}/web/") ->
+        # RC 1 phx dir structure
+        {lib_root <> "#{app_name}/", lib_root}
+      true ->
+        # Original dir structure
+        {project_root <> "./", lib_root}
     end
   end
 
