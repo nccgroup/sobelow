@@ -22,6 +22,10 @@ defmodule Sobelow do
   # upcoming application structure (ie all in lib directory, vs pulled
   # into a web directory), there are a number of different "roots" in
   # use.
+  #
+  # As of Phoenix-rc.3, this now supports 3+ directory structures.
+  # Support for the original rc structure should be deprecated after
+  # Phoenix 1.3
   def run() do
     project_root = get_env(:root) <> "/"
     if !get_env(:private), do: version_check(project_root)
