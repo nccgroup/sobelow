@@ -254,7 +254,7 @@ defmodule Sobelow do
     """
     MixIO.error(message)
     ignored = get_env(:ignored)
-    Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF"])
+    Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF", "Config.Headers"])
   end
 
   defp file_error() do
