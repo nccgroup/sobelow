@@ -66,7 +66,7 @@ defmodule Sobelow do
     # in the lib directory, so we don't need to re-scan
     # lib_root separately.
     libroot_defs =
-      case !String.ends_with?(web_root, "/#{app_name}/") do
+      case !String.ends_with?(web_root, "/#{app_name}/") && !String.ends_with?(web_root, "/#{app_name}_web/") do
         true ->
           Utils.all_files(lib_root)
           |> Enum.reject(&is_nil/1)
