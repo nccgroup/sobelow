@@ -1,7 +1,9 @@
 defmodule Sobelow.Config do
   alias Sobelow.Utils
   alias Sobelow.Config.CSRF
+  alias Sobelow.Config.Headers
   @submodules [Sobelow.Config.CSRF,
+               Sobelow.Config.Headers,
                Sobelow.Config.Secrets,
                Sobelow.Config.HTTPS,
                Sobelow.Config.HSTS]
@@ -21,7 +23,7 @@ defmodule Sobelow.Config do
         |> Enum.filter(&want_to_scan?(dir_path <> &1, ignored_files))
 
       Enum.each allowed, fn mod ->
-        path = if mod === CSRF, do: router, else: dir_path
+        path = if mod === CSRF || mod === Headers, do: router, else: dir_path
         apply(mod, :run, [path, configs])
       end
     end

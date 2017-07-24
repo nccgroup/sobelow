@@ -328,6 +328,7 @@ defmodule Sobelow do
       "Misc.FilePath" -> Sobelow.Misc.FilePath
       "Config" -> Sobelow.Config
       "Config.CSRF" -> Sobelow.Config.CSRF
+      "Config.Headers" -> Sobelow.Config.Headers
       "Config.Secrets" -> Sobelow.Config.Secrets
       "Config.HTTPS" -> Sobelow.Config.HTTPS
       "Config.HSTS" -> Sobelow.Config.HSTS

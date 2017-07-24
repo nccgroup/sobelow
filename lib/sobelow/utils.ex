@@ -580,7 +580,7 @@ defmodule Sobelow.Utils do
     acc
   end
 
-  def is_vuln_pipeline({:pipeline, _, [_name, [do: block]]}) do
+  def is_vuln_pipeline({:pipeline, _, [_name, [do: block]]}, type) do
     fun_list = case block do
       {:__block__, _, list} -> list
       {_, _, _} = list -> [list]
@@ -591,9 +591,14 @@ defmodule Sobelow.Utils do
     |> Enum.reject(fn {type, _, _} -> type !== :plug end)
 
     accepts = Enum.find_value(plugs, &get_plug_accepts/1)
-    csrf = Enum.find_value(plugs, &get_plug_csrf/1)
 
-    if is_list(accepts) && Enum.member?(accepts, "html") && !csrf, do: true, else: false
+    has_type? =
+      case type do
+        :csrf -> Enum.find_value(plugs, &get_plug_csrf/1)
+        :headers -> Enum.find_value(plugs, &get_plug_headers/1)
+      end
+
+    if is_list(accepts) && Enum.member?(accepts, "html") && !has_type?, do: true, else: false
   end
 
   def get_plug_accepts({:plug, _, [:accepts, {:sigil_w, _, opts}]}), do: parse_accepts(opts)
@@ -602,6 +607,9 @@ defmodule Sobelow.Utils do
 
   def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
   def get_plug_csrf(_), do: false
+
+  def get_plug_headers({:plug, _, [:put_secure_browser_headers]}), do: true
+  def get_plug_headers(_), do: false
 
   def parse_accepts([{:<<>>, _, [accepts|_]}, []]), do: String.split(accepts, " ")
 
