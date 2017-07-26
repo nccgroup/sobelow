@@ -1,7 +1,6 @@
-defmodule SobelowTest do
+defmodule Sobelow.Config.CSRFTest do
   use ExUnit.Case
   alias Sobelow.Utils
-  doctest Sobelow.Config.CSRF
 
   test "checks normal router" do
   	router = "./test/fixtures/good_router.ex"
@@ -13,6 +12,12 @@ defmodule SobelowTest do
   	router = "./test/fixtures/good_router_with_session_key.ex"
     refute Utils.get_pipelines(router)
 					 |> Enum.any?(&Utils.is_vuln_pipeline/1)
+  end
+
+  test "checks normal router with with" do
+    router = "./test/fixtures/good_router_with_with.ex"
+    refute Utils.get_pipelines(router)
+           |> Enum.any?(&Utils.is_vuln_pipeline/1)
   end
 
   test "checks bad router" do
