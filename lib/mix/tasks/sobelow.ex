@@ -88,6 +88,11 @@ defmodule Mix.Tasks.Sobelow do
     conf_file = root <> "/.sobelow-conf"
     conf_file? = config && File.exists?(conf_file)
 
+    opts = if is_nil(Keyword.get(opts, :exit)) && Enum.member?(argv, "--exit") do
+      [{:exit, "low"}|opts]
+    else
+      opts
+    end
     opts = if conf_file? do
       {:ok, opts} = File.read!(conf_file) |> Code.string_to_quoted()
       opts
@@ -151,7 +156,7 @@ defmodule Mix.Tasks.Sobelow do
     diff = Keyword.get(opts, :diff, false)
     skip = Keyword.get(opts, :skip, false)
     router = Keyword.get(opts, :router)
-    exit_on = case String.downcase(Keyword.get(opts, :exit, "low")) do
+    exit_on = case String.downcase(Keyword.get(opts, :exit, "None")) do
       "high" -> :high
       "medium" -> :medium
       "low" -> :low
