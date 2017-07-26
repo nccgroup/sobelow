@@ -606,6 +606,7 @@ defmodule Sobelow.Utils do
   def get_plug_accepts(_), do: false
 
   def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
+  def get_plug_csrf({:plug, _, [:protect_from_forgery, _]}), do: true
   def get_plug_csrf(_), do: false
 
   def get_plug_headers({:plug, _, [:put_secure_browser_headers]}), do: true

@@ -22,6 +22,10 @@ defmodule Sobelow do
   # upcoming application structure (ie all in lib directory, vs pulled
   # into a web directory), there are a number of different "roots" in
   # use.
+  #
+  # As of Phoenix-rc.3, this now supports 3+ directory structures.
+  # Support for the original rc structure should be deprecated after
+  # Phoenix 1.3
   def run() do
     project_root = get_env(:root) <> "/"
     if !get_env(:private), do: version_check(project_root)
@@ -32,10 +36,11 @@ defmodule Sobelow do
 
     root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: lib_root
 
-    router = 
+    router_path = if Path.basename(web_root) == "#{app_name}_web", do: "router.ex", else: "web/router.ex"
+    router =
       case get_env(:router) do
-        nil -> web_root <> "web/router.ex"
-        "" -> web_root <> "web/router.ex"
+        nil -> web_root <> router_path
+        "" -> web_root <> router_path
         router -> router
       end
 
@@ -61,7 +66,7 @@ defmodule Sobelow do
     # in the lib directory, so we don't need to re-scan
     # lib_root separately.
     libroot_defs =
-      case !String.ends_with?(web_root, "/#{app_name}/") do
+      case !String.ends_with?(web_root, "/#{app_name}/") && !String.ends_with?(web_root, "/#{app_name}_web/") do
         true ->
           Utils.all_files(lib_root)
           |> Enum.reject(&is_nil/1)
@@ -210,10 +215,16 @@ defmodule Sobelow do
 
   defp get_root(app_name, project_root) do
     lib_root = project_root <> "lib/"
-    if File.dir?(project_root <> "lib/#{app_name}/web/") do
-      {lib_root <> "#{app_name}/", lib_root}
-    else
-      {project_root <> "./", lib_root}
+    cond do
+      File.dir?(project_root <> "lib/#{app_name}_web") ->
+        # New phoenix RC structure
+        {lib_root <> "#{app_name}_web/", lib_root}
+      File.dir?(project_root <> "lib/#{app_name}/web/") ->
+        # RC 1 phx dir structure
+        {lib_root <> "#{app_name}/", lib_root}
+      true ->
+        # Original dir structure
+        {project_root <> "./", lib_root}
     end
   end
 
