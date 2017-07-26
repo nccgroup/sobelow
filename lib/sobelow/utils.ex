@@ -601,6 +601,7 @@ defmodule Sobelow.Utils do
   def get_plug_accepts(_), do: false
 
   def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
+  def get_plug_csrf({:plug, _, [:protect_from_forgery, _]}), do: true
   def get_plug_csrf(_), do: false
 
   def parse_accepts([{:<<>>, _, [accepts|_]}, []]), do: String.split(accepts, " ")
