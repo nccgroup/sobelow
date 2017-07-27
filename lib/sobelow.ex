@@ -331,6 +331,7 @@ defmodule Sobelow do
       "XSS" -> Sobelow.XSS
       "XSS.Raw" -> Sobelow.XSS.Raw
       "XSS.SendResp" -> Sobelow.XSS.SendResp
+      "XSS.ContentType" -> Sobelow.XSS.ContentType
       "SQL" -> Sobelow.SQL
       "SQL.Query" -> Sobelow.SQL.Query
       "SQL.Stream" -> Sobelow.SQL.Stream
