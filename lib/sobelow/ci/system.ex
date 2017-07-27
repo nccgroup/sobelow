@@ -4,7 +4,7 @@ defmodule Sobelow.CI.System do
 
   def run(fun, filename) do
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_system_def(fun, :cmd)
+    {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each vars, fn var ->
       if Enum.member?(params, var) || var === "conn.params" do
@@ -15,8 +15,8 @@ defmodule Sobelow.CI.System do
     end
   end
 
-  def parse_system_def(fun, type) do
-    Utils.get_fun_vars_and_meta(fun, 0, type, [:System])
+  def parse_def(fun) do
+    Utils.get_fun_vars_and_meta(fun, 0, :cmd, [:System])
   end
 
   def print_sys_finding(line_no, filename, fun_name, fun, var, severity) do
