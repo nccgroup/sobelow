@@ -610,6 +610,7 @@ defmodule Sobelow.Utils do
   def get_plug_csrf(_), do: false
 
   def get_plug_headers({:plug, _, [:put_secure_browser_headers]}), do: true
+  def get_plug_headers({:plug, _, [:put_secure_browser_headers, _]}), do: true
   def get_plug_headers(_), do: false
 
   def parse_accepts([{:<<>>, _, [accepts|_]}, []]), do: String.split(accepts, " ")
