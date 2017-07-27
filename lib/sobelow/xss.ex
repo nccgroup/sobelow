@@ -16,18 +16,22 @@ defmodule Sobelow.XSS do
   """
   alias Sobelow.XSS.Raw
   @submodules [Sobelow.XSS.SendResp,
+               Sobelow.XSS.ContentType,
                Sobelow.XSS.Raw]
 
   use Sobelow.Finding
 
   def get_vulns(fun, filename, web_root, skip_mods \\ []) do
     controller = String.replace_suffix(filename, "_controller.ex", "")
-    controller = String.replace_prefix(controller, "/controllers/", "")
-    controller = String.replace_prefix(controller, "/web/controllers/", "")
-    controller = String.replace_prefix(controller, "/#{Sobelow.get_env(:app_name)}/web/controllers/", "")
+    |> String.replace_prefix("/controllers/", "")
+    |> String.replace_prefix("/web/controllers/", "")
+    |> String.replace_prefix("/#{Sobelow.get_env(:app_name)}/web/controllers/", "")
+    |> String.replace_prefix("/#{Sobelow.get_env(:app_name)}_web/controllers/", "")
+
     path = web_root <> String.replace_prefix(filename, "/web/", "")
     |> Path.expand("")
     |> String.replace_prefix("/", "")
+
     allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)
 
     Enum.each allowed, fn mod ->
