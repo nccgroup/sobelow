@@ -2,6 +2,20 @@ defmodule Sobelow.XSS.ContentType do
   @moduledoc """
   # XSS in `put_resp_content_type`
 
+  If an attacker is able to set arbitrary content types for an
+  HTTP response containing user input, the attacker is likely to
+  be able to leverage this for cross-site scripting (XSS).
+
+  For example, consider an endpoint that returns JSON with user
+  input:
+
+      {"json": "user_input"}
+
+  If an attacker can control the content type set in the HTTP
+  response, they can set it to "text/html" and update the
+  JSON to the following in order to cause XSS:
+
+      {"json": "<script>alert(document.domain)</script>"}
 
   Content Type checks can be ignored with the following command:
 
@@ -24,7 +38,7 @@ defmodule Sobelow.XSS.ContentType do
   end
 
   ## put_resp_content_type(conn, content_type, charset \\ "utf-8")
-  defp parse_def(fun) do
+  def parse_def(fun) do
     {vars, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type)
     {aliased_vars,_,_} = Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type, [:Plug, :Conn])
 

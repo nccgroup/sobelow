@@ -1,4 +1,4 @@
-defmodule Sobelow.Config.CSRFTest do
+defmodule SobelowTest.Config.CSRFTest do
   use ExUnit.Case
   alias Sobelow.Utils
 

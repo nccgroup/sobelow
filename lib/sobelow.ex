@@ -366,6 +366,15 @@ defmodule Sobelow do
     |> Enum.map(&get_mod/1)
   end
 
+  def is_vuln?({vars, _, _}) do
+    cond do
+      length(vars) == 0 ->
+        false
+      true ->
+        true
+    end
+  end
+
   defp is_ignored_file(filename, ignored_files) do
     Enum.any? ignored_files, fn ignored_file ->
       String.ends_with?(ignored_file, filename)

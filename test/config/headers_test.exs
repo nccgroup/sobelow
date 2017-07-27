@@ -1,4 +1,4 @@
-defmodule Sobelow.Config.HeadersTest do
+defmodule SobelowTest.Config.HeadersTest do
   use ExUnit.Case
   alias Sobelow.Utils
 
