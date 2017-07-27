@@ -41,6 +41,7 @@ defmodule Mix.Tasks.Sobelow do
   * SQL.Stream
   * Config
   * Config.CSRF
+  * Config.Headers
   * Config.HTTPS
   * Config.HSTS
   * Config.Secrets
