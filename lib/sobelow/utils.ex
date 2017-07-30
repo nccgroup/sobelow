@@ -531,7 +531,7 @@ defmodule Sobelow.Utils do
         {:ok, files} ->
           Enum.flat_map(files, &list_files(&1, filepath, directory))
         {:error, _} ->
-          IO.puts(IO.ANSI.bright() <> IO.ANSI.red() <> "ERROR: Could not read #{Path.expand(filepath, "")}\n" <> IO.ANSI.reset())
+          IO.puts :stderr, "WARNING: Could not read #{Path.expand(filepath, "")}\n"
           []
       end
     end

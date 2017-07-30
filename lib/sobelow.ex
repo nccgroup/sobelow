@@ -262,7 +262,7 @@ defmodule Sobelow do
     WARNING: Sobelow cannot find the router. If this is a Phoenix application
     please use the `--router` flag to specify the router's location.
     """
-    MixIO.info(message)
+    IO.puts :stderr, message
     ignored = get_env(:ignored)
     Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF", "Config.Headers"])
   end
