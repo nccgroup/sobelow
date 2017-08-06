@@ -16,20 +16,7 @@ defmodule Sobelow.CI.OS do
   end
 
   def parse_def(fun) do
-    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
-
-    pipefuns = Utils.get_pipe_funs(fun)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&Utils.get_erlang_aliased_funs_of_type(&1, :cmd, :os))
-
-    pipeos = Enum.flat_map(pipefuns, &Utils.get_pipe_val(fun, &1))
-    |> List.flatten
-
-    osfuns = Utils.get_erlang_aliased_funs_of_type(fun, :cmd, :os) -- pipeos
-    |> Enum.map(&Utils.extract_opts(&1, 0))
-    |> List.flatten
-
-    {osfuns ++ pipeos, params, {fun_name, line_no}}
+    Utils.get_erlang_fun_vars_and_meta(fun, 0, :cmd, :os)
   end
 
   def print_sys_finding(line_no, filename, fun_name, fun, var, severity) do

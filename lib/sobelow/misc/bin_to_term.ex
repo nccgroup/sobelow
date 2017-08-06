@@ -29,19 +29,6 @@ defmodule Sobelow.Misc.BinToTerm do
   end
 
   def parse_binary_term_def(fun) do
-    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
-
-    pipefuns = Utils.get_pipe_funs(fun)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&Utils.get_erlang_funs_of_type(&1, :binary_to_term))
-
-    pipeerls = Enum.flat_map(pipefuns, &Utils.get_pipe_val(fun, &1))
-    |> List.flatten
-
-    erls = Utils.get_erlang_funs_of_type(fun, :binary_to_term) -- pipefuns
-    |> Enum.map(&Utils.extract_opts(&1, 0))
-    |> List.flatten
-
-    {erls ++ pipeerls, params, {fun_name, line_no}}
+    Utils.get_erlang_fun_vars_and_meta(fun, 0, :binary_to_term, :erlang)
   end
 end

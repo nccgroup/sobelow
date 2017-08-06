@@ -214,6 +214,17 @@ defmodule Sobelow.Utils do
     {vars ++ pipevars, params, {fun_name, line_no}}
   end
 
+  def get_erlang_fun_vars_and_meta(fun, idx, type, module) do
+    {params, {fun_name, line_no}} = get_fun_declaration(fun)
+
+    pipefuns = get_erlang_funs_from_pipe(fun, type, module)
+    pipevars = get_pipefuns_vars(pipefuns, fun, idx)
+    vars = get_erlang_aliased_funs_of_type(fun, type, module) -- pipefuns
+    |> get_funs_vars(idx, type, module)
+
+    {vars ++ pipevars, params, {fun_name, line_no}}
+  end
+
   defp get_funs(fun, type, nil) do
     get_funs_of_type(fun, type)
   end
@@ -231,6 +242,13 @@ defmodule Sobelow.Utils do
     get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&get_aliased_funs_of_type(&1, type, module))
+    |> Enum.uniq
+  end
+
+  def get_erlang_funs_from_pipe(fun, type, module) do
+    get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&get_erlang_aliased_funs_of_type(&1, type, module))
     |> Enum.uniq
   end
 
