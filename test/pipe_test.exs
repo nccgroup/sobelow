@@ -67,17 +67,4 @@ defmodule SobelowTest.PipeTest do
     assert StringToAtom.parse_def(ast) |> is_vuln?
   end
 
-#  test "Command Injection in indirect `:os.cmd`" do
-#    func = """
-#    def show(conn, %{"page" => page}) do
-#      conn
-#      |> render(page |> String.to_atom)
-#    end
-#    """
-#
-#    {_, ast} = Code.string_to_quoted(func)
-#
-#    assert OS.parse_def(ast) |> is_vuln?
-#  end
-
 end
