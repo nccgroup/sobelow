@@ -225,11 +225,13 @@ defmodule Sobelow.Utils do
     get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&get_funs_of_type(&1, type))
+    |> Enum.uniq
   end
   defp get_funs_from_pipe(fun, type, module) do
     get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&get_aliased_funs_of_type(&1, type, module))
+    |> Enum.uniq
   end
 
   defp get_funs_vars(funs, idx, _type, nil) do
@@ -485,8 +487,7 @@ defmodule Sobelow.Utils do
 
     cond do
       !Enum.empty?(match_pipe) ->
-        key = extract_opts(match_pipe)
-        {[], [key|acc]}
+        {maybe_pipe, acc}
       !Enum.empty?(match_opts) ->
         key = extract_opts(funopts)
         {[], [key|acc]}
