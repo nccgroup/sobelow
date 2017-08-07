@@ -23,7 +23,6 @@ defmodule Sobelow.XSS.Raw do
         raw_vals = Utils.get_template_raw_vars(template_path)
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
-#            Sobelow.log_finding("XSS", :high)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
             add_finding(t_name, line_no, filename, fun_name, fun, var, :high)
           end
@@ -31,7 +30,6 @@ defmodule Sobelow.XSS.Raw do
 
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
-#            Sobelow.log_finding("XSS", :medium)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
             add_finding(t_name, line_no, filename, fun_name, fun, var, :medium)
           end
@@ -43,10 +41,8 @@ defmodule Sobelow.XSS.Raw do
       {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
       Enum.each vars, fn var ->
         if Enum.member?(params, var) || var === "conn.params" do
-          Sobelow.log_finding("XSS", :medium)
           print_view_finding(line_no, filename, fun_name, fun, var, :medium)
         else
-          Sobelow.log_finding("XSS", :low)
           print_view_finding(line_no, filename, fun_name, fun, var, :low)
         end
       end
