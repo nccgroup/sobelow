@@ -50,7 +50,7 @@ defmodule Sobelow.Misc.FilePath do
           variable: var
         ]
         Sobelow.log_finding(finding, severity)
-      _ ->
+      "txt" ->
         Sobelow.log_finding(type, severity)
 
         IO.puts Utils.finding_header(type, severity)
@@ -58,6 +58,8 @@ defmodule Sobelow.Misc.FilePath do
         IO.puts Utils.finding_variable(var)
         Utils.maybe_print_file_path_code(fun, var)
         IO.puts Utils.finding_break()
+      _ ->
+        Sobelow.log_finding(type, severity)
     end
   end
 

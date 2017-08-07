@@ -38,12 +38,14 @@ defmodule Sobelow.Config.Headers do
           pipeline: "#{pipeline_name}:#{line_no}"
         ]
         Sobelow.log_finding(finding, :high)
-      _ ->
+      "txt" ->
         Sobelow.log_finding(type, :high)
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
         IO.puts "Pipeline: #{pipeline_name}:#{line_no}"
         if Sobelow.get_env(:with_code), do: Utils.print_code(pipeline, pipeline_name)
         IO.puts "\n-----------------------------------------------\n"
+      _ ->
+        Sobelow.log_finding(type, :high)
     end
   end
 end

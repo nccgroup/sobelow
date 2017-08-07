@@ -36,12 +36,14 @@ defmodule Sobelow.Config.HTTPS do
       "json" ->
         finding = [type: type]
         Sobelow.log_finding(finding, :high)
-      _ ->
+      "txt" ->
         Sobelow.log_finding(type, :high)
 
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
         if Sobelow.get_env(:with_code), do: print_info()
         IO.puts "\n-----------------------------------------------\n"
+      _ ->
+        Sobelow.log_finding(type, :high)
     end
   end
 

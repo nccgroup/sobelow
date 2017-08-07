@@ -36,12 +36,14 @@ defmodule Sobelow.Config.HSTS do
       "json" ->
         finding = [type: type]
         Sobelow.log_finding(finding, :medium)
-      _ ->
+      "txt" ->
         Sobelow.log_finding(type, :medium)
 
         IO.puts IO.ANSI.yellow() <> type <> " - Medium Confidence" <> IO.ANSI.reset()
         if Sobelow.get_env(:with_code), do: print_info(file)
         IO.puts "\n-----------------------------------------------\n"
+      _ ->
+        Sobelow.log_finding(type, :medium)
     end
   end
 

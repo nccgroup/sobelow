@@ -66,12 +66,14 @@ defmodule Sobelow.Config.Secrets do
       "json" ->
         finding = [type: type]
         Sobelow.log_finding(finding, :high)
-      _ ->
+      "txt" ->
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
         IO.puts "File: #{file} - line #{line_no}"
         IO.puts "Type: #{key}"
         if Sobelow.get_env(:with_code), do: Utils.print_code(fun, :highlight_all)
         IO.puts "\n-----------------------------------------------\n"
+      _ ->
+        Sobelow.log_finding(type, :high)
     end
   end
 end

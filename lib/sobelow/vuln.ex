@@ -26,11 +26,13 @@ defmodule Sobelow.Vuln do
       "json" ->
         finding = [type: type, details: detail, cve: cve]
         Sobelow.log_finding(finding, :high)
-      _ ->
+      "txt" ->
         Sobelow.log_finding(type, :high)
         IO.puts IO.ANSI.red() <> type <> IO.ANSI.reset()
         if Sobelow.get_env(:with_code), do: print_detail(detail, cve)
         IO.puts "\n-----------------------------------------------\n"
+      _ ->
+        Sobelow.log_finding(type, :high)
     end
   end
 

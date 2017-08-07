@@ -86,7 +86,7 @@ defmodule Sobelow.XSS.Raw do
           template: "#{t_name}"
         ]
         Sobelow.log_finding(finding, severity)
-      _ ->
+      "txt" ->
         Sobelow.log_finding(type, severity)
 
         IO.puts Utils.finding_header(type, severity)
@@ -94,6 +94,8 @@ defmodule Sobelow.XSS.Raw do
         IO.puts "Template: #{t_name} - @#{var}"
         if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :render)
         IO.puts Utils.finding_break()
+      _ ->
+        Sobelow.log_finding(type, severity)
     end
   end
 

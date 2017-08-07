@@ -126,11 +126,13 @@ defmodule Sobelow.Utils do
         log_json_finding(line_no, filename, fun,
                          fun_name, var, severity,
                          type, call, module)
-      _ ->
+      "txt" ->
         Sobelow.log_finding(type, severity)
         print_finding_metadata(line_no, filename, fun,
                                fun_name, var, severity,
                                type, call, module)
+      _ ->
+        Sobelow.log_finding(type, severity)
     end
   end
 

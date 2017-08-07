@@ -78,7 +78,8 @@ defmodule Mix.Tasks.Sobelow do
              exit: :string,
              format: :string,
              config: :boolean,
-             save_config: :boolean]
+             save_config: :boolean,
+             quiet: :boolean]
 
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details, f: :format]
 
@@ -164,7 +165,10 @@ defmodule Mix.Tasks.Sobelow do
       "low" -> :low
       _ -> false
     end
-    format = Keyword.get(opts, :format, "txt") |> String.downcase()
+    format = cond do
+      Keyword.get(opts, :quiet) -> "quiet"
+      true -> Keyword.get(opts, :format, "txt") |> String.downcase()
+    end
 
     {ignored, ignored_files} =
       if conf_file? do
