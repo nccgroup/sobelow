@@ -15,7 +15,7 @@ defmodule Sobelow.Misc.BinToTerm do
   use Sobelow.Finding
 
   def run(fun, filename) do
-    {vars, _params, {fun_name, [{_, line_no}]}} = parse_binary_term_def(fun)
+    {vars, _params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each vars, fn var ->
       print_finding(line_no, filename, fun_name, fun, var, :high)
@@ -28,7 +28,7 @@ defmodule Sobelow.Misc.BinToTerm do
                       "Unsafe `binary_to_term`", :binary_to_term, :erlang)
   end
 
-  def parse_binary_term_def(fun) do
+  def parse_def(fun) do
     Utils.get_erlang_fun_vars_and_meta(fun, 0, :binary_to_term, :erlang)
   end
 end
