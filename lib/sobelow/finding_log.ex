@@ -37,6 +37,17 @@ defmodule Sobelow.FindingLog do
     ])
   end
 
+  def quiet() do
+    IO.inspect log()
+    total = total(log())
+    findings = if total > 1, do: "findings", else: "finding"
+    if total > 0, do: "Sobelow: #{total} #{findings} found. Run again without --quiet to review findings."
+  end
+
+  defp total(%{high: highs, medium: meds, low: lows}) do
+    length(highs) + length(meds) + length(lows)
+  end
+
   def init(:ok) do
     {:ok, %{:high => [], :medium => [], :low => []}}
   end

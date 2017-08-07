@@ -119,6 +119,7 @@ defmodule Sobelow do
   defp print_output() do
     case format() do
       "json" -> IO.puts FindingLog.json(@v)
+      "quiet" -> IO.puts FindingLog.quiet()
       _ -> nil
     end
   end
