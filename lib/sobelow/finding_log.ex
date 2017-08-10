@@ -46,6 +46,16 @@ defmodule Sobelow.FindingLog do
     end
   end
 
+  def compact() do
+    %{high: highs, medium: meds, low: lows} = log()
+
+    h = Enum.map(highs, fn high -> "[High] #{high}" end)
+    m = Enum.map(meds, fn med -> "[Med] #{med}" end)
+    l = Enum.map(lows, fn low -> "[Low] #{low}" end)
+
+    h ++ m ++ l
+  end
+
   defp total(%{high: highs, medium: meds, low: lows}) do
     length(highs) + length(meds) + length(lows)
   end

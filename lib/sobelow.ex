@@ -87,7 +87,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    if format() != "quiet", do: IO.puts :stderr, print_banner()
+    if not format() in ["quiet", "compact"], do: IO.puts :stderr, print_banner()
     Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
@@ -118,14 +118,30 @@ defmodule Sobelow do
 
   defp print_output() do
     case format() do
-      "json" -> IO.puts FindingLog.json(@v)
+      "json" ->
+        print_json()
+      "compact" ->
+        print_compact()
       "quiet" ->
-        details = FindingLog.quiet()
-        if is_binary(details) do
-          IO.puts details
-        end
+        print_quiet()
       _ -> nil
     end
+  end
+
+  defp print_compact() do
+    FindingLog.compact()
+    |> Enum.each(&IO.puts/1)
+  end
+
+  defp print_quiet() do
+    details = FindingLog.quiet()
+    if is_binary(details) do
+      IO.puts details
+    end
+  end
+
+  defp print_json() do
+    IO.puts FindingLog.json(@v)
   end
 
   defp exit_with_status() do

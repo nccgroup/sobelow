@@ -131,6 +131,8 @@ defmodule Sobelow.Utils do
         print_finding_metadata(line_no, filename, fun,
                                fun_name, var, severity,
                                type, call, module)
+      "compact" ->
+        log_compact_finding(type, filename, line_no, severity)
       _ ->
         Sobelow.log_finding(type, severity)
     end
@@ -142,6 +144,10 @@ defmodule Sobelow.Utils do
     IO.puts finding_variable(var)
     maybe_print_code(fun, var, call, module)
     IO.puts finding_break()
+  end
+
+  def log_compact_finding(type, filename, line_no, severity) do
+    Sobelow.log_finding("#{type} - #{filename}:#{line_no}", severity)
   end
 
   def log_json_finding(line_no, filename, _fun, fun_name, var, severity, type, _call, _module \\ nil) do

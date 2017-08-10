@@ -72,6 +72,8 @@ defmodule Sobelow.Config.Secrets do
         IO.puts "Type: #{key}"
         if Sobelow.get_env(:with_code), do: Utils.print_code(fun, :highlight_all)
         IO.puts "\n-----------------------------------------------\n"
+      "compact" ->
+        Utils.log_compact_finding(type, file, line_no, :high)
       _ ->
         Sobelow.log_finding(type, :high)
     end

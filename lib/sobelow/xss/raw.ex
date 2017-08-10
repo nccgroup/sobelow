@@ -94,6 +94,8 @@ defmodule Sobelow.XSS.Raw do
         IO.puts "Template: #{t_name} - @#{var}"
         if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :render)
         IO.puts Utils.finding_break()
+      "compact" ->
+        Utils.log_compact_finding(type, filename, line_no, severity)
       _ ->
         Sobelow.log_finding(type, severity)
     end

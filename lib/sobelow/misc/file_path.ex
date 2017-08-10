@@ -58,6 +58,8 @@ defmodule Sobelow.Misc.FilePath do
         IO.puts Utils.finding_variable(var)
         Utils.maybe_print_file_path_code(fun, var)
         IO.puts Utils.finding_break()
+      "compact" ->
+        Utils.log_compact_finding(type, filename, line_no, severity)
       _ ->
         Sobelow.log_finding(type, severity)
     end
