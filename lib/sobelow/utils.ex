@@ -147,7 +147,24 @@ defmodule Sobelow.Utils do
   end
 
   def log_compact_finding(type, filename, line_no, severity) do
-    Sobelow.log_finding("#{type} - #{filename}:#{line_no}", severity)
+    details = "#{type} - #{filename}:#{line_no}"
+    Sobelow.log_finding(details, severity)
+
+    print_compact_finding(details, severity)
+  end
+  def log_compact_finding(type, severity) do
+    Sobelow.log_finding(type, severity)
+    print_compact_finding(type, severity)
+  end
+
+  defp print_compact_finding(details, severity) do
+    sev = case severity do
+      :high -> IO.ANSI.red()
+      :medium -> IO.ANSI.yellow()
+      :low -> IO.ANSI.green()
+    end
+
+    IO.puts "#{sev}[+]#{IO.ANSI.reset()} #{details}"
   end
 
   def log_json_finding(line_no, filename, _fun, fun_name, var, severity, type, _call, _module \\ nil) do

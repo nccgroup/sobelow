@@ -42,6 +42,8 @@ defmodule Sobelow.Config.HSTS do
         IO.puts IO.ANSI.yellow() <> type <> " - Medium Confidence" <> IO.ANSI.reset()
         if Sobelow.get_env(:with_code), do: print_info(file)
         IO.puts "\n-----------------------------------------------\n"
+      "compact" ->
+        Utils.log_compact_finding(type, :medium)
       _ ->
         Sobelow.log_finding(type, :medium)
     end

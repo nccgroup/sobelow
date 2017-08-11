@@ -31,6 +31,8 @@ defmodule Sobelow.Vuln do
         IO.puts IO.ANSI.red() <> type <> IO.ANSI.reset()
         if Sobelow.get_env(:with_code), do: print_detail(detail, cve)
         IO.puts "\n-----------------------------------------------\n"
+      "compact" ->
+        Sobelow.Utils.log_compact_finding(type, :high)
       _ ->
         Sobelow.log_finding(type, :high)
     end

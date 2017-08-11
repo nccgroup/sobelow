@@ -79,7 +79,8 @@ defmodule Mix.Tasks.Sobelow do
              format: :string,
              config: :boolean,
              save_config: :boolean,
-             quiet: :boolean]
+             quiet: :boolean,
+             compact: :boolean]
 
   @aliases  [v: :with_code, r: :root, i: :ignore, d: :details, f: :format]
 
@@ -167,6 +168,7 @@ defmodule Mix.Tasks.Sobelow do
     end
     format = cond do
       Keyword.get(opts, :quiet) -> "quiet"
+      Keyword.get(opts, :compact) -> "compact"
       true -> Keyword.get(opts, :format, "txt") |> String.downcase()
     end
 

@@ -44,6 +44,8 @@ defmodule Sobelow.Config.Headers do
         IO.puts "Pipeline: #{pipeline_name}:#{line_no}"
         if Sobelow.get_env(:with_code), do: Utils.print_code(pipeline, pipeline_name)
         IO.puts "\n-----------------------------------------------\n"
+      "compact" ->
+        Utils.log_compact_finding(type, :high)
       _ ->
         Sobelow.log_finding(type, :high)
     end

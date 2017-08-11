@@ -117,31 +117,16 @@ defmodule Sobelow do
   end
 
   defp print_output() do
-    case format() do
-      "json" ->
-        print_json()
-      "compact" ->
-        print_compact()
-      "quiet" ->
-        print_quiet()
-      _ -> nil
+    details =
+      case format() do
+        "json" ->
+          FindingLog.json(@v)
+        "quiet" ->
+          FindingLog.quiet()
+        _ -> nil
     end
-  end
 
-  defp print_compact() do
-    FindingLog.compact()
-    |> Enum.each(&IO.puts/1)
-  end
-
-  defp print_quiet() do
-    details = FindingLog.quiet()
-    if is_binary(details) do
-      IO.puts details
-    end
-  end
-
-  defp print_json() do
-    IO.puts FindingLog.json(@v)
+    if !is_nil(details), do: IO.puts details
   end
 
   defp exit_with_status() do
