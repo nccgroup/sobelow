@@ -64,6 +64,8 @@ following from the project root:
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
   * `--format -f` - Specify findings output format
+  * `--quiet` - Return no output if there are no findings
+  * `--compact` - Minimal, single-line findings  
   
 The `root` option takes a path argument:
 

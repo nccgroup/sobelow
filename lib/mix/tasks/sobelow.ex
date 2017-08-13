@@ -22,6 +22,8 @@ defmodule Mix.Tasks.Sobelow do
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
   * `--format` - Specify findings output format
+  * `--quiet` - Return no output if there are no findings
+  * `--compact` - Minimal, single-line findings
 
   ## Ignoring modules
 
