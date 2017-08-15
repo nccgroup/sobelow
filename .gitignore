@@ -20,4 +20,5 @@ erl_crash.dump
 *.ez
 
 .idea/
+sobelow.iml
 .about
