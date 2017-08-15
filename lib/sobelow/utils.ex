@@ -219,7 +219,7 @@ defmodule Sobelow.Utils do
   def get_sev(params, var, false) do
     do_get_sev(params, var, :high, :medium)
   end
-  def get_sev(params, var, severity) do
+  def get_sev(_params, _var, severity) do
     severity
   end
   defp do_get_sev(params, var, high, low) do
