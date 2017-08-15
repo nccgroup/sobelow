@@ -213,11 +213,11 @@ defmodule Sobelow.Utils do
     if Sobelow.get_env(:with_code), do: print_file_path_code(fun, var)
   end
 
-  def get_sev(params, var, false) do
-    do_get_sev(params, var, :high, :medium)
-  end
   def get_sev(params, var) do
     do_get_sev(params, var, :medium, :low)
+  end
+  def get_sev(params, var, false) do
+    do_get_sev(params, var, :high, :medium)
   end
   def get_sev(params, var, severity) do
     severity
