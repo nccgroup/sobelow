@@ -7,21 +7,15 @@ defmodule Sobelow.SQL.Query do
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
     Enum.each(interp_vars, fn var ->
-      if Enum.member?(params, var) do
-        print_finding(line_no, filename, fun, fun_name, var, severity || :high)
-      else
-        print_finding(line_no, filename, fun, fun_name, var, severity || :medium)
-      end
+      print_finding(line_no, filename, fun_name,
+                    fun, var, Utils.get_sev(params, var, severity))
     end)
 
     {interp_vars, params, {fun_name, [{_, line_no}]}} = parse_repo_query_def(fun)
 
     Enum.each(interp_vars, fn var ->
-      if Enum.member?(params, var) do
-        print_repo_finding(line_no, filename, fun, fun_name, var, severity || :high)
-      else
-        print_repo_finding(line_no, filename, fun, fun_name, var, severity || :medium)
-      end
+      print_repo_finding(line_no, filename, fun_name,
+                         fun, var, Utils.get_sev(params, var, severity))
     end)
   end
 
@@ -34,11 +28,15 @@ defmodule Sobelow.SQL.Query do
     Utils.get_fun_vars_and_meta(fun, 0, :query, :Repo)
   end
 
-  defp print_finding(line_no, filename, fun, fun_name, var, severity) do
-    Utils.add_finding(line_no, filename, fun, fun_name, var, severity, "SQL injection", :query, :SQL)
+  defp print_finding(line_no, filename, fun_name, fun, var, severity) do
+    Utils.add_finding(line_no, filename, fun,
+                      fun_name, var, severity,
+                      "SQL injection", :query, :SQL)
   end
-  defp print_repo_finding(line_no, filename, fun, fun_name, var, severity) do
-    Utils.add_finding(line_no, filename, fun, fun_name, var, severity, "SQL injection", :query, :Repo)
+  defp print_repo_finding(line_no, filename, fun_name, fun, var, severity) do
+    Utils.add_finding(line_no, filename, fun,
+                      fun_name, var, severity,
+                      "SQL injection", :query, :Repo)
   end
 
   def get_details() do

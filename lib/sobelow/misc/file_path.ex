@@ -31,11 +31,8 @@ defmodule Sobelow.Misc.FilePath do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        add_finding(line_no, filename, fun_name, fun, var, :medium)
-      else
-        add_finding(line_no, filename, fun_name, fun, var, :low)
-      end
+      add_finding(line_no, filename, fun_name,
+                  fun, var, Utils.get_sev(params, var))
     end
   end
 
