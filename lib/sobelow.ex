@@ -331,40 +331,12 @@ defmodule Sobelow do
     File.write(cfile, timestamp)
   end
 
+  def get_mod("") do
+    nil
+  end
   def get_mod(mod_string) do
-    case mod_string do
-      "XSS" -> Sobelow.XSS
-      "XSS.Raw" -> Sobelow.XSS.Raw
-      "XSS.SendResp" -> Sobelow.XSS.SendResp
-      "XSS.ContentType" -> Sobelow.XSS.ContentType
-      "SQL" -> Sobelow.SQL
-      "SQL.Query" -> Sobelow.SQL.Query
-      "SQL.Stream" -> Sobelow.SQL.Stream
-      "Misc" -> Sobelow.Misc
-      "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
-      "Misc.FilePath" -> Sobelow.Misc.FilePath
-      "Config" -> Sobelow.Config
-      "Config.CSRF" -> Sobelow.Config.CSRF
-      "Config.Headers" -> Sobelow.Config.Headers
-      "Config.Secrets" -> Sobelow.Config.Secrets
-      "Config.HTTPS" -> Sobelow.Config.HTTPS
-      "Config.HSTS" -> Sobelow.Config.HSTS
-      "Vuln" -> Sobelow.Vuln
-      "Vuln.CookieRCE" -> Sobelow.Vuln.CookieRCE
-      "Vuln.HeaderInject" -> Sobelow.Vuln.HeaderInject
-      "Vuln.PlugNull" -> Sobelow.Vuln.PlugNull
-      "Vuln.Redirect" -> Sobelow.Vuln.Redirect
-      "Traversal" -> Sobelow.Traversal
-      "Traversal.SendFile" -> Sobelow.Traversal.SendFile
-      "Traversal.FileModule" -> Sobelow.Traversal.FileModule
-      "CI" -> Sobelow.CI
-      "CI.System" -> Sobelow.CI.System
-      "CI.OS" -> Sobelow.CI.OS
-      "DOS" -> Sobelow.DOS
-      "DOS.StringToAtom" -> Sobelow.DOS.StringToAtom
-      "DOS.ListToAtom" -> Sobelow.DOS.ListToAtom
-      _ -> nil
-    end
+    "Elixir.Sobelow." <> mod_string
+    |> String.to_existing_atom()
   end
 
   def get_ignored() do
