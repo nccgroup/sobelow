@@ -32,51 +32,36 @@ defmodule Sobelow do
 
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     if !is_binary(app_name), do: file_error()
+
     {web_root, lib_root} = get_root(app_name, project_root)
-
-    root = if String.ends_with?(web_root, "./"), do: web_root <> "web/", else: lib_root
-
-    router_path = if Path.basename(web_root) == "#{app_name}_web", do: "router.ex", else: "web/router.ex"
-    router =
-      case get_env(:router) do
-        nil -> web_root <> router_path
-        "" -> web_root <> router_path
-        router -> router
+    root =
+      if String.ends_with?(web_root, "./") do
+        web_root <> "web/"
+      else
+        lib_root
       end
 
+    router = get_router(app_name, web_root)
     if !File.exists?(router), do: no_router()
 
     ignored = get_ignored()
     allowed = @submodules -- ignored
 
-    ignored_files = get_env(:ignored_files)
-
     # Pulling out function definitions before kicking
     # off the test pipeline to avoid dumping warning
     # messages into the findings output.
-    root_defs = Utils.all_files(root)
-    |> Enum.reject(&is_nil/1)
-    |> Enum.reject(&is_ignored_file(&1, ignored_files))
-    |> Enum.map(fn file ->
-      {file, Utils.get_def_funs(root <> file)}
-    end)
+    root_defs = get_defs(root)
 
     # If web_root ends with the app_name, then it is the
     # more recent version of Phoenix. Meaning, all files are
     # in the lib directory, so we don't need to re-scan
     # lib_root separately.
+    phx_post_1_2? = String.ends_with?(web_root, "/#{app_name}/")
+        && !String.ends_with?(web_root, "/#{app_name}_web/")
+
     libroot_defs =
-      case !String.ends_with?(web_root, "/#{app_name}/") && !String.ends_with?(web_root, "/#{app_name}_web/") do
-        true ->
-          Utils.all_files(lib_root)
-          |> Enum.reject(&is_nil/1)
-          |> Enum.reject(&is_ignored_file(&1, ignored_files))
-          |> Enum.map(fn file ->
-            filename = lib_root <> file
-            {filename, Utils.get_def_funs(filename)}
-          end)
-        _ -> []
-      end
+      if !phx_post_1_2?,
+         do: get_defs(lib_root), else: []
 
     FindingLog.start_link()
 
@@ -98,7 +83,7 @@ defmodule Sobelow do
     Enum.each(root_defs, fn {filename, defs} ->
       defs
       |> combine_skips()
-      |> Enum.each(&get_fun_vulns(&1, filename, root, allowed))
+      |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
     end)
 
     Enum.each(libroot_defs, fn {filename, defs} ->
@@ -232,6 +217,34 @@ defmodule Sobelow do
         # Original dir structure
         {project_root <> "./", lib_root}
     end
+  end
+
+  defp get_router(app_name, web_root) do
+    router_path =
+      if Path.basename(web_root) == "#{app_name}_web" do
+        "router.ex"
+      else
+        "web/router.ex"
+      end
+
+    case get_env(:router) do
+      nil -> web_root <> router_path
+      "" -> web_root <> router_path
+      router -> router
+    end
+  end
+
+  defp get_defs(root) do
+    ignored_files = get_env(:ignored_files)
+
+    Utils.all_files(root)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.reject(&is_ignored_file(&1, ignored_files))
+    |> Enum.map(fn file ->
+      filename = root <> file
+      {filename, Utils.get_def_funs(filename)}
+#      {pre <> file, Utils.get_def_funs(root <> file)}
+    end)
   end
 
   defp get_fun_vulns({fun, skips}, filename, web_root, mods) do
