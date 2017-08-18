@@ -22,14 +22,12 @@ defmodule Sobelow.XSS do
   use Sobelow.Finding
 
   def get_vulns(fun, filename, web_root, skip_mods \\ []) do
-    controller = String.replace_suffix(filename, "_controller.ex", "")
-    |> String.replace_prefix("/controllers/", "")
-    |> String.replace_prefix("/web/controllers/", "")
-    |> String.replace_prefix("/#{Sobelow.get_env(:app_name)}/web/controllers/", "")
-    |> String.replace_prefix("/#{Sobelow.get_env(:app_name)}_web/controllers/", "")
+    controller = if String.contains?(filename, "_controller.ex") do
+      String.replace_suffix(filename, "_controller.ex", "")
+      |> Path.basename()
+    end
 
-    path = web_root <> String.replace_prefix(filename, "/web/", "")
-    |> Path.expand("")
+    path = Path.expand(filename, "")
     |> String.replace_prefix("/", "")
 
     allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)

@@ -83,7 +83,7 @@ defmodule Sobelow do
     Enum.each(root_defs, fn {filename, defs} ->
       defs
       |> combine_skips()
-      |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
+      |> Enum.each(&get_fun_vulns(&1, filename, root, allowed))
     end)
 
     Enum.each(libroot_defs, fn {filename, defs} ->
@@ -243,7 +243,6 @@ defmodule Sobelow do
     |> Enum.map(fn file ->
       filename = root <> file
       {filename, Utils.get_def_funs(filename)}
-#      {pre <> file, Utils.get_def_funs(root <> file)}
     end)
   end
 

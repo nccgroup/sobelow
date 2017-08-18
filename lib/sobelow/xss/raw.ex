@@ -2,10 +2,26 @@ defmodule Sobelow.XSS.Raw do
   alias Sobelow.Utils
   use Sobelow.Finding
 
+  def run(fun, filename, _, nil) do
+    if String.ends_with?(filename, "_view.ex") do
+      {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
+      Enum.each vars, fn var ->
+        if Enum.member?(params, var) || var === "conn.params" do
+          print_view_finding(line_no, filename, fun_name, fun, var, :medium)
+        else
+          print_view_finding(line_no, filename, fun_name, fun, var, :low)
+        end
+      end
+    end
+  end
+
   def run(fun, filename, web_root, controller) do
     {vars, _, {fun_name, [{_, line_no}]}} = parse_render_def(fun)
-    web_root = if String.ends_with?(web_root, "/lib/") do
-      web_root <> Sobelow.get_env(:app_name) <> "/web/"
+    root = if String.ends_with?(web_root, "/lib/") do
+      app_name = Sobelow.get_env(:app_name)
+      prc = web_root <> app_name <> "_web/"
+      rc = web_root <> app_name <> "/web/"
+      Enum.find([rc, prc], "", &File.exists?/1)
     else
       web_root
     end
@@ -18,7 +34,7 @@ defmodule Sobelow.XSS.Raw do
           true -> ""
         end
 
-      template_path = web_root <> "templates/" <> controller <> "/" <> template <> ".eex"
+      template_path = root <> "templates/" <> controller <> "/" <> template <> ".eex"
       if File.exists?(template_path) do
         raw_vals = Utils.get_template_raw_vars(template_path)
         Enum.each(ref_vars, fn var ->
@@ -34,17 +50,6 @@ defmodule Sobelow.XSS.Raw do
             add_finding(t_name, line_no, filename, fun_name, fun, var, :medium)
           end
         end)
-      end
-    end
-
-    if String.ends_with?(filename, "_view.ex") do
-      {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
-      Enum.each vars, fn var ->
-        if Enum.member?(params, var) || var === "conn.params" do
-          print_view_finding(line_no, filename, fun_name, fun, var, :medium)
-        else
-          print_view_finding(line_no, filename, fun_name, fun, var, :low)
-        end
       end
     end
   end

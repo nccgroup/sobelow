@@ -17,11 +17,10 @@ defmodule Sobelow.CI do
   @submodules [Sobelow.CI.System, Sobelow.CI.OS]
   use Sobelow.Finding
 
-  def get_vulns(fun, filename, web_root, skip_mods \\ []) do
-    filename = String.replace_prefix(filename, "/", "")
-    path = web_root <> String.replace_prefix(filename, "web/", "")
-    |> Path.expand("")
+  def get_vulns(fun, filename, _web_root, skip_mods \\ []) do
+    path = Path.expand(filename, "")
     |> String.replace_prefix("/", "")
+
     allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)
 
     Enum.each allowed, fn mod ->
