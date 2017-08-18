@@ -29,11 +29,8 @@ defmodule Sobelow.XSS.ContentType do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_finding(line_no, filename, fun_name, fun, var, severity || :high)
-      else
-        print_finding(line_no, filename, fun_name, fun, var, severity || :medium)
-      end
+      add_finding(line_no, filename, fun_name,
+                  fun, var, Utils.get_sev(params, var, severity))
     end
   end
 
@@ -46,7 +43,7 @@ defmodule Sobelow.XSS.ContentType do
   end
 
 
-  def print_finding(line_no, filename, fun_name, fun, var, severity) do
+  def add_finding(line_no, filename, fun_name, fun, var, severity) do
     Utils.add_finding(line_no, filename, fun,
                       fun_name, var, severity,
                       "XSS in `put_resp_content_type`", :put_resp_content_type, [:Plug, :Conn])

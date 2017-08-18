@@ -18,11 +18,11 @@ defmodule Sobelow.Misc.BinToTerm do
     {vars, _params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each vars, fn var ->
-      print_finding(line_no, filename, fun_name, fun, var, :high)
+      add_finding(line_no, filename, fun_name, fun, var, :high)
     end
   end
 
-  defp print_finding(line_no, filename, fun_name, fun, var, severity) do
+  defp add_finding(line_no, filename, fun_name, fun, var, severity) do
     Utils.add_finding(line_no, filename, fun,
                       fun_name, var, severity,
                       "Unsafe `binary_to_term`", :binary_to_term, :erlang)

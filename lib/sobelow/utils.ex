@@ -213,6 +213,23 @@ defmodule Sobelow.Utils do
     if Sobelow.get_env(:with_code), do: print_file_path_code(fun, var)
   end
 
+  def get_sev(params, var) do
+    do_get_sev(params, var, :medium, :low)
+  end
+  def get_sev(params, var, false) do
+    do_get_sev(params, var, :high, :medium)
+  end
+  def get_sev(_params, _var, severity) do
+    severity
+  end
+  defp do_get_sev(params, var, high, low) do
+    params = ["conn.params"|params]
+    case Enum.member?(params, var) do
+      true -> high
+      false -> low
+    end
+  end
+
   ## Function parsing
   def get_def_funs(filepath) do
     ast = ast(filepath)

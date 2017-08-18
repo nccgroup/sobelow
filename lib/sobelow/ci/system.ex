@@ -7,11 +7,8 @@ defmodule Sobelow.CI.System do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each vars, fn var ->
-      if Enum.member?(params, var) || var === "conn.params" do
-        print_sys_finding(line_no, filename, fun_name, fun, var, severity || :high)
-      else
-        print_sys_finding(line_no, filename, fun_name, fun, var, severity || :medium)
-      end
+      add_finding(line_no, filename, fun_name,
+                  fun, var, Utils.get_sev(params, var, severity))
     end
   end
 
@@ -19,7 +16,7 @@ defmodule Sobelow.CI.System do
     Utils.get_fun_vars_and_meta(fun, 0, :cmd, [:System])
   end
 
-  def print_sys_finding(line_no, filename, fun_name, fun, var, severity) do
+  def add_finding(line_no, filename, fun_name, fun, var, severity) do
     Utils.add_finding(line_no, filename, fun,
                       fun_name, var, severity,
                       "Command Injection in `System.cmd`", :cmd, [:System])
