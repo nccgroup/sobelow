@@ -57,7 +57,7 @@ defmodule Sobelow do
     # in the lib directory, so we don't need to re-scan
     # lib_root separately.
     phx_post_1_2? = String.ends_with?(web_root, "/#{app_name}/")
-        && !String.ends_with?(web_root, "/#{app_name}_web/")
+        || String.ends_with?(web_root, "/#{app_name}_web/")
 
     libroot_defs =
       if !phx_post_1_2?,
