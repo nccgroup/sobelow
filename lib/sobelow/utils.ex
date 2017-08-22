@@ -82,16 +82,16 @@ defmodule Sobelow.Utils do
       string
     end
   end
-  defp maybe_highlight(string, ast, var) do
-    if is_fun_with_var?(ast, var) do
-      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+  defp maybe_highlight(string, ast, var, module, mod) do
+    if module === mod || Enum.member?(mod, module) do
+      maybe_highlight(string, ast, var)
     else
       string
     end
   end
-  defp maybe_highlight(string, ast, var, module, mod) do
-    if module === mod || Enum.member?(mod, module) do
-      maybe_highlight(string, ast, var)
+  defp maybe_highlight(string, ast, var) do
+    if is_fun_with_var?(ast, var) do
+      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
     else
       string
     end
@@ -465,13 +465,13 @@ defmodule Sobelow.Utils do
     |> Enum.map(&parse_opts/1)
   end
   def extract_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
+  def extract_opts(_), do: []
   # A more general extract_opts. May be able to replace some of the
   # function specific extractions.
   def extract_opts({_, _, nil}, _idx), do: []
   def extract_opts({_, _, opts}, idx) do
     parse_opts(Enum.at(opts, idx))
   end
-  def extract_opts(_), do: []
 
   defp parse_opts({:@, _, _}), do: []
   defp parse_opts({key, _, nil}), do: key
