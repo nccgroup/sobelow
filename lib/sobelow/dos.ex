@@ -1,6 +1,6 @@
 defmodule Sobelow.DOS do
   @submodules [Sobelow.DOS.StringToAtom, Sobelow.DOS.ListToAtom]
-  use Sobelow.Finding
+  use Sobelow.FindingType
 
   def get_vulns(fun, filename, _web_root, skip_mods \\ []) do
     path = Path.expand(filename, "")

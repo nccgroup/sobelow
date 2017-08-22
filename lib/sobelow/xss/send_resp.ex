@@ -38,7 +38,7 @@ defmodule Sobelow.XSS.SendResp do
     {vars ++ aliased_vars, is_html, params, {fun_name, line_no}}
   end
 
-  def get_details() do
+  def details() do
     Sobelow.XSS.details()
   end
 

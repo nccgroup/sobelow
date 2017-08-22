@@ -16,7 +16,7 @@ defmodule Sobelow.Vuln.PlugNull do
     end
   end
 
-  def get_details() do
+  def details() do
     Sobelow.Vuln.details()
   end
 end

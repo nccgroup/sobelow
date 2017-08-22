@@ -15,7 +15,7 @@ defmodule Sobelow.CI do
       $ mix sobelow -i CI
   """
   @submodules [Sobelow.CI.System, Sobelow.CI.OS]
-  use Sobelow.Finding
+  use Sobelow.FindingType
 
   def get_vulns(fun, filename, _web_root, skip_mods \\ []) do
     path = Path.expand(filename, "")
@@ -26,5 +26,9 @@ defmodule Sobelow.CI do
     Enum.each allowed, fn mod ->
       apply(mod, :run, [fun, path])
     end
+  end
+
+  def details() do
+    IO.ANSI.Docs.print(@moduledoc)
   end
 end

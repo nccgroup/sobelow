@@ -8,7 +8,7 @@ defmodule Sobelow.Config do
                Sobelow.Config.HTTPS,
                Sobelow.Config.HSTS]
 
-  use Sobelow.Finding
+  use Sobelow.FindingType
   @skip_files ["dev.exs", "test.exs", "dev.secret.exs", "test.secret.exs"]
 
   def fetch(root, router) do

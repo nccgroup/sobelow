@@ -1,6 +1,6 @@
 defmodule Sobelow.Misc do
   @submodules [Sobelow.Misc.BinToTerm, Sobelow.Misc.FilePath]
-  use Sobelow.Finding
+  use Sobelow.FindingType
 
   def get_vulns(fun, filename, _web_root, skip_mods \\ []) do
     path = Path.expand(filename, "")

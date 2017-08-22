@@ -55,7 +55,7 @@ defmodule Sobelow.Traversal.FileModule do
                       title, type, [:File])
   end
 
-  def get_details() do
+  def details() do
     Sobelow.Traversal.details()
   end
 end

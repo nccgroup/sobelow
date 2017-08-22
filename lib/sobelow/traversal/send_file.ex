@@ -26,7 +26,7 @@ defmodule Sobelow.Traversal.SendFile do
                       "Directory Traversal in `send_file`", :send_file, [:Plug, :Conn])
   end
 
-  def get_details() do
+  def details() do
     Sobelow.Traversal.details()
   end
 end

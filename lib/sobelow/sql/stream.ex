@@ -24,7 +24,7 @@ defmodule Sobelow.SQL.Stream do
     Utils.add_finding(line_no, filename, fun, fun_name, var, severity, "SQL injection", :stream, :SQL)
   end
 
-  def get_details() do
+  def details() do
     Sobelow.SQL.details()
   end
 end

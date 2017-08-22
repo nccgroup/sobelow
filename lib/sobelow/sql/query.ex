@@ -39,7 +39,7 @@ defmodule Sobelow.SQL.Query do
                       "SQL injection", :query, :Repo)
   end
 
-  def get_details() do
+  def details() do
     Sobelow.SQL.details()
   end
 end

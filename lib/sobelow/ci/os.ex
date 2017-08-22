@@ -22,7 +22,7 @@ defmodule Sobelow.CI.OS do
                       "Command Injection in `:os.cmd`", :cmd, :os)
   end
 
-  def get_details() do
+  def details() do
     Sobelow.CI.details()
   end
 end

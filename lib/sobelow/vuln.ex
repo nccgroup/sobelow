@@ -10,7 +10,7 @@ defmodule Sobelow.Vuln do
       $ mix sobelow -i Vuln
   """
   @submodules [Sobelow.Vuln.PlugNull, Sobelow.Vuln.CookieRCE, Sobelow.Vuln.HeaderInject, Sobelow.Vuln.Redirect]
-  use Sobelow.Finding
+  use Sobelow.FindingType
 
   def get_vulns(root) do
     allowed = @submodules -- Sobelow.get_ignored()
@@ -41,5 +41,9 @@ defmodule Sobelow.Vuln do
   defp print_detail(detail, cve) do
     IO.puts("Details: #{detail}")
     IO.puts("CVE: #{cve}")
+  end
+
+  def details() do
+    IO.ANSI.Docs.print(@moduledoc)
   end
 end

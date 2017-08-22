@@ -19,7 +19,7 @@ defmodule Sobelow.XSS do
                Sobelow.XSS.ContentType,
                Sobelow.XSS.Raw]
 
-  use Sobelow.Finding
+  use Sobelow.FindingType
 
   def get_vulns(fun, filename, web_root, skip_mods \\ []) do
     controller = if String.contains?(filename, "_controller.ex") do
@@ -39,5 +39,9 @@ defmodule Sobelow.XSS do
         apply(mod, :run, [fun, path])
       end
     end
+  end
+
+  def details() do
+    IO.ANSI.Docs.print(@moduledoc)
   end
 end

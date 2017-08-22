@@ -75,7 +75,7 @@ defmodule Sobelow.XSS.Raw do
     Utils.get_fun_vars_and_meta(fun, 0, :raw)
   end
 
-  def get_details() do
+  def details() do
     Sobelow.XSS.details()
   end
 
