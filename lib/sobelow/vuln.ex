@@ -9,7 +9,11 @@ defmodule Sobelow.Vuln do
 
       $ mix sobelow -i Vuln
   """
-  @submodules [Sobelow.Vuln.PlugNull, Sobelow.Vuln.CookieRCE, Sobelow.Vuln.HeaderInject, Sobelow.Vuln.Redirect]
+  @submodules [Sobelow.Vuln.PlugNull,
+               Sobelow.Vuln.CookieRCE,
+               Sobelow.Vuln.HeaderInject,
+               Sobelow.Vuln.Redirect,
+               Sobelow.Vuln.Coherence]
   use Sobelow.FindingType
 
   def get_vulns(root) do

@@ -53,6 +53,7 @@ defmodule Mix.Tasks.Sobelow do
   * Vuln.HeaderInject
   * Vuln.PlugNull
   * Vuln.Redirect
+  * Vuln.Coherence
   * Traversal
   * Traversal.SendFile
   * Traversal.FileModule
