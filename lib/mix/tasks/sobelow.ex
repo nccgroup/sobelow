@@ -66,6 +66,7 @@ defmodule Mix.Tasks.Sobelow do
   * DOS
   * DOS.StringToAtom
   * DOS.ListToAtom
+  * DOS.BinToAtom
 
   """
   @switches [with_code: :boolean,

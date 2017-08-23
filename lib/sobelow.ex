@@ -377,6 +377,7 @@ defmodule Sobelow do
       "DOS" -> Sobelow.DOS
       "DOS.StringToAtom" -> Sobelow.DOS.StringToAtom
       "DOS.ListToAtom" -> Sobelow.DOS.ListToAtom
+      "DOS.BinToAtom" -> Sobelow.DOS.BinToAtom
       _ -> nil
     end
   end
