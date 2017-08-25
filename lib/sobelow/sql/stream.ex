@@ -6,7 +6,7 @@ defmodule Sobelow.SQL.Stream do
     {interp_vars, params, {fun_name, [{_, line_no}]}} = parse_sql_def(fun)
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
-    Enum.each(interp_vars, fn var ->
+    Enum.each(interp_vars, fn {find, var} ->
       if Enum.member?(params, var) do
         print_finding(line_no, filename, fun, fun_name, var, severity || :high)
       else

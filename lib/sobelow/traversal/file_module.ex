@@ -23,7 +23,8 @@ defmodule Sobelow.Traversal.FileModule do
 
     Enum.each @file_funcs ++ @double_file_funcs, fn(file_func) ->
       {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun, file_func)
-      Enum.each vars, fn var ->
+#      IO.inspect vars
+      Enum.each vars, fn {find, var} ->
         add_finding(line_no, filename, fun_name,
                     fun, var, file_func,
                     Utils.get_sev(params, var, severity))
@@ -31,11 +32,11 @@ defmodule Sobelow.Traversal.FileModule do
     end
 
     Enum.each @double_file_funcs, fn(file_func) ->
-      {vars, params, {fun_name, [{_, line_no}]}} = parse_second_def(fun, file_func)
-      Enum.each vars, fn var ->
+      {findings, params, {fun_name, [{_, line_no}]}} = parse_second_def(fun, file_func)
+      Enum.each findings, fn {find, vars} ->
         add_finding(line_no, filename, fun_name,
-                    fun, var, file_func,
-                    Utils.get_sev(params, var, severity))
+                    fun, vars, file_func,
+                    Utils.get_sev(params, vars, severity))
       end
     end
   end

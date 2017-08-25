@@ -6,7 +6,7 @@ defmodule Sobelow.CI.OS do
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
     {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
-    Enum.each vars, fn var ->
+    Enum.each vars, fn {find, var} ->
       add_finding(line_no, filename, fun_name,
                   fun, var, Utils.get_sev(params, var, severity))
     end

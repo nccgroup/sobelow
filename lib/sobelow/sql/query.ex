@@ -6,14 +6,14 @@ defmodule Sobelow.SQL.Query do
     {interp_vars, params, {fun_name, [{_, line_no}]}} = parse_sql_def(fun)
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
-    Enum.each(interp_vars, fn var ->
+    Enum.each(interp_vars, fn {find, var} ->
       print_finding(line_no, filename, fun_name,
                     fun, var, Utils.get_sev(params, var, severity))
     end)
 
     {interp_vars, params, {fun_name, [{_, line_no}]}} = parse_repo_query_def(fun)
 
-    Enum.each(interp_vars, fn var ->
+    Enum.each(interp_vars, fn {find, var} ->
       print_repo_finding(line_no, filename, fun_name,
                          fun, var, Utils.get_sev(params, var, severity))
     end)

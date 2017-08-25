@@ -120,7 +120,12 @@ defmodule Sobelow.Utils do
   end
   def find_call(ast, acc, _call), do: {ast, acc <> Macro.to_string(ast)}
 
-  def add_finding(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
+  def add_finding(line_no, filename, fun, fun_name, vars, severity, type, call, module \\ nil)
+  def add_finding(line_no, filename, fun, fun_name, vars, severity, type, call, module) when is_list(vars) do
+    var = if length(vars) > 1, do: Enum.join(vars, " and "), else: hd(vars)
+    add_finding(line_no, filename, fun, fun_name, var, severity, type, call, module)
+  end
+  def add_finding(line_no, filename, fun, fun_name, var, severity, type, call, module) do
     case Sobelow.format() do
       "json" ->
         log_json_finding(line_no, filename, fun,
@@ -216,6 +221,10 @@ defmodule Sobelow.Utils do
   def get_sev(params, var) do
     do_get_sev(params, var, :medium, :low)
   end
+  def get_sev(params, vars, severity) when is_list(vars) do
+    Enum.map(vars, &get_sev(params, &1, severity))
+    |> get_highest_sev()
+  end
   def get_sev(params, var, false) do
     do_get_sev(params, var, :high, :medium)
   end
@@ -227,6 +236,14 @@ defmodule Sobelow.Utils do
     case Enum.member?(params, var) do
       true -> high
       false -> low
+    end
+  end
+
+  defp get_highest_sev(sevs) do
+    cond do
+      Enum.member?(sevs, :high) -> :high
+      Enum.member?(sevs, :medium) -> :medium
+      true -> :low
     end
   end
 
@@ -294,28 +311,61 @@ defmodule Sobelow.Utils do
     |> Enum.uniq
   end
 
-  defp get_funs_vars(funs, idx, _type, nil) do
-    funs
-    |> Enum.map(&extract_opts(&1, idx))
-    |> List.flatten
-  end
+#  defp get_funs_vars(funs, idx, _type, nil) do
+#    funs
+#    |> Enum.map(&{&1, extract_opts(&1, idx)})
+#    |> List.flatten
+#  end
+#  defp get_funs_vars(funs, idx, _type, _module) do
+#    funs
+#    |> Enum.map(&{&1, extract_opts(&1, idx)})
+#    |> List.flatten
+#  end
   defp get_funs_vars(funs, idx, _type, _module) do
     funs
-    |> Enum.map(&extract_opts(&1, idx))
-    |> List.flatten
+    |> Enum.map(&{&1, extract_opts(&1, idx)})
+    |> Enum.map(&normalize_finding/1)
+    |> Enum.reject(fn {_, vars} ->
+        is_list(vars) && Enum.empty?(vars)
+       end)
   end
 
+#  defp get_pipefuns_vars(pipefuns, fun, 0) do
+#    pipefuns
+#    |> Enum.flat_map(&get_pipe_val(fun, &1))
+#    |> List.flatten
+#  end
+#  defp get_pipefuns_vars(pipefuns, _fun, idx) do
+#    idx = idx - 1
+#
+#    pipefuns
+#    |> Enum.map(&extract_opts(&1, idx))
+#    |> List.flatten
+#  end
   defp get_pipefuns_vars(pipefuns, fun, 0) do
     pipefuns
-    |> Enum.flat_map(&get_pipe_val(fun, &1))
-    |> List.flatten
+    |> Enum.map(&{&1, get_pipe_val(fun, &1)})
+    |> Enum.map(&normalize_finding/1)
+    |> Enum.reject(fn {_, vars} ->
+        is_list(vars) && Enum.empty?(vars)
+       end)
   end
   defp get_pipefuns_vars(pipefuns, _fun, idx) do
     idx = idx - 1
 
     pipefuns
-    |> Enum.map(&extract_opts(&1, idx))
-    |> List.flatten
+    |> Enum.map(&{&1, extract_opts(&1, idx)})
+    |> Enum.map(&normalize_finding/1)
+    |> Enum.reject(fn {_, vars} ->
+        is_list(vars) && Enum.empty?(vars)
+       end)
+  end
+
+  defp normalize_finding({finding, opts}) when is_list(opts) do
+    {finding, List.flatten(opts)}
+  end
+  defp normalize_finding({finding, opt}) do
+    {finding, [opt]}
   end
 
   def get_erlang_funs_of_type(ast, type) do

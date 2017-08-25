@@ -17,7 +17,7 @@ defmodule Sobelow.Misc.BinToTerm do
   def run(fun, filename) do
     {vars, _params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
-    Enum.each vars, fn var ->
+    Enum.each vars, fn {find, var} ->
       add_finding(line_no, filename, fun_name, fun, var, :high)
     end
   end

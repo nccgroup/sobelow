@@ -7,7 +7,7 @@ defmodule Sobelow.XSS.SendResp do
 
     Enum.each ref_vars, fn var ->
       if is_list(var) do
-        Enum.each var, fn v ->
+        Enum.each var, fn {find, v} ->
           if (Enum.member?(params, v) || v === "conn.params") && is_html do
             print_resp_finding(line_no, filename, fun_name, fun, v, :high)
           end

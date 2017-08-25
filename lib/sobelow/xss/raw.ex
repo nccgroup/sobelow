@@ -5,7 +5,7 @@ defmodule Sobelow.XSS.Raw do
   def run(fun, filename, _, nil) do
     if String.ends_with?(filename, "_view.ex") do
       {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
-      Enum.each vars, fn var ->
+      Enum.each vars, fn {find, var} ->
         if Enum.member?(params, var) || var === "conn.params" do
           print_view_finding(line_no, filename, fun_name, fun, var, :medium)
         else
