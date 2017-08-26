@@ -22,21 +22,20 @@ defmodule Sobelow.Traversal.FileModule do
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
 
     Enum.each @file_funcs ++ @double_file_funcs, fn(file_func) ->
-      {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun, file_func)
-#      IO.inspect vars
-      Enum.each vars, fn {find, var} ->
-        add_finding(line_no, filename, fun_name,
-                    fun, var, file_func,
-                    Utils.get_sev(params, var, severity))
+      {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun, file_func)
+      Enum.each findings, fn {finding, var} ->
+        Utils.add_finding(line_no, filename, fun, fun_name,
+                          var, Utils.get_sev(params, var, severity),
+                          finding, "Directory Traversal in `File.#{file_func}`")
       end
     end
 
     Enum.each @double_file_funcs, fn(file_func) ->
       {findings, params, {fun_name, [{_, line_no}]}} = parse_second_def(fun, file_func)
-      Enum.each findings, fn {find, vars} ->
-        add_finding(line_no, filename, fun_name,
-                    fun, vars, file_func,
-                    Utils.get_sev(params, vars, severity))
+      Enum.each findings, fn {finding, var} ->
+        Utils.add_finding(line_no, filename, fun, fun_name,
+                          var, Utils.get_sev(params, var, severity),
+                          finding, "Directory Traversal in `File.#{file_func}`")
       end
     end
   end
@@ -47,13 +46,6 @@ defmodule Sobelow.Traversal.FileModule do
 
   def parse_second_def(fun, type) do
     Utils.get_fun_vars_and_meta(fun, 1, type, [:File])
-  end
-
-  def add_finding(line_no, filename, fun_name, fun, var, type, severity) do
-    title = "Directory Traversal in `File.#{type}`"
-    Utils.add_finding(line_no, filename, fun,
-                      fun_name, var, severity,
-                      title, type, [:File])
   end
 
   def details() do

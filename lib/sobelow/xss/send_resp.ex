@@ -7,22 +7,14 @@ defmodule Sobelow.XSS.SendResp do
 
     Enum.each ref_vars, fn var ->
       if is_list(var) do
-        Enum.each var, fn {find, v} ->
+        Enum.each var, fn {finding, v} ->
           if (Enum.member?(params, v) || v === "conn.params") && is_html do
-            print_resp_finding(line_no, filename, fun_name, fun, v, :high)
+            print_resp_finding(line_no, filename, fun_name, fun, v, :high, finding)
           end
 
           if is_html && !Enum.member?(params, v) do
-            print_resp_finding(line_no, filename, fun_name, fun, v, :medium)
+            print_resp_finding(line_no, filename, fun_name, fun, v, :medium, finding)
           end
-        end
-      else
-        if (Enum.member?(params, var) || var === "conn.params") && is_html do
-          print_resp_finding(line_no, filename, fun_name, fun, var, :high)
-        end
-
-        if is_html && !Enum.member?(params, var) && var != "conn.params" do
-          print_resp_finding(line_no, filename, fun_name, fun, var, :medium)
         end
       end
     end
@@ -42,9 +34,9 @@ defmodule Sobelow.XSS.SendResp do
     Sobelow.XSS.details()
   end
 
-  defp print_resp_finding(line_no, filename, fun_name, fun, var, severity) do
+  defp print_resp_finding(line_no, filename, fun_name, fun, var, severity, finding) do
     Utils.add_finding(line_no, filename, fun,
-                      fun_name, var, severity,
-                      "XSS in `send_resp`", :send_resp, [:Plug, :Conn])
+                      fun_name, var, severity, finding,
+                      "XSS in `send_resp`")
   end
 end

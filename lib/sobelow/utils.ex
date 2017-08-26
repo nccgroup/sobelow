@@ -23,10 +23,10 @@ defmodule Sobelow.Utils do
     IO.puts "\n"
     IO.puts IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset()
   end
-  def print_code(fun, var, call \\ nil, module \\ nil) do
+  def print_code(fun, find) do
     acc = ""
     func_string = Macro.to_string fun, fn ast, string ->
-      s = print_highlighted(string, ast, var, call, module)
+      s = print_highlighted(string, ast, find)
       acc <> s
     end
 
@@ -53,42 +53,14 @@ defmodule Sobelow.Utils do
     IO.puts func_string
   end
 
-  def print_highlighted(string, ast, var, call, module) do
-    case ast do
-      {:|>, _, [_, {^call, _, _}]} ->
-        maybe_highlight(string, ast, var)
-      {:&, _,[{:/, _,[{^call, _, _}, idx]}]} ->
-        maybe_highlight(string, ast, var, idx, :fun_cap)
-      {^call, _, _} ->
-        maybe_highlight(string, ast, var)
-      {:&, _,[{:/, _,[{{:., _,[{:__aliases__, _, _mod}, ^call]}, _, _}, idx]}]} ->
-        maybe_highlight(string, ast, var, idx, :fun_cap)
-      {:|>, _, [_, {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _}]} ->
-        maybe_highlight(string, ast, var, module, mod)
-      {{:., _,[{:__aliases__, _, mod}, ^call]}, _, _} ->
-        maybe_highlight(string, ast, var, module, mod)
-      {:|>, _, [_, {{:., _, [^module, ^call]}, _, _}]} ->
-        maybe_highlight(string, ast, var)
-      {{:., _, [^module, ^call]}, _, _} ->
-        maybe_highlight(string, ast, var)
+  def print_highlighted(string, ast, find) do
+    case find do
+      ^ast ->
+        IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
       _ -> if is_nil(string), do: "", else: string
     end
   end
 
-  defp maybe_highlight(string, ast, var, idx, :fun_cap) do
-    if "&#{idx}" == var && Macro.to_string(ast) == string do
-      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-    else
-      string
-    end
-  end
-  defp maybe_highlight(string, ast, var, module, mod) do
-    if module === mod || Enum.member?(mod, module) do
-      maybe_highlight(string, ast, var)
-    else
-      string
-    end
-  end
   defp maybe_highlight(string, ast, var) do
     if is_fun_with_var?(ast, var) do
       IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
@@ -120,22 +92,21 @@ defmodule Sobelow.Utils do
   end
   def find_call(ast, acc, _call), do: {ast, acc <> Macro.to_string(ast)}
 
-  def add_finding(line_no, filename, fun, fun_name, vars, severity, type, call, module \\ nil)
-  def add_finding(line_no, filename, fun, fun_name, vars, severity, type, call, module) when is_list(vars) do
+  def add_finding(line_no, filename, fun, fun_name, vars, severity, finding, type) when is_list(vars) do
     var = if length(vars) > 1, do: Enum.join(vars, " and "), else: hd(vars)
-    add_finding(line_no, filename, fun, fun_name, var, severity, type, call, module)
+    add_finding(line_no, filename, fun, fun_name, var, severity, finding, type)
   end
-  def add_finding(line_no, filename, fun, fun_name, var, severity, type, call, module) do
+  def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
     case Sobelow.format() do
       "json" ->
-        log_json_finding(line_no, filename, fun,
+        log_json_finding(line_no, filename,
                          fun_name, var, severity,
-                         type, call, module)
+                         type)
       "txt" ->
         Sobelow.log_finding(type, severity)
         print_finding_metadata(line_no, filename, fun,
                                fun_name, var, severity,
-                               type, call, module)
+                               type, finding)
       "compact" ->
         log_compact_finding(type, filename, line_no, severity)
       _ ->
@@ -143,11 +114,11 @@ defmodule Sobelow.Utils do
     end
   end
 
-  def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, call, module \\ nil) do
+  def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding) do
     IO.puts finding_header(type, severity)
     IO.puts finding_file_metadata(filename, fun_name, line_no)
     IO.puts finding_variable(var)
-    maybe_print_code(fun, var, call, module)
+    maybe_print_code(fun, finding)
     IO.puts finding_break()
   end
 
@@ -172,7 +143,7 @@ defmodule Sobelow.Utils do
     IO.puts "#{sev}[+]#{IO.ANSI.reset()} #{details}"
   end
 
-  def log_json_finding(line_no, filename, _fun, fun_name, var, severity, type, _call, _module \\ nil) do
+  def log_json_finding(line_no, filename, fun_name, var, severity, type) do
     finding = [
       type: type,
       file: filename,
@@ -210,8 +181,8 @@ defmodule Sobelow.Utils do
     "\n-----------------------------------------------\n"
   end
 
-  def maybe_print_code(fun, var, call, module) do
-    if Sobelow.get_env(:with_code), do: print_code(fun, var, call, module)
+  def maybe_print_code(fun, finding) do
+    if Sobelow.get_env(:with_code), do: print_code(fun, finding)
   end
 
   def maybe_print_file_path_code(fun, var) do
@@ -311,16 +282,6 @@ defmodule Sobelow.Utils do
     |> Enum.uniq
   end
 
-#  defp get_funs_vars(funs, idx, _type, nil) do
-#    funs
-#    |> Enum.map(&{&1, extract_opts(&1, idx)})
-#    |> List.flatten
-#  end
-#  defp get_funs_vars(funs, idx, _type, _module) do
-#    funs
-#    |> Enum.map(&{&1, extract_opts(&1, idx)})
-#    |> List.flatten
-#  end
   defp get_funs_vars(funs, idx, _type, _module) do
     funs
     |> Enum.map(&{&1, extract_opts(&1, idx)})
@@ -330,18 +291,6 @@ defmodule Sobelow.Utils do
        end)
   end
 
-#  defp get_pipefuns_vars(pipefuns, fun, 0) do
-#    pipefuns
-#    |> Enum.flat_map(&get_pipe_val(fun, &1))
-#    |> List.flatten
-#  end
-#  defp get_pipefuns_vars(pipefuns, _fun, idx) do
-#    idx = idx - 1
-#
-#    pipefuns
-#    |> Enum.map(&extract_opts(&1, idx))
-#    |> List.flatten
-#  end
   defp get_pipefuns_vars(pipefuns, fun, 0) do
     pipefuns
     |> Enum.map(&{&1, get_pipe_val(fun, &1)})
@@ -361,10 +310,10 @@ defmodule Sobelow.Utils do
        end)
   end
 
-  defp normalize_finding({finding, opts}) when is_list(opts) do
+  def normalize_finding({finding, opts}) when is_list(opts) do
     {finding, List.flatten(opts)}
   end
-  defp normalize_finding({finding, opt}) do
+  def normalize_finding({finding, opt}) do
     {finding, [opt]}
   end
 

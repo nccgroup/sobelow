@@ -23,14 +23,16 @@ defmodule Sobelow.XSS.ContentType do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
+  @finding_type "XSS in `put_resp_content_type`"
 
   def run(fun, filename) do
     severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
+    {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
-    Enum.each vars, fn {find, var} ->
-      add_finding(line_no, filename, fun_name,
-                  fun, var, Utils.get_sev(params, var, severity))
+    Enum.each findings, fn {finding, var} ->
+      Utils.add_finding(line_no, filename, fun, fun_name,
+                        var, Utils.get_sev(params, var, severity),
+                        finding, @finding_type)
     end
   end
 
@@ -40,12 +42,5 @@ defmodule Sobelow.XSS.ContentType do
     {aliased_vars,_,_} = Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type, [:Plug, :Conn])
 
     {vars ++ aliased_vars, params, {fun_name, line_no}}
-  end
-
-
-  def add_finding(line_no, filename, fun_name, fun, var, severity) do
-    Utils.add_finding(line_no, filename, fun,
-                      fun_name, var, severity,
-                      "XSS in `put_resp_content_type`", :put_resp_content_type, [:Plug, :Conn])
   end
 end

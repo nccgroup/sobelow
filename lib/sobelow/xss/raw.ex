@@ -1,16 +1,15 @@
 defmodule Sobelow.XSS.Raw do
   alias Sobelow.Utils
   use Sobelow.Finding
+  @finding_type "XSS"
 
   def run(fun, filename, _, nil) do
     if String.ends_with?(filename, "_view.ex") do
       {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
-      Enum.each vars, fn {find, var} ->
-        if Enum.member?(params, var) || var === "conn.params" do
-          print_view_finding(line_no, filename, fun_name, fun, var, :medium)
-        else
-          print_view_finding(line_no, filename, fun_name, fun, var, :low)
-        end
+      Enum.each vars, fn {finding, var} ->
+        Utils.add_finding(line_no, filename, fun, fun_name,
+                          var, Utils.get_sev(params, var),
+                          finding, @finding_type)
       end
     end
   end
@@ -26,7 +25,7 @@ defmodule Sobelow.XSS.Raw do
       web_root
     end
 
-    Enum.each vars, fn {template, ref_vars, vars} ->
+    Enum.each vars, fn {finding, {template, ref_vars, vars}} ->
       template =
         cond do
           is_atom(template) -> Atom.to_string(template) <> ".html"
@@ -40,14 +39,14 @@ defmodule Sobelow.XSS.Raw do
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
-            add_finding(t_name, line_no, filename, fun_name, fun, var, :high)
+            add_finding(t_name, line_no, filename, fun_name, fun, var, :high, finding)
           end
         end)
 
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
-            add_finding(t_name, line_no, filename, fun_name, fun, var, :medium)
+            add_finding(t_name, line_no, filename, fun_name, fun, var, :medium, finding)
           end
         end)
       end
@@ -62,11 +61,11 @@ defmodule Sobelow.XSS.Raw do
     |> Enum.flat_map(&Utils.get_funs_of_type(&1, :render))
 
     pipevars = pipefuns
-    |> Enum.map(&Utils.parse_render_opts(&1, params, 0))
+    |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 0)})
     |> List.flatten
 
     vars = Utils.get_funs_of_type(fun, :render) -- pipefuns
-    |> Enum.map(&Utils.parse_render_opts(&1, params, 1))
+    |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 1)})
 
     {vars ++ pipevars, params, {fun_name, line_no}}
   end
@@ -79,7 +78,7 @@ defmodule Sobelow.XSS.Raw do
     Sobelow.XSS.details()
   end
 
-  defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity) do
+  defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity, finding) do
     type = "XSS"
     case Sobelow.format() do
       "json" ->
@@ -97,18 +96,12 @@ defmodule Sobelow.XSS.Raw do
         IO.puts Utils.finding_header(type, severity)
         IO.puts Utils.finding_file_metadata(filename, fun_name, line_no)
         IO.puts "Template: #{t_name} - @#{var}"
-        if Sobelow.get_env(:with_code), do: Utils.print_code(fun, var, :render)
+        if Sobelow.get_env(:with_code), do: Utils.print_code(fun, finding)
         IO.puts Utils.finding_break()
       "compact" ->
         Utils.log_compact_finding(type, filename, line_no, severity)
       _ ->
         Sobelow.log_finding(type, severity)
     end
-  end
-
-  defp print_view_finding(line_no, filename, fun_name, fun, var, severity) do
-    Utils.add_finding(line_no, filename, fun,
-                      fun_name, var, severity,
-                      "XSS", :raw)
   end
 end
