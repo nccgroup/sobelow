@@ -749,6 +749,10 @@ defmodule Sobelow.Utils do
     Enum.filter(opts, &is_binary/1)
     |> Enum.any?(&String.contains?(&1, "html"))
   end
+  def is_content_type_html({{_,_,[_, :put_resp_content_type]}, _, opts}) do
+    Enum.filter(opts, &is_binary/1)
+    |> Enum.any?(&String.contains?(&1, "html"))
+  end
 
   def parse_render_opts({:render, _, opts}, params, idx) do
     {_, vars} = Macro.prewalk(opts, [], &extract_render_opts/2)
