@@ -4,13 +4,13 @@ defmodule Sobelow.XSS.Raw do
   @finding_type "XSS"
 
   def run(fun, filename, _, nil) do
-    if String.ends_with?(filename, "_view.ex") do
-      {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
-      Enum.each vars, fn {finding, var} ->
-        Utils.add_finding(line_no, filename, fun, fun_name,
-                          var, Utils.get_sev(params, var),
-                          finding, @finding_type)
-      end
+    severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
+
+    {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
+    Enum.each vars, fn {finding, var} ->
+      Utils.add_finding(line_no, filename, fun, fun_name,
+                        var, Utils.get_sev(params, var, severity),
+                        finding, @finding_type)
     end
   end
 
@@ -71,7 +71,10 @@ defmodule Sobelow.XSS.Raw do
   end
 
   def parse_raw_def(fun) do
-    Utils.get_fun_vars_and_meta(fun, 0, :raw)
+    {vars, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 0, :raw)
+    {aliased, _, _} = Utils.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
+
+    {vars ++ aliased, params, {fun_name, line_no}}
   end
 
   def details() do
