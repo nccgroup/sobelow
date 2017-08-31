@@ -39,7 +39,7 @@ defmodule Sobelow.XSS.ContentType do
   ## put_resp_content_type(conn, content_type, charset \\ "utf-8")
   def parse_def(fun) do
     {vars, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type)
-    {aliased_vars,_,_} = Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type, [:Plug, :Conn])
+    {aliased_vars,_,_} = Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type, :Conn)
 
     {vars ++ aliased_vars, params, {fun_name, line_no}}
   end

@@ -22,10 +22,10 @@ defmodule Sobelow.XSS.SendResp do
 
   def parse_def(fun) do
     {vars, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp)
-    {aliased_vars,_,_} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp, [:Plug, :Conn])
+    {aliased_vars,_,_} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
 
     is_html = Utils.get_funs_of_type(fun, :put_resp_content_type)
-    |> Kernel.++(Utils.get_aliased_funs_of_type(fun, :put_resp_content_type, [:Plug, :Conn]))
+    |> Kernel.++(Utils.get_aliased_funs_of_type(fun, :put_resp_content_type, :Conn))
     |> Enum.any?(&Utils.is_content_type_html/1)
 
     {vars ++ aliased_vars, is_html, params, {fun_name, line_no}}

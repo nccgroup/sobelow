@@ -17,7 +17,7 @@ defmodule Sobelow.Traversal.SendFile do
   ## send_file(conn, status, file, offset \\ 0, length \\ :all)
   defp parse_def(fun) do
     {files, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 2, :send_file)
-    {aliased_files,_,_} = Utils.get_fun_vars_and_meta(fun, 2, :send_file, [:Plug, :Conn])
+    {aliased_files,_,_} = Utils.get_fun_vars_and_meta(fun, 2, :send_file, :Conn)
 
     {files ++ aliased_files, params, {fun_name, line_no}}
   end
