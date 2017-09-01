@@ -35,7 +35,7 @@ defmodule Sobelow.XSS.Raw do
 
       template_path = root <> "templates/" <> controller <> "/" <> template <> ".eex"
       if File.exists?(template_path) do
-        raw_vals = Utils.get_template_raw_vars(template_path)
+        raw_vals = Utils.get_template_vars(template_path)
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")

@@ -735,15 +735,18 @@ defmodule Sobelow.Utils do
 
   # XSS Utils
 
-  def get_template_raw_vars(filepath) do
+  def get_template_vars(filepath) do
     ast = EEx.compile_string(File.read!(filepath))
-    {_, acc} = Macro.prewalk(ast, [], &extract_raw_vars(&1, &2))
+    {_, acc} = Macro.prewalk(ast, [], &extract_template_vars(&1, &2))
     acc
   end
-  defp extract_raw_vars({:raw, _, [{_, _, [_, raw]}]} = ast, acc) do
+  defp extract_template_vars({:raw, _, [{_, _, [_, raw]}]} = ast, acc) do
     {ast, [raw|acc]}
   end
-  defp extract_raw_vars(ast, acc), do: {ast, acc}
+  defp extract_template_vars({:link, _, [_, [to: {_, _, [_, raw]}]]} = ast, acc) do
+    {ast, [raw|acc]}
+  end
+  defp extract_template_vars(ast, acc), do: {ast, acc}
 
   def is_content_type_html({:put_resp_content_type, _, opts}) do
     Enum.filter(opts, &is_binary/1)
