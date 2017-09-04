@@ -743,9 +743,6 @@ defmodule Sobelow.Utils do
   defp extract_template_vars({:raw, _, [{_, _, [_, raw]}]} = ast, acc) do
     {ast, [raw|acc]}
   end
-  defp extract_template_vars({:link, _, [_, [to: {_, _, [_, raw]}]]} = ast, acc) do
-    {ast, [raw|acc]}
-  end
   defp extract_template_vars(ast, acc), do: {ast, acc}
 
   def is_content_type_html({:put_resp_content_type, _, opts}) do
