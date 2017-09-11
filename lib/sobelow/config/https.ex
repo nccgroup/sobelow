@@ -19,7 +19,9 @@ defmodule Sobelow.Config.HTTPS do
     path = dir_path <> "prod.exs"
 
     if File.exists?(path) && Enum.member?(configs, "prod.exs") do
-      Config.get_configs_by_file(:https, path)
+      https = Config.get_configs_by_file(:https, path)
+
+      Config.get_configs_by_file(:force_ssl, path) ++ https
       |> handle_https()
     end
   end
