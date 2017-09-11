@@ -583,27 +583,13 @@ defmodule Sobelow.Utils do
   ## lead to an issue here. In these situations, the scan
   ## will now proceed normally, but print an error message
   ## for the user.
-  def all_files(filepath, directory \\ "") do
-    if String.ends_with?(filepath, "/mix/") do
-      []
+  def all_files(filepath, _directory \\ "") do
+    if File.dir?(filepath) do
+      Path.wildcard(filepath <> "/**/*.ex")
+      |> Enum.reject(&String.contains?(&1, "/mix/tasks/"))
     else
-      case File.ls(filepath) do
-        {:ok, files} ->
-          Enum.flat_map(files, &list_files(&1, filepath, directory))
-        {:error, _} ->
-          IO.puts :stderr, "WARNING: Could not read #{Path.expand(filepath, "")}\n"
-          []
-      end
-    end
-  end
-  defp list_files(filename, filepath, directory) do
-    cond do
-      Path.extname(filename) === ".ex" ->
-        [directory <> "/" <> filename]
-      File.dir?(filepath <> filename) ->
-        all_files(filepath <> filename <> "/", directory <> "/" <> filename)
-      true ->
-        []
+      IO.puts :stderr, "WARNING: Could not read web directory.\n"
+      []
     end
   end
 

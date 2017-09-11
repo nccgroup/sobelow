@@ -240,8 +240,7 @@ defmodule Sobelow do
     Utils.all_files(root)
     |> Enum.reject(&is_nil/1)
     |> Enum.reject(&is_ignored_file(&1, ignored_files))
-    |> Enum.map(fn file ->
-      filename = root <> file
+    |> Enum.map(fn filename ->
       {filename, Utils.get_def_funs(filename)}
     end)
   end
