@@ -3,19 +3,21 @@ defmodule Sobelow.XSS.Raw do
   use Sobelow.Finding
   @finding_type "XSS"
 
-  def run(fun, filename, _, nil) do
-    severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
+  def run(fun, meta_file, _, nil) do
+    severity = if meta_file.is_controller?, do: false, else: :low
 
     {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
     Enum.each vars, fn {finding, var} ->
-      Utils.add_finding(line_no, filename, fun, fun_name,
+      Utils.add_finding(line_no, meta_file.filename, fun, fun_name,
                         var, Utils.get_sev(params, var, severity),
                         finding, @finding_type)
     end
   end
 
-  def run(fun, filename, web_root, controller) do
+  def run(fun, meta_file, web_root, controller) do
     {vars, _, {fun_name, [{_, line_no}]}} = parse_render_def(fun)
+    filename = meta_file.filename
+
     root = if String.ends_with?(web_root, "/lib/") do
       app_name = Sobelow.get_env(:app_name)
       prc = web_root <> app_name <> "_web/"

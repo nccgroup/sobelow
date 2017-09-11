@@ -16,6 +16,26 @@ defmodule Sobelow.Utils do
       content
     end
   end
+
+  def has_use_type?(ast, type) when is_atom(type) do
+    {_, ret} = Macro.prewalk(ast, [], &has_use_type?(&1, &2, type))
+    ret == true
+  end
+  def has_use_type?({:use, _, [_, type]}, _acc, type), do: {nil, true}
+  def has_use_type?(ast, acc, _type), do: {ast, acc}
+
+  def is_controller?(ast) do
+    has_use_type?(ast, :controller)
+  end
+  def is_view?(ast) do
+    has_use_type?(ast, :view)
+  end
+
+  def normalize_path(filename) do
+    filename
+    |> Path.expand("")
+    |> String.replace_prefix("/", "")
+  end
   # This should be about as big as it gets, and is still fairly simple
   # to understand. If it gets much more convoluted, an alternate
   # solution should be explored.
@@ -219,8 +239,12 @@ defmodule Sobelow.Utils do
   end
 
   ## Function parsing
-  def get_def_funs(filepath) do
+  def get_def_funs(filepath) when is_binary(filepath) do
     ast = ast(filepath)
+    {_, acc} = Macro.prewalk(ast, [], &get_def_funs(&1, &2))
+    acc
+  end
+  def get_def_funs(ast) do
     {_, acc} = Macro.prewalk(ast, [], &get_def_funs(&1, &2))
     acc
   end

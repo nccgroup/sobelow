@@ -2,8 +2,9 @@ defmodule Sobelow.XSS.SendResp do
   alias Sobelow.Utils
   use Sobelow.Finding
 
-  def run(fun, filename) do
+  def run(fun, meta_file) do
     {ref_vars, is_html, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
+    filename = meta_file.filename
 
     Enum.each ref_vars, fn var ->
       if is_list(var) do

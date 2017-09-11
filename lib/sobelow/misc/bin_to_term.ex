@@ -15,11 +15,11 @@ defmodule Sobelow.Misc.BinToTerm do
   use Sobelow.Finding
   @finding_type "Unsafe `binary_to_term`"
 
-  def run(fun, filename) do
+  def run(fun, meta_file) do
     {vars, _params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each vars, fn {finding, var} ->
-      Utils.add_finding(line_no, filename, fun, fun_name,
+      Utils.add_finding(line_no, meta_file.filename, fun, fun_name,
                         var, :high, finding, @finding_type)
     end
   end

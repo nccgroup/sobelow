@@ -50,7 +50,7 @@ defmodule Sobelow do
     # Pulling out function definitions before kicking
     # off the test pipeline to avoid dumping warning
     # messages into the findings output.
-    root_defs = get_defs(root)
+    root_meta_files = get_meta_files(root)
 
     # If web_root ends with the app_name, then it is the
     # more recent version of Phoenix. Meaning, all files are
@@ -59,9 +59,9 @@ defmodule Sobelow do
     phx_post_1_2? = String.ends_with?(web_root, "/#{app_name}/")
         || String.ends_with?(web_root, "/#{app_name}_web/")
 
-    libroot_defs =
+    libroot_meta_files =
       if !phx_post_1_2?,
-         do: get_defs(lib_root), else: []
+         do: get_meta_files(lib_root), else: []
 
     FindingLog.start_link()
 
@@ -80,16 +80,16 @@ defmodule Sobelow do
 
     allowed = allowed -- [Config, Vuln]
 
-    Enum.each(root_defs, fn {filename, defs} ->
-      defs
+    Enum.each(root_meta_files, fn meta_file ->
+      meta_file.defs
       |> combine_skips()
-      |> Enum.each(&get_fun_vulns(&1, filename, root, allowed))
+      |> Enum.each(&get_fun_vulns(&1, meta_file, root, allowed))
     end)
 
-    Enum.each(libroot_defs, fn {filename, defs} ->
-      defs
+    Enum.each(libroot_meta_files, fn meta_file ->
+      meta_file.defs
       |> combine_skips()
-      |> Enum.each(&get_fun_vulns(&1, filename, "", allowed))
+      |> Enum.each(&get_fun_vulns(&1, meta_file, "", allowed))
     end)
 
     if format() != "txt" do
@@ -234,28 +234,32 @@ defmodule Sobelow do
     end
   end
 
-  defp get_defs(root) do
+  defp get_meta_files(root) do
     ignored_files = get_env(:ignored_files)
 
     Utils.all_files(root)
-    |> Enum.reject(&is_nil/1)
     |> Enum.reject(&is_ignored_file(&1, ignored_files))
     |> Enum.map(fn filename ->
-      {filename, Utils.get_def_funs(filename)}
+      ast = Utils.ast(filename)
+
+      %{filename: Utils.normalize_path(filename),
+        defs: Utils.get_def_funs(ast),
+        is_controller?: Utils.is_controller?(ast),
+        is_view?: Utils.is_view?(ast)}
     end)
   end
 
-  defp get_fun_vulns({fun, skips}, filename, web_root, mods) do
+  defp get_fun_vulns({fun, skips}, meta_file, web_root, mods) do
     skip_mods = skips
     |> Enum.map(&get_mod/1)
 
     Enum.each mods -- skip_mods, fn mod ->
-      apply(mod, :get_vulns, [fun, filename, web_root, skip_mods])
+      apply(mod, :get_vulns, [fun, meta_file, web_root, skip_mods])
     end
   end
-  defp get_fun_vulns(fun, filename, web_root, mods) do
+  defp get_fun_vulns(fun, meta_file, web_root, mods) do
     Enum.each mods, fn mod ->
-      apply(mod, :get_vulns, [fun, filename, web_root])
+      apply(mod, :get_vulns, [fun, meta_file, web_root])
     end
   end
 

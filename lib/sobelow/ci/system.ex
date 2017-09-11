@@ -3,12 +3,12 @@ defmodule Sobelow.CI.System do
   use Sobelow.Finding
   @finding_type "Command Injection in `System.cmd`"
 
-  def run(fun, filename) do
-    severity = if String.ends_with?(filename, "_controller.ex"), do: false, else: :low
+  def run(fun, meta_file) do
+    severity = if meta_file.is_controller?, do: false, else: :low
     {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each findings, fn {finding, var} ->
-      Utils.add_finding(line_no, filename, fun, fun_name,
+      Utils.add_finding(line_no, meta_file.filename, fun, fun_name,
                         var, Utils.get_sev(params, var, severity),
                         finding, @finding_type)
     end

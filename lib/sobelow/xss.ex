@@ -21,22 +21,19 @@ defmodule Sobelow.XSS do
 
   use Sobelow.FindingType
 
-  def get_vulns(fun, filename, web_root, skip_mods \\ []) do
-    controller = if String.contains?(filename, "_controller.ex") do
-      String.replace_suffix(filename, "_controller.ex", "")
+  def get_vulns(fun, meta_file, web_root, skip_mods \\ []) do
+    controller = if meta_file.is_controller? do
+      String.replace_suffix(meta_file.filename, "_controller.ex", "")
       |> Path.basename()
     end
-
-    path = Path.expand(filename, "")
-    |> String.replace_prefix("/", "")
 
     allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)
 
     Enum.each allowed, fn mod ->
       if mod === Raw do
-        apply(mod, :run, [fun, path, web_root, controller])
+        apply(mod, :run, [fun, meta_file, web_root, controller])
       else
-        apply(mod, :run, [fun, path])
+        apply(mod, :run, [fun, meta_file])
       end
     end
   end
