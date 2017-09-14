@@ -17,19 +17,13 @@ defmodule Sobelow.Utils do
     end
   end
 
-  def has_use_type?(ast, type) when is_atom(type) do
-    {_, ret} = Macro.prewalk(ast, [], &has_use_type?(&1, &2, type))
-    ret == true
+  def is_controller?(uses) do
+    has_use_type?(uses, :controller)
   end
-  def has_use_type?({:use, _, [_, type]}, _acc, type), do: {nil, true}
-  def has_use_type?(ast, acc, _type), do: {ast, acc}
 
-  def is_controller?(ast) do
-    has_use_type?(ast, :controller)
-  end
-  def is_view?(ast) do
-    has_use_type?(ast, :view)
-  end
+  def has_use_type?([{:use, _, [_, type]}|_], type), do: true
+  def has_use_type?([_|t], type), do: has_use_type?(t, type)
+  def has_use_type?(_, _), do: false
 
   def normalize_path(filename) do
     filename
@@ -239,23 +233,34 @@ defmodule Sobelow.Utils do
   end
 
   ## Function parsing
-  def get_def_funs(filepath) when is_binary(filepath) do
+  def get_meta_funs(filepath) when is_binary(filepath) do
     ast = ast(filepath)
-    {_, acc} = Macro.prewalk(ast, [], &get_def_funs(&1, &2))
+    get_meta_funs(ast)
+  end
+  def get_meta_funs(ast) do
+    init_acc = %{def_funs: [], use_funs: []}
+    {_, acc} = Macro.prewalk(ast, init_acc, &get_meta_funs(&1, &2))
     acc
   end
-  def get_def_funs(ast) do
-    {_, acc} = Macro.prewalk(ast, [], &get_def_funs(&1, &2))
-    acc
+  def get_meta_funs({:@, _, [{:sobelow_skip, _, _}]} = ast, acc) do
+    if Sobelow.get_env(:skip) do
+      {ast, Map.update!(acc, :def_funs, &([ast|&1]))}
+    else
+      {ast, acc}
+    end
   end
-  def get_def_funs({:@, _, [{:sobelow_skip, _, _}]} = ast, acc) do
-    if Sobelow.get_env(:skip), do: {ast, [ast|acc]}, else: {ast, acc}
+  def get_meta_funs({:def, _, nil} = ast, acc), do: {ast, acc}
+  def get_meta_funs({:defp, _, nil} = ast, acc), do: {ast, acc}
+  def get_meta_funs({:def, _, _} = ast, acc) do
+    {ast, Map.update!(acc, :def_funs, &([ast|&1]))}
   end
-  def get_def_funs({:def, _, nil} = ast, acc), do: {ast, acc}
-  def get_def_funs({:defp, _, nil} = ast, acc), do: {ast, acc}
-  def get_def_funs({:def, _, _} = ast, acc), do: {ast, [ast|acc]}
-  def get_def_funs({:defp, _, _} = ast, acc), do: {ast, [ast|acc]}
-  def get_def_funs(ast, acc), do: {ast, acc}
+  def get_meta_funs({:defp, _, _} = ast, acc) do
+    {ast, Map.update!(acc, :def_funs, &([ast|&1]))}
+  end
+  def get_meta_funs({:use, _, _} = ast, acc) do
+    {ast, Map.update!(acc, :use_funs, &([ast|&1]))}
+  end
+  def get_meta_funs(ast, acc), do: {ast, acc}
 
   def get_fun_vars_and_meta(fun, idx, type, module \\ nil) do
     {params, {fun_name, line_no}} = get_fun_declaration(fun)

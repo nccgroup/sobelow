@@ -81,13 +81,13 @@ defmodule Sobelow do
     allowed = allowed -- [Config, Vuln]
 
     Enum.each(root_meta_files, fn meta_file ->
-      meta_file.defs
+      meta_file.def_funs
       |> combine_skips()
       |> Enum.each(&get_fun_vulns(&1, meta_file, root, allowed))
     end)
 
     Enum.each(libroot_meta_files, fn meta_file ->
-      meta_file.defs
+      meta_file.def_funs
       |> combine_skips()
       |> Enum.each(&get_fun_vulns(&1, meta_file, "", allowed))
     end)
@@ -239,14 +239,18 @@ defmodule Sobelow do
 
     Utils.all_files(root)
     |> Enum.reject(&is_ignored_file(&1, ignored_files))
-    |> Enum.map(fn filename ->
-      ast = Utils.ast(filename)
+    |> Enum.map(&get_file_meta/1)
+  end
 
-      %{filename: Utils.normalize_path(filename),
-        defs: Utils.get_def_funs(ast),
-        is_controller?: Utils.is_controller?(ast),
-        is_view?: Utils.is_view?(ast)}
-    end)
+  defp get_file_meta(filename) do
+    ast = Utils.ast(filename)
+    meta_funs = Utils.get_meta_funs(ast)
+    def_funs = meta_funs.def_funs
+    use_funs = meta_funs.use_funs
+
+    %{filename: Utils.normalize_path(filename),
+      def_funs: def_funs,
+      is_controller?: Utils.is_controller?(use_funs)}
   end
 
   defp get_fun_vulns({fun, skips}, meta_file, web_root, mods) do
