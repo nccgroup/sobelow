@@ -369,6 +369,7 @@ defmodule Sobelow do
       "Vuln.PlugNull" -> Sobelow.Vuln.PlugNull
       "Vuln.Redirect" -> Sobelow.Vuln.Redirect
       "Vuln.Coherence" -> Sobelow.Vuln.Coherence
+      "Vuln.Ecto" -> Sobelow.Vuln.Ecto
       "Traversal" -> Sobelow.Traversal
       "Traversal.SendFile" -> Sobelow.Traversal.SendFile
       "Traversal.FileModule" -> Sobelow.Traversal.FileModule

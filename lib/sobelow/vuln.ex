@@ -13,7 +13,8 @@ defmodule Sobelow.Vuln do
                Sobelow.Vuln.CookieRCE,
                Sobelow.Vuln.HeaderInject,
                Sobelow.Vuln.Redirect,
-               Sobelow.Vuln.Coherence]
+               Sobelow.Vuln.Coherence,
+               Sobelow.Vuln.Ecto]
   use Sobelow.FindingType
 
   def get_vulns(root) do
