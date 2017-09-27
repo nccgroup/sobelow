@@ -22,11 +22,11 @@ defmodule Sobelow.Config.CSRF do
 
   def run(router, _) do
     Utils.get_pipelines(router)
-    |> Enum.each(&is_vuln_pipeline/1)
+    |> Enum.each(&is_vuln_pipeline?/1)
   end
 
-  defp is_vuln_pipeline(pipeline) do
-    if Utils.is_vuln_pipeline(pipeline, :csrf) do
+  defp is_vuln_pipeline?(pipeline) do
+    if Utils.is_vuln_pipeline?(pipeline, :csrf) do
       add_finding(pipeline)
     end
   end

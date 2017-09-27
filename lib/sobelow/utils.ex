@@ -655,40 +655,39 @@ defmodule Sobelow.Utils do
     acc
   end
 
-  def is_vuln_pipeline({:pipeline, _, [_name, [do: block]]}, type) do
-    fun_list = case block do
+  defp get_plug_list(block) do
+    case block do
       {:__block__, _, list} -> list
       {_, _, _} = list -> [list]
       _ -> []
     end
-
-    plugs = fun_list
     |> Enum.reject(fn {type, _, _} -> type !== :plug end)
+  end
 
+  def is_vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :csrf) do
+    plugs = get_plug_list(block)
+    has_csrf? = Enum.any?(plugs, &is_plug?(&1, :protect_from_forgery))
+    has_session? = Enum.any?(plugs, &is_plug?(&1, :fetch_session))
+
+    has_session? and not has_csrf?
+  end
+  def is_vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :headers) do
+    plugs = get_plug_list(block)
+    has_headers? = Enum.any?(plugs, &is_plug?(&1, :put_secure_browser_headers))
     accepts = Enum.find_value(plugs, &get_plug_accepts/1)
 
-    has_type? =
-      case type do
-        :csrf -> Enum.find_value(plugs, &get_plug_csrf/1)
-        :headers -> Enum.find_value(plugs, &get_plug_headers/1)
-      end
-
-    if is_list(accepts) && Enum.member?(accepts, "html") && !has_type?, do: true, else: false
+    !has_headers? && is_list(accepts) && Enum.member?(accepts, "html")
   end
 
   def get_plug_accepts({:plug, _, [:accepts, {:sigil_w, _, opts}]}), do: parse_accepts(opts)
   def get_plug_accepts({:plug, _, [:accepts, accepts]}), do: accepts
-  def get_plug_accepts(_), do: false
-
-  def get_plug_csrf({:plug, _, [:protect_from_forgery]}), do: true
-  def get_plug_csrf({:plug, _, [:protect_from_forgery, _]}), do: true
-  def get_plug_csrf(_), do: false
-
-  def get_plug_headers({:plug, _, [:put_secure_browser_headers]}), do: true
-  def get_plug_headers({:plug, _, [:put_secure_browser_headers, _]}), do: true
-  def get_plug_headers(_), do: false
+  def get_plug_accepts(_), do: []
 
   def parse_accepts([{:<<>>, _, [accepts|_]}, []]), do: String.split(accepts, " ")
+
+  def is_plug?({:plug, _, [type]}, type), do: true
+  def is_plug?({:plug, _, [type, _]}, type), do: true
+  def is_plug?(_, _), do: false
 
   def get_fuzzy_configs(key, filepath) do
     ast = ast(filepath)
