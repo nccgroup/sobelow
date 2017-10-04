@@ -61,6 +61,7 @@ defmodule Mix.Tasks.Sobelow do
   * Misc
   * Misc.BinToTerm
   * Misc.FilePath
+  * Misc.EEx
   * CI
   * CI.System
   * CI.OS

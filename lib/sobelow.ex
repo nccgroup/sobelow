@@ -357,6 +357,7 @@ defmodule Sobelow do
       "Misc" -> Sobelow.Misc
       "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
       "Misc.FilePath" -> Sobelow.Misc.FilePath
+      "Misc.EEx" -> Sobelow.Misc.EEx
       "Config" -> Sobelow.Config
       "Config.CSRF" -> Sobelow.Config.CSRF
       "Config.Headers" -> Sobelow.Config.Headers
