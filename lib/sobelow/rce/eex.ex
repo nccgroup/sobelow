@@ -1,4 +1,4 @@
-defmodule Sobelow.Misc.EEx do
+defmodule Sobelow.RCE.EEx do
   @moduledoc """
   # Insecure EEx evaluation
 
@@ -8,11 +8,10 @@ defmodule Sobelow.Misc.EEx do
 
   EEx checks can be ignored with the following command:
 
-      $ mix sobelow -i Misc.EEx
+      $ mix sobelow -i RCE.EEx
   """
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "Insecure Embedded Elixir evaluation"
   @eex_funs [:eval_string, :eval_file]
 
   def run(fun, meta_file) do
@@ -24,7 +23,7 @@ defmodule Sobelow.Misc.EEx do
       Enum.each findings, fn {finding, var} ->
         Utils.add_finding(line_no, meta_file.filename, fun, fun_name,
                           var, Utils.get_sev(params, var, severity),
-                          finding, @finding_type)
+                          finding, "Code Execution in `EEx.#{eex_fun}`")
       end
     end
   end

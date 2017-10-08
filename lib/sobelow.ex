@@ -7,6 +7,7 @@ defmodule Sobelow do
   @submodules [Sobelow.XSS,
                Sobelow.SQL,
                Sobelow.Traversal,
+               Sobelow.RCE,
                Sobelow.Misc,
                Sobelow.Config,
                Sobelow.CI,
@@ -357,7 +358,8 @@ defmodule Sobelow do
       "Misc" -> Sobelow.Misc
       "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
       "Misc.FilePath" -> Sobelow.Misc.FilePath
-      "Misc.EEx" -> Sobelow.Misc.EEx
+      "RCE.EEx" -> Sobelow.RCE.EEx
+      "RCE.CodeModule" -> Sobelow.RCE.CodeModule
       "Config" -> Sobelow.Config
       "Config.CSRF" -> Sobelow.Config.CSRF
       "Config.Headers" -> Sobelow.Config.Headers
