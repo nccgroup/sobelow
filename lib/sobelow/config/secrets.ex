@@ -70,7 +70,7 @@ defmodule Sobelow.Config.Secrets do
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
         IO.puts "File: #{file} - line #{line_no}"
         IO.puts "Type: #{key}"
-        if Sobelow.get_env(:with_code), do: Utils.print_code(fun, :highlight_all)
+        if Sobelow.get_env(:verbose), do: Utils.print_code(fun, :highlight_all)
         IO.puts "\n-----------------------------------------------\n"
       "compact" ->
         Utils.log_compact_finding(type, file, line_no, :high)

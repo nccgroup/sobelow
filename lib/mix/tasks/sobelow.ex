@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Sobelow do
   ## Command line options
 
   * `--root -r` - Specify application root directory
-  * `--with-code -v` - Print vulnerable code snippets
+  * `--verbose -v` - Print vulnerable code snippets
   * `--ignore -i` - Ignore modules
   * `--ignore-files` - Ignore files
   * `--details -d` - Get module details
@@ -71,7 +71,7 @@ defmodule Mix.Tasks.Sobelow do
   * DOS.BinToAtom
 
   """
-  @switches [with_code: :boolean,
+  @switches [verbose: :boolean,
              root: :string,
              ignore: :string,
              ignore_files: :string,
@@ -88,7 +88,7 @@ defmodule Mix.Tasks.Sobelow do
              quiet: :boolean,
              compact: :boolean]
 
-  @aliases  [v: :with_code, r: :root, i: :ignore, d: :details, f: :format]
+  @aliases  [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
 
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
@@ -110,12 +110,16 @@ defmodule Mix.Tasks.Sobelow do
       opts
     end
 
-    {with_code, diff, details,
+    {verbose, diff, details,
         private, skip, router,
         exit_on, format, ignored,
         ignored_files, all_details} = get_opts(opts, root, conf_file?)
 
-    set_env(:with_code, with_code)
+    set_env(:verbose, verbose)
+    if with_code = Keyword.get(opts, :with_code) do
+      Mix.Shell.IO.info("WARNING: --with-code is deprecated, please use --verbose instead.\n")
+      set_env(:verbose, with_code)
+    end
     set_env(:root, root)
     set_env(:details, details)
     set_env(:private, private)
@@ -159,7 +163,7 @@ defmodule Mix.Tasks.Sobelow do
   end
 
   defp get_opts(opts, root, conf_file?) do
-    with_code = Keyword.get(opts, :with_code, false)
+    verbose = Keyword.get(opts, :verbose, false)
     details = Keyword.get(opts, :details, nil)
     all_details = Keyword.get(opts, :all_details)
     private = Keyword.get(opts, :private, false)
@@ -195,6 +199,6 @@ defmodule Mix.Tasks.Sobelow do
         {ignored, ignored_files}
       end
 
-    {with_code, diff, details, private, skip, router, exit_on, format, ignored, ignored_files, all_details}
+    {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files, all_details}
   end
 end

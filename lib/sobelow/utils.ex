@@ -196,11 +196,11 @@ defmodule Sobelow.Utils do
   end
 
   def maybe_print_code(fun, finding) do
-    if Sobelow.get_env(:with_code), do: print_code(fun, finding)
+    if Sobelow.get_env(:verbose), do: print_code(fun, finding)
   end
 
   def maybe_print_file_path_code(fun, var) do
-    if Sobelow.get_env(:with_code), do: print_file_path_code(fun, var)
+    if Sobelow.get_env(:verbose), do: print_file_path_code(fun, var)
   end
 
   def get_sev(params, var) do

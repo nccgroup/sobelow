@@ -101,7 +101,7 @@ defmodule Sobelow.XSS.Raw do
         IO.puts Utils.finding_header(type, severity)
         IO.puts Utils.finding_file_metadata(filename, fun_name, line_no)
         IO.puts "Template: #{t_name} - @#{var}"
-        if Sobelow.get_env(:with_code), do: Utils.print_code(fun, finding)
+        if Sobelow.get_env(:verbose), do: Utils.print_code(fun, finding)
         IO.puts Utils.finding_break()
       "compact" ->
         Utils.log_compact_finding(type, filename, line_no, severity)

@@ -42,7 +42,7 @@ defmodule Sobelow.Config.Headers do
         Sobelow.log_finding(type, :high)
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
         IO.puts "Pipeline: #{pipeline_name}:#{line_no}"
-        if Sobelow.get_env(:with_code), do: Utils.print_code(pipeline, pipeline_name)
+        if Sobelow.get_env(:verbose), do: Utils.print_code(pipeline, pipeline_name)
         IO.puts "\n-----------------------------------------------\n"
       "compact" ->
         Utils.log_compact_finding(type, :high)

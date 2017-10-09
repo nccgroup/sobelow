@@ -55,7 +55,7 @@ following from the project root:
 ## Options
 
   * `--root -r` - Specify application root directory
-  * `--with-code -v` - Print vulnerable code snippets
+  * `--verbose -v` - Print vulnerable code snippets
   * `--ignore -i` - Ignore modules
   * `--ignore-files` - Ignore files
   * `--details -d` - Get module details
@@ -71,9 +71,9 @@ The `root` option takes a path argument:
 
     $ mix sobelow --root ../my_project
 
-The `with-code` option takes no arguments:
+The `verbose` option takes no arguments:
 
-    $ mix sobelow --with-code
+    $ mix sobelow --verbose
     
 The `ignore` option takes a comma-separated list of modules:
 
@@ -97,7 +97,7 @@ and will return a non-zero exit status at or above that threshold.
 The `format` option accepts an output format for findings. Current formats 
 include `txt` (the default) and `json`. 
 
-Note: The `json` format option does not support the `--with-code` flag. 
+Note: The `json` format option does not support the `--verbose` flag. 
 All findings are organized by confidence level, and contain a "type" 
 key. However, other keys may vary between finding types.
 
@@ -108,12 +108,12 @@ Sobelow allows users to save frequently used options in a
 configuration file. For example, if you find yourself constantly 
 running:
 
-    $ mix sobelow -i XSS.Raw,Traversal --with-code --exit Low
+    $ mix sobelow -i XSS.Raw,Traversal --verbose --exit Low
     
 You can use the `--save-config` flag to create your `.sobelow-conf` 
 config file:
 
-    $ mix sobelow -i XSS.Raw,Traversal --with-code --exit Low --save-config
+    $ mix sobelow -i XSS.Raw,Traversal --verbose --exit Low --save-config
      
 This command will create the `.sobelow-conf` file at the root 
 of your application. You can edit this file directly to make 

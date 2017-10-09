@@ -155,7 +155,7 @@ defmodule Sobelow do
   def save_config(conf_file) do
     conf = """
     [
-      with_code: #{get_env(:with_code)},
+      verbose: #{get_env(:verbose)},
       private: #{get_env(:private)},
       skip: #{get_env(:skip)},
       router: "#{get_env(:router)}",

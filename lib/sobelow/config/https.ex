@@ -42,7 +42,7 @@ defmodule Sobelow.Config.HTTPS do
         Sobelow.log_finding(type, :high)
 
         IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
-        if Sobelow.get_env(:with_code), do: print_info()
+        if Sobelow.get_env(:verbose), do: print_info()
         IO.puts "\n-----------------------------------------------\n"
       "compact" ->
         Sobelow.Utils.log_compact_finding(type, :high)
