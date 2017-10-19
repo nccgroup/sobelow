@@ -3,8 +3,8 @@
 Sobelow is a security-focused static analysis tool for the 
 Phoenix framework. For security researchers, it is a useful 
 tool for getting a quick view of points-of-interest. For 
-project maintainers, it can be used to prevent introducing a 
-number of common vulnerabilities. 
+project maintainers, it can be used to prevent the introduction 
+of a number of common vulnerabilities. 
 
 Currently Sobelow detects some types of the following 
 security issues: 
@@ -55,7 +55,7 @@ following from the project root:
 ## Options
 
   * `--root -r` - Specify application root directory
-  * `--verbose -v` - Print vulnerable code snippets
+  * `--verbose -v` - Print code snippets and additional finding details
   * `--ignore -i` - Ignore modules
   * `--ignore-files` - Ignore files
   * `--details -d` - Get module details
