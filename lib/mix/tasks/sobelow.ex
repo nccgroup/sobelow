@@ -62,6 +62,7 @@ defmodule Mix.Tasks.Sobelow do
   * Misc.BinToTerm
   * Misc.FilePath
   * RCE.EEx
+  * RCE.CodeModule
   * CI
   * CI.System
   * CI.OS
