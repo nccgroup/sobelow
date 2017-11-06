@@ -315,7 +315,11 @@ defmodule Sobelow do
     {:ok, _} = Application.ensure_all_started(:inets)
     {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
 
-    case :httpc.request('https://griffinbyatt.com/static/sobelow-version') do
+    # update to sobelow.io for future versions
+    url = 'https://griffinbyatt.com/static/sobelow-version'
+
+    IO.puts :stderr, "Checking Sobelow version...\n"
+    case :httpc.request(:get, {url, []}, [{:timeout, 10000}], []) do
       {:ok, {{_, 200, _}, _, vsn}} ->
         Version.parse! String.trim(to_string(vsn))
       _ ->
