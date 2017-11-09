@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.4
+
+  * Enhancements
+    * Set timeout for version check.
+
 ## v0.6.3
 
   * Enhancements
