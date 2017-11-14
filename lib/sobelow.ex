@@ -362,6 +362,7 @@ defmodule Sobelow do
       "Misc" -> Sobelow.Misc
       "Misc.BinToTerm" -> Sobelow.Misc.BinToTerm
       "Misc.FilePath" -> Sobelow.Misc.FilePath
+      "RCE" -> Sobelow.RCE
       "RCE.EEx" -> Sobelow.RCE.EEx
       "RCE.CodeModule" -> Sobelow.RCE.CodeModule
       "Config" -> Sobelow.Config
