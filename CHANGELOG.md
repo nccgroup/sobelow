@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.6.5
+
+  * Bug Fixes
+    * Allow RCE module to be appropriately ignored.
+    
 ## v0.6.4
 
   * Enhancements
