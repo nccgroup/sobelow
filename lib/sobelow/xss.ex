@@ -17,7 +17,8 @@ defmodule Sobelow.XSS do
   alias Sobelow.XSS.Raw
   @submodules [Sobelow.XSS.SendResp,
                Sobelow.XSS.ContentType,
-               Sobelow.XSS.Raw]
+               Sobelow.XSS.Raw,
+               Sobelow.XSS.HTML]
 
   use Sobelow.FindingType
 
