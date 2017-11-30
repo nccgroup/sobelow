@@ -382,6 +382,7 @@ defmodule Sobelow do
       "Traversal" -> Sobelow.Traversal
       "Traversal.SendFile" -> Sobelow.Traversal.SendFile
       "Traversal.FileModule" -> Sobelow.Traversal.FileModule
+      "Traversal.SendDownload" -> Sobelow.Traversal.SendDownload
       "CI" -> Sobelow.CI
       "CI.System" -> Sobelow.CI.System
       "CI.OS" -> Sobelow.CI.OS

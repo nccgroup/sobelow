@@ -58,6 +58,7 @@ defmodule Mix.Tasks.Sobelow do
   * Traversal
   * Traversal.SendFile
   * Traversal.FileModule
+  * Traversal.SendDownload
   * Misc
   * Misc.BinToTerm
   * Misc.FilePath

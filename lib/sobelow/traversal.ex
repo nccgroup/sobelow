@@ -15,7 +15,8 @@ defmodule Sobelow.Traversal do
       $ mix sobelow -i Traversal
   """
   @submodules [Sobelow.Traversal.SendFile,
-               Sobelow.Traversal.FileModule]
+               Sobelow.Traversal.FileModule,
+               Sobelow.Traversal.SendDownload]
 
   use Sobelow.FindingType
 
