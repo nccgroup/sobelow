@@ -39,6 +39,7 @@ defmodule Mix.Tasks.Sobelow do
   * XSS.Raw
   * XSS.SendResp
   * XSS.ContentType
+  * XSS.HTML
   * SQL
   * SQL.Query
   * SQL.Stream
