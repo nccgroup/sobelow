@@ -284,7 +284,7 @@ defmodule Sobelow do
     """
     IO.puts :stderr, message
     ignored = get_env(:ignored)
-    Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF", "Config.Headers"])
+    Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF", "Config.Headers", "Config.CSP"])
   end
 
   defp file_error() do
@@ -369,6 +369,7 @@ defmodule Sobelow do
       "Config" -> Sobelow.Config
       "Config.CSRF" -> Sobelow.Config.CSRF
       "Config.Headers" -> Sobelow.Config.Headers
+      "Config.CSP" -> Sobelow.Config.CSP
       "Config.Secrets" -> Sobelow.Config.Secrets
       "Config.HTTPS" -> Sobelow.Config.HTTPS
       "Config.HSTS" -> Sobelow.Config.HSTS

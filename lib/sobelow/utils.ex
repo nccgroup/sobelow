@@ -136,6 +136,15 @@ defmodule Sobelow.Utils do
     IO.puts finding_break()
   end
 
+  def print_custom_finding_metadata(fun, finding, severity, type, headers) do
+    IO.puts finding_header(type, severity)
+    Enum.each headers, fn header ->
+      IO.puts header
+    end
+    maybe_print_code(fun, finding)
+    IO.puts finding_break
+  end
+
   def log_compact_finding(type, filename, line_no, severity) do
     details = "#{type} - #{filename}:#{line_no}"
     Sobelow.log_finding(details, severity)
@@ -655,7 +664,7 @@ defmodule Sobelow.Utils do
     acc
   end
 
-  defp get_plug_list(block) do
+  def get_plug_list(block) do
     case block do
       {:__block__, _, list} -> list
       {_, _, _} = list -> [list]

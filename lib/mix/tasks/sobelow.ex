@@ -46,6 +46,7 @@ defmodule Mix.Tasks.Sobelow do
   * Config
   * Config.CSRF
   * Config.Headers
+  * Config.CSP
   * Config.HTTPS
   * Config.HSTS
   * Config.Secrets
