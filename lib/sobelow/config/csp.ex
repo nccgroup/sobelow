@@ -25,15 +25,19 @@ defmodule Sobelow.Config.CSP do
   @finding_type "Missing Content-Security-Policy"
 
   def run(router, _) do
+    meta_file =
+      Utils.ast(router)
+      |> Utils.get_meta_funs()
+
     Utils.get_pipelines(router)
-    |> Enum.each(&check_vuln_pipeline/1)
+    |> Enum.each(&check_vuln_pipeline(&1, meta_file))
   end
 
-  defp check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline) do
+  defp check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline, meta_file) do
     {vuln?, conf} =
       Utils.get_plug_list(block)
       |> Enum.find(&is_header_plug?/1)
-      |> missing_csp_status()
+      |> missing_csp_status(meta_file)
 
     if vuln?, do: add_finding(pipeline, conf)
   end
@@ -42,20 +46,35 @@ defmodule Sobelow.Config.CSP do
   defp is_header_plug?({:plug, _, [:put_secure_browser_headers, _]}), do: true
   defp is_header_plug?(_), do: false
 
-  defp missing_csp_status({:plug, _, [:put_secure_browser_headers]}), do: {true, :high}
-  defp missing_csp_status({:plug, _, [:put_secure_browser_headers, {:%{}, _, opts}]}) do
+  defp missing_csp_status({_, _, [:put_secure_browser_headers]}, _), do: {true, :high}
+  defp missing_csp_status({_, _, [:put_secure_browser_headers, {:%{}, _, opts}]}, _) do
+    {!include_csp?(opts), :high}
+  end
+  defp missing_csp_status({_, _, [:put_secure_browser_headers, {:@, _, opts}]}, meta_file) do
+    [{attr, _, nil}|_] = opts
+
     has_csp? =
-      Enum.any?(opts, fn
-        {key, _} when is_binary(key) ->
-          String.downcase(key) == "content-security-policy"
-        _ ->
-          false
-      end)
+      Enum.find_value(meta_file.module_attrs, fn mod_attr ->
+         case mod_attr do
+           {^attr, _, [{:%{}, _, definition}]} -> definition
+           _ -> false
+         end
+      end) |> include_csp?()
 
     {!has_csp?, :high}
   end
-  defp missing_csp_status({:plug, _, [:put_secure_browser_headers, _]}), do: {true, :low}
-  defp missing_csp_status(_), do: {false, :high}
+  defp missing_csp_status({_, _, [:put_secure_browser_headers, _]}, _), do: {true, :low}
+  defp missing_csp_status(_, _), do: {false, :high}
+
+  defp include_csp?(nil), do: false
+  defp include_csp?(headers) do
+    Enum.any? headers, fn
+      {key, _} when is_binary(key) ->
+        String.downcase(key) == "content-security-policy"
+      _ ->
+        false
+    end
+  end
 
   defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, conf) do
     custom_header = "Pipeline: #{pipeline_name}:#{line_no}"

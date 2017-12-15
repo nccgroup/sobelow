@@ -247,7 +247,7 @@ defmodule Sobelow.Utils do
     get_meta_funs(ast)
   end
   def get_meta_funs(ast) do
-    init_acc = %{def_funs: [], use_funs: []}
+    init_acc = %{def_funs: [], use_funs: [], module_attrs: []}
     {_, acc} = Macro.prewalk(ast, init_acc, &get_meta_funs(&1, &2))
     acc
   end
@@ -260,6 +260,7 @@ defmodule Sobelow.Utils do
   end
   def get_meta_funs({:def, _, nil} = ast, acc), do: {ast, acc}
   def get_meta_funs({:defp, _, nil} = ast, acc), do: {ast, acc}
+  def get_meta_funs({:@, _, [{_, _, nil}]} = ast, acc), do: {ast, acc}
   def get_meta_funs({:def, _, _} = ast, acc) do
     {ast, Map.update!(acc, :def_funs, &([ast|&1]))}
   end
@@ -268,6 +269,9 @@ defmodule Sobelow.Utils do
   end
   def get_meta_funs({:use, _, _} = ast, acc) do
     {ast, Map.update!(acc, :use_funs, &([ast|&1]))}
+  end
+  def get_meta_funs({:@, _, [attr|_]} = ast, acc) do
+    {ast, Map.update!(acc, :module_attrs, &([attr|&1]))}
   end
   def get_meta_funs(ast, acc), do: {ast, acc}
 
