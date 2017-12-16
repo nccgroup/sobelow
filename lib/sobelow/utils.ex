@@ -142,7 +142,7 @@ defmodule Sobelow.Utils do
       IO.puts header
     end
     maybe_print_code(fun, finding)
-    IO.puts finding_break
+    IO.puts finding_break()
   end
 
   def log_compact_finding(type, filename, line_no, severity) do
