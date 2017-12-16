@@ -2,7 +2,8 @@ defmodule Sobelow.Config.CSP do
   @moduledoc """
   # Missing Content-Security-Policy
 
-  Content-Security-Policy is an HTTP header that helps mitigate...
+  Content-Security-Policy is an HTTP header that helps mitigate
+  a number of attacks, including Cross-Site Scripting.
 
   Read more about CSP here:
   https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP
