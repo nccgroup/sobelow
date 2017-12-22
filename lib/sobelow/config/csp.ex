@@ -31,16 +31,19 @@ defmodule Sobelow.Config.CSP do
       |> Utils.get_meta_funs()
 
     Utils.get_pipelines(router)
-    |> Enum.each(&check_vuln_pipeline(&1, meta_file))
+    |> Enum.map(&check_vuln_pipeline(&1, meta_file))
+    |> Enum.each(fn {vuln?, conf, pipeline} ->
+      if vuln?, do: add_finding(pipeline, conf)
+    end)
   end
 
-  defp check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline, meta_file) do
+  def check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline, meta_file) do
     {vuln?, conf} =
       Utils.get_plug_list(block)
       |> Enum.find(&is_header_plug?/1)
       |> missing_csp_status(meta_file)
 
-    if vuln?, do: add_finding(pipeline, conf)
+    {vuln?, conf, pipeline}
   end
 
   defp is_header_plug?({:plug, _, [:put_secure_browser_headers]}), do: true
