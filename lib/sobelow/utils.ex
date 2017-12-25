@@ -582,7 +582,7 @@ defmodule Sobelow.Utils do
     key = extract_opts(opts)
     {[], [key|acc]}
   end
-  def get_pipe_val({:|>, _, [{fun,_,funopts} = opts,maybe_pipe]} = ast, acc, pipe) when not fun in [:|>] do
+  def get_pipe_val({:|>, _, [{fun,_,funopts} = opts,maybe_pipe]} = ast, acc, pipe) when fun not in [:|>] do
     {_,match_pipe} = Macro.prewalk(maybe_pipe, [], &get_match(&1, &2, pipe))
     {_,match_opts} = Macro.prewalk(opts, [], &get_match(&1,&2,pipe))
 

@@ -67,7 +67,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    if not format() in ["quiet", "compact"], do: IO.puts :stderr, print_banner()
+    if format() not in ["quiet", "compact"], do: IO.puts :stderr, print_banner()
     Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
