@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.6.6
+
+  * Enhancements
+    * Add check for directory traversal via `send_download`
+    * Add check for missing Content-Security-Policy
+    * Check additional XSS vectors
+
 ## v0.6.5
 
   * Bug Fixes
