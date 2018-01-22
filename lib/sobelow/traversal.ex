@@ -14,18 +14,20 @@ defmodule Sobelow.Traversal do
 
       $ mix sobelow -i Traversal
   """
-  @submodules [Sobelow.Traversal.SendFile,
-               Sobelow.Traversal.FileModule,
-               Sobelow.Traversal.SendDownload]
+  @submodules [
+    Sobelow.Traversal.SendFile,
+    Sobelow.Traversal.FileModule,
+    Sobelow.Traversal.SendDownload
+  ]
 
   use Sobelow.FindingType
 
   def get_vulns(fun, meta_file, _web_root, skip_mods \\ []) do
     allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)
 
-    Enum.each allowed, fn mod ->
+    Enum.each(allowed, fn mod ->
       apply(mod, :run, [fun, meta_file])
-    end
+    end)
   end
 
   def details() do

@@ -7,20 +7,29 @@ defmodule Sobelow.Traversal.SendDownload do
     severity = if meta_file.is_controller?, do: false, else: :low
     {findings, params, {fun_name, line_no}} = parse_def(fun)
 
-    Enum.each findings, fn {finding, var} ->
-      Utils.add_finding(line_no, meta_file.filename, fun, fun_name,
-                        var, Utils.get_sev(params, var, severity),
-                        finding, @finding_type)
-    end
+    Enum.each(findings, fn {finding, var} ->
+      Utils.add_finding(
+        line_no,
+        meta_file.filename,
+        fun,
+        fun_name,
+        var,
+        Utils.get_sev(params, var, severity),
+        finding,
+        @finding_type
+      )
+    end)
   end
 
   ## send_download(conn, {:file, path})
   def parse_def(fun) do
-    {findings, params, {fun_name, [{_, line_no}]}} = Utils.get_fun_vars_and_meta(fun, 1, :send_download)
+    {findings, params, {fun_name, [{_, line_no}]}} =
+      Utils.get_fun_vars_and_meta(fun, 1, :send_download)
 
-    findings = Enum.reject findings, fn {finding, _var} ->
-      download_type_binary?(finding)
-    end
+    findings =
+      Enum.reject(findings, fn {finding, _var} ->
+        download_type_binary?(finding)
+      end)
 
     {findings, params, {fun_name, line_no}}
   end

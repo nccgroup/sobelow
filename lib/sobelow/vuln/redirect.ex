@@ -7,6 +7,7 @@ defmodule Sobelow.Vuln.Redirect do
 
   def run(root) do
     plug_conf = root <> "/deps/phoenix/mix.exs"
+
     if File.exists?(plug_conf) do
       vsn = Utils.get_version(plug_conf)
 

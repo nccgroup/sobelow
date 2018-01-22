@@ -32,19 +32,30 @@ defmodule Sobelow.Config.Headers do
 
   defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline) do
     custom_header = "Pipeline: #{pipeline_name}:#{line_no}"
+
     case Sobelow.format() do
       "json" ->
         finding = [
           type: @finding_type,
           pipeline: "#{pipeline_name}:#{line_no}"
         ]
+
         Sobelow.log_finding(finding, :high)
+
       "txt" ->
         Sobelow.log_finding(@finding_type, :high)
-        Utils.print_custom_finding_metadata(pipeline, :put_secure_browser_headers,
-                                            :high, @finding_type, [custom_header])
+
+        Utils.print_custom_finding_metadata(
+          pipeline,
+          :put_secure_browser_headers,
+          :high,
+          @finding_type,
+          [custom_header]
+        )
+
       "compact" ->
         Utils.log_compact_finding(@finding_type, :high)
+
       _ ->
         Sobelow.log_finding(@finding_type, :high)
     end

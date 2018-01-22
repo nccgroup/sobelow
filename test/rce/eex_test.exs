@@ -6,7 +6,7 @@ defmodule SobelowTest.RCE.EExTest do
   @evil_funcs [:eval_string, :eval_file]
 
   test "Code Execution in EEx functions" do
-    Enum.each @evil_funcs, fn evil_func ->
+    Enum.each(@evil_funcs, fn evil_func ->
       func = """
       def func(eval_input) do
         EEx.#{evil_func}(eval_input)
@@ -16,11 +16,11 @@ defmodule SobelowTest.RCE.EExTest do
       {_, ast} = Code.string_to_quoted(func)
 
       assert EEx.parse_def(ast, evil_func) |> is_vuln?
-    end
+    end)
   end
 
   test "Safe EEx functions" do
-    Enum.each @evil_funcs, fn evil_func ->
+    Enum.each(@evil_funcs, fn evil_func ->
       func = """
       def func() do
         EEx.#{evil_func}("IO.inspect(1)")
@@ -30,6 +30,6 @@ defmodule SobelowTest.RCE.EExTest do
       {_, ast} = Code.string_to_quoted(func)
 
       refute EEx.parse_def(ast, evil_func) |> is_vuln?
-    end
+    end)
   end
 end

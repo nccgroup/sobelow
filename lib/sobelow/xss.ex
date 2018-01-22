@@ -15,28 +15,26 @@ defmodule Sobelow.XSS do
       $ mix sobelow -i XSS
   """
   alias Sobelow.XSS.Raw
-  @submodules [Sobelow.XSS.SendResp,
-               Sobelow.XSS.ContentType,
-               Sobelow.XSS.Raw,
-               Sobelow.XSS.HTML]
+  @submodules [Sobelow.XSS.SendResp, Sobelow.XSS.ContentType, Sobelow.XSS.Raw, Sobelow.XSS.HTML]
 
   use Sobelow.FindingType
 
   def get_vulns(fun, meta_file, web_root, skip_mods \\ []) do
-    controller = if meta_file.is_controller? do
-      String.replace_suffix(meta_file.filename, "_controller.ex", "")
-      |> Path.basename()
-    end
+    controller =
+      if meta_file.is_controller? do
+        String.replace_suffix(meta_file.filename, "_controller.ex", "")
+        |> Path.basename()
+      end
 
     allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)
 
-    Enum.each allowed, fn mod ->
+    Enum.each(allowed, fn mod ->
       if mod === Raw do
         apply(mod, :run, [fun, meta_file, web_root, controller])
       else
         apply(mod, :run, [fun, meta_file])
       end
-    end
+    end)
   end
 
   def details() do

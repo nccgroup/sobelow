@@ -7,11 +7,17 @@ defmodule Sobelow.Vuln.CookieRCE do
 
   def run(root) do
     plug_conf = root <> "/deps/plug/mix.exs"
+
     if File.exists?(plug_conf) do
       vsn = Utils.get_version(plug_conf)
 
       if Enum.member?(@vuln_vsn, vsn) do
-        Vuln.print_finding(vsn, "Plug", "Arbitrary Code Execution in Cookie Serialization", "CVE-2017-1000053")
+        Vuln.print_finding(
+          vsn,
+          "Plug",
+          "Arbitrary Code Execution in Cookie Serialization",
+          "CVE-2017-1000053"
+        )
       end
     end
   end

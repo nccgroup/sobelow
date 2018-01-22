@@ -15,11 +15,12 @@ defmodule Sobelow.Config.HSTS do
   use Sobelow.Finding
 
   def run(dir_path, configs) do
-    Enum.each configs, fn conf ->
+    Enum.each(configs, fn conf ->
       path = dir_path <> conf
+
       Config.get_configs_by_file(:https, path)
       |> handle_https(path)
-    end
+    end)
   end
 
   defp handle_https(opts, file) do
@@ -32,24 +33,28 @@ defmodule Sobelow.Config.HSTS do
 
   defp add_finding(file) do
     type = "HSTS Not Enabled"
+
     case Sobelow.format() do
       "json" ->
         finding = [type: type]
         Sobelow.log_finding(finding, :medium)
+
       "txt" ->
         Sobelow.log_finding(type, :medium)
 
-        IO.puts IO.ANSI.yellow() <> type <> " - Medium Confidence" <> IO.ANSI.reset()
+        IO.puts(IO.ANSI.yellow() <> type <> " - Medium Confidence" <> IO.ANSI.reset())
         if Sobelow.get_env(:verbose), do: print_info(file)
-        IO.puts "\n-----------------------------------------------\n"
+        IO.puts("\n-----------------------------------------------\n")
+
       "compact" ->
         Utils.log_compact_finding(type, :medium)
+
       _ ->
         Sobelow.log_finding(type, :medium)
     end
   end
 
   defp print_info(file) do
-    IO.puts "\nHSTS configuration details could not be found in `#{file}`."
+    IO.puts("\nHSTS configuration details could not be found in `#{file}`.")
   end
 end

@@ -33,21 +33,26 @@ defmodule Sobelow.Config.CSRF do
 
   defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline) do
     type = "Missing CSRF Protections"
+
     case Sobelow.format() do
       "json" ->
         finding = [
           type: type,
           pipeline: "#{pipeline_name}:#{line_no}"
         ]
+
         Sobelow.log_finding(finding, :high)
+
       "txt" ->
         Sobelow.log_finding(type, :high)
-        IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
-        IO.puts "Pipeline: #{pipeline_name}:#{line_no}"
+        IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
+        IO.puts("Pipeline: #{pipeline_name}:#{line_no}")
         if Sobelow.get_env(:verbose), do: Utils.print_code(pipeline, pipeline_name)
-        IO.puts "\n-----------------------------------------------\n"
+        IO.puts("\n-----------------------------------------------\n")
+
       "compact" ->
         Utils.log_compact_finding(type, :high)
+
       _ ->
         Sobelow.log_finding(type, :high)
     end

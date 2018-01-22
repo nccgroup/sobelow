@@ -3,16 +3,18 @@ defmodule Sobelow do
   Sobelow is a static analysis tool for discovering
   vulnerabilities in Phoenix applications.
   """
-  @v Mix.Project.config[:version]
-  @submodules [Sobelow.XSS,
-               Sobelow.SQL,
-               Sobelow.Traversal,
-               Sobelow.RCE,
-               Sobelow.Misc,
-               Sobelow.Config,
-               Sobelow.CI,
-               Sobelow.DOS,
-               Sobelow.Vuln]
+  @v Mix.Project.config()[:version]
+  @submodules [
+    Sobelow.XSS,
+    Sobelow.SQL,
+    Sobelow.Traversal,
+    Sobelow.RCE,
+    Sobelow.Misc,
+    Sobelow.Config,
+    Sobelow.CI,
+    Sobelow.DOS,
+    Sobelow.Vuln
+  ]
 
   alias Sobelow.Utils
   alias Sobelow.Config
@@ -29,6 +31,7 @@ defmodule Sobelow do
     if !is_binary(app_name), do: file_error()
 
     {web_root, lib_root} = get_root(app_name, project_root)
+
     root =
       if String.ends_with?(web_root, "./") do
         web_root <> "web/"
@@ -51,12 +54,11 @@ defmodule Sobelow do
     # more recent version of Phoenix. Meaning, all files are
     # in the lib directory, so we don't need to re-scan
     # lib_root separately.
-    phx_post_1_2? = String.ends_with?(web_root, "/#{app_name}/")
-        || String.ends_with?(web_root, "/#{app_name}_web/")
+    phx_post_1_2? =
+      String.ends_with?(web_root, "/#{app_name}/") ||
+        String.ends_with?(web_root, "/#{app_name}_web/")
 
-    libroot_meta_files =
-      if !phx_post_1_2?,
-         do: get_meta_files(lib_root), else: []
+    libroot_meta_files = if !phx_post_1_2?, do: get_meta_files(lib_root), else: []
 
     FindingLog.start_link()
 
@@ -67,7 +69,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    if format() not in ["quiet", "compact"], do: IO.puts :stderr, print_banner()
+    if format() not in ["quiet", "compact"], do: IO.puts(:stderr, print_banner())
     Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
@@ -90,7 +92,7 @@ defmodule Sobelow do
     if format() != "txt" do
       print_output()
     else
-      IO.puts :stderr, "... SCAN COMPLETE ...\n"
+      IO.puts(:stderr, "... SCAN COMPLETE ...\n")
     end
 
     exit_with_status()
@@ -101,12 +103,15 @@ defmodule Sobelow do
       case format() do
         "json" ->
           FindingLog.json(@v)
+
         "quiet" ->
           FindingLog.quiet()
-        _ -> nil
-    end
 
-    if !is_nil(details), do: IO.puts details
+        _ ->
+          nil
+      end
+
+    if !is_nil(details), do: IO.puts(details)
   end
 
   defp exit_with_status() do
@@ -121,11 +126,15 @@ defmodule Sobelow do
       case exit_on do
         :high ->
           if high_count > 0, do: 1
+
         :medium ->
           if high_count + medium_count > 0, do: 1
+
         :low ->
           if high_count + medium_count + low_count > 0, do: 1
-        _ -> 0
+
+        _ ->
+          0
       end
 
     exit_status = if is_nil(status), do: 0, else: status
@@ -133,11 +142,12 @@ defmodule Sobelow do
   end
 
   def details() do
-    mod = get_env(:details)
-    |> get_mod
+    mod =
+      get_env(:details)
+      |> get_mod
 
     if is_nil(mod) do
-      MixIO.error "A valid module was not selected."
+      MixIO.error("A valid module was not selected.")
     else
       apply(mod, :details, [])
     end
@@ -201,13 +211,16 @@ defmodule Sobelow do
 
   defp get_root(app_name, project_root) do
     lib_root = project_root <> "lib/"
+
     cond do
       File.dir?(project_root <> "lib/#{app_name}_web") ->
         # New phoenix RC structure
         {lib_root <> "#{app_name}_web/", lib_root}
+
       File.dir?(project_root <> "lib/#{app_name}/web/") ->
         # RC 1 phx dir structure
         {lib_root <> "#{app_name}/", lib_root}
+
       true ->
         # Original dir structure
         {project_root <> "./", lib_root}
@@ -243,38 +256,46 @@ defmodule Sobelow do
     def_funs = meta_funs.def_funs
     use_funs = meta_funs.use_funs
 
-    %{filename: Utils.normalize_path(filename),
+    %{
+      filename: Utils.normalize_path(filename),
       def_funs: def_funs,
-      is_controller?: Utils.is_controller?(use_funs)}
+      is_controller?: Utils.is_controller?(use_funs)
+    }
   end
 
   defp get_fun_vulns({fun, skips}, meta_file, web_root, mods) do
-    skip_mods = skips
-    |> Enum.map(&get_mod/1)
+    skip_mods =
+      skips
+      |> Enum.map(&get_mod/1)
 
-    Enum.each mods -- skip_mods, fn mod ->
+    Enum.each(mods -- skip_mods, fn mod ->
       apply(mod, :get_vulns, [fun, meta_file, web_root, skip_mods])
-    end
+    end)
   end
+
   defp get_fun_vulns(fun, meta_file, web_root, mods) do
-    Enum.each mods, fn mod ->
+    Enum.each(mods, fn mod ->
       apply(mod, :get_vulns, [fun, meta_file, web_root])
-    end
+    end)
   end
 
   defp combine_skips([]), do: []
-  defp combine_skips([head|tail] = funs) do
+
+  defp combine_skips([head | tail] = funs) do
     if get_env(:skip), do: combine_skips(head, tail), else: funs
   end
+
   defp combine_skips(prev, []), do: [prev]
   defp combine_skips(prev, [{:@, _, [{:sobelow_skip, _, [skips]}]} | []]), do: [{prev, skips}]
+
   defp combine_skips(prev, [{:@, _, [{:sobelow_skip, _, [skips]}]} | tail]) do
-    [h|t] = tail
-    [{prev, skips}|combine_skips(h, t)]
+    [h | t] = tail
+    [{prev, skips} | combine_skips(h, t)]
   end
+
   defp combine_skips(prev, rest) do
-    [h|t] = rest
-    [prev|combine_skips(h, t)]
+    [h | t] = rest
+    [prev | combine_skips(h, t)]
   end
 
   defp no_router() do
@@ -282,9 +303,15 @@ defmodule Sobelow do
     WARNING: Sobelow cannot find the router. If this is a Phoenix application
     please use the `--router` flag to specify the router's location.
     """
-    IO.puts :stderr, message
+
+    IO.puts(:stderr, message)
     ignored = get_env(:ignored)
-    Application.put_env(:sobelow, :ignored, ignored ++ ["Config.CSRF", "Config.Headers", "Config.CSP"])
+
+    Application.put_env(
+      :sobelow,
+      :ignored,
+      ignored ++ ["Config.CSRF", "Config.Headers", "Config.CSP"]
+    )
   end
 
   defp file_error() do
@@ -297,11 +324,13 @@ defmodule Sobelow do
     time = DateTime.utc_now() |> DateTime.to_unix()
 
     if File.exists?(cfile) do
-      {timestamp, _} = case File.read!(cfile) do
-        "sobelow-" <> timestamp -> Integer.parse(timestamp)
-        _ -> file_error()
-      end
-      if time - 12*60*60 > timestamp do
+      {timestamp, _} =
+        case File.read!(cfile) do
+          "sobelow-" <> timestamp -> Integer.parse(timestamp)
+          _ -> file_error()
+        end
+
+      if time - 12 * 60 * 60 > timestamp do
         maybe_prompt_update(time, cfile)
       end
     else
@@ -318,10 +347,12 @@ defmodule Sobelow do
     # update to sobelow.io for future versions
     url = 'https://griffinbyatt.com/static/sobelow-version'
 
-    IO.puts :stderr, "Checking Sobelow version...\n"
+    IO.puts(:stderr, "Checking Sobelow version...\n")
+
     case :httpc.request(:get, {url, []}, [{:timeout, 10000}], []) do
       {:ok, {{_, 200, _}, _, vsn}} ->
-        Version.parse! String.trim(to_string(vsn))
+        Version.parse!(String.trim(to_string(vsn)))
+
       _ ->
         MixIO.error("Error fetching version number.\n")
         @v
@@ -331,24 +362,26 @@ defmodule Sobelow do
   end
 
   defp maybe_prompt_update(time, cfile) do
-    installed_vsn = Version.parse! @v
+    installed_vsn = Version.parse!(@v)
 
-    cmp = get_sobelow_version()
-    |> Version.compare(installed_vsn)
+    cmp =
+      get_sobelow_version()
+      |> Version.compare(installed_vsn)
 
     case cmp do
       :gt ->
-        MixIO.error """
+        MixIO.error("""
         A new version of Sobelow is available:
         mix archive.install hex sobelow
-        """
-      _ -> nil
+        """)
+
+      _ ->
+        nil
     end
 
     timestamp = "sobelow-" <> to_string(time)
     File.write(cfile, timestamp)
   end
-
 
   def get_mod(mod_string) do
     case mod_string do
@@ -404,14 +437,15 @@ defmodule Sobelow do
     cond do
       length(vars) == 0 ->
         false
+
       true ->
         true
     end
   end
 
   defp is_ignored_file(filename, ignored_files) do
-    Enum.any? ignored_files, fn ignored_file ->
+    Enum.any?(ignored_files, fn ignored_file ->
       String.ends_with?(ignored_file, filename)
-    end
+    end)
   end
 end

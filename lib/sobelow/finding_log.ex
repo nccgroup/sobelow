@@ -30,11 +30,14 @@ defmodule Sobelow.FindingLog do
   def json(vsn) do
     %{high: highs, medium: meds, low: lows} = log()
 
-    EEx.eval_string(@json_template, assigns: [
+    EEx.eval_string(
+      @json_template,
+      assigns: [
         findings: [high_confidence: highs, medium_confidence: meds, low_confidence: lows],
         total_findings: length(highs) + length(meds) + length(lows),
         version: vsn
-    ])
+      ]
+    )
   end
 
   def quiet() do
@@ -55,11 +58,10 @@ defmodule Sobelow.FindingLog do
   end
 
   def handle_cast({:add, finding, severity}, findings) do
-    {:noreply, Map.update!(findings, severity, &([finding|&1]))}
+    {:noreply, Map.update!(findings, severity, &[finding | &1])}
   end
 
   def handle_call(:log, _from, findings) do
     {:reply, findings, findings}
   end
-
 end

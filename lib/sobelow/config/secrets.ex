@@ -19,7 +19,7 @@ defmodule Sobelow.Config.Secrets do
   use Sobelow.Finding
 
   def run(dir_path, configs) do
-    Enum.each configs, fn conf ->
+    Enum.each(configs, fn conf ->
       path = dir_path <> conf
 
       if conf != "config.exs" do
@@ -32,48 +32,55 @@ defmodule Sobelow.Config.Secrets do
 
       Utils.get_fuzzy_configs("secret", path)
       |> enumerate_fuzzy_secrets(path)
-    end
+    end)
   end
 
   defp enumerate_secrets(secrets, file) do
     file = Path.expand(file, "") |> String.replace_prefix("/", "")
-    Enum.each secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
+
+    Enum.each(secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
         add_finding(file, lineno, fun, key, val)
       end
-    end
+    end)
   end
 
   defp enumerate_fuzzy_secrets(secrets, file) do
     file = Path.expand(file, "") |> String.replace_prefix("/", "")
-    Enum.each secrets, fn {{_, [line: lineno], _} = fun, vals} ->
-      Enum.each vals, fn {k, v} ->
+
+    Enum.each(secrets, fn {{_, [line: lineno], _} = fun, vals} ->
+      Enum.each(vals, fn {k, v} ->
         if is_binary(v) && String.length(v) > 0 && !is_env_var?(v) do
           add_finding(file, lineno, fun, k, v)
         end
-      end
-    end
+      end)
+    end)
   end
 
   def is_env_var?("${" <> rest) do
     String.ends_with?(rest, "}")
   end
+
   def is_env_var?(_), do: false
 
   defp add_finding(file, line_no, fun, key, _val) do
     type = "Hardcoded Secret"
+
     case Sobelow.get_env(:format) do
       "json" ->
         finding = [type: type]
         Sobelow.log_finding(finding, :high)
+
       "txt" ->
-        IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
-        IO.puts "File: #{file} - line #{line_no}"
-        IO.puts "Type: #{key}"
+        IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
+        IO.puts("File: #{file} - line #{line_no}")
+        IO.puts("Type: #{key}")
         if Sobelow.get_env(:verbose), do: Utils.print_code(fun, :highlight_all)
-        IO.puts "\n-----------------------------------------------\n"
+        IO.puts("\n-----------------------------------------------\n")
+
       "compact" ->
         Utils.log_compact_finding(type, file, line_no, :high)
+
       _ ->
         Sobelow.log_finding(type, :high)
     end

@@ -6,9 +6,9 @@ defmodule Sobelow.XSS.SendResp do
     {ref_vars, is_html, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
     filename = meta_file.filename
 
-    Enum.each ref_vars, fn var ->
+    Enum.each(ref_vars, fn var ->
       if is_list(var) do
-        Enum.each var, fn {finding, v} ->
+        Enum.each(var, fn {finding, v} ->
           if (Enum.member?(params, v) || v === "conn.params") && is_html do
             print_resp_finding(line_no, filename, fun_name, fun, v, :high, finding)
           end
@@ -16,18 +16,19 @@ defmodule Sobelow.XSS.SendResp do
           if is_html && !Enum.member?(params, v) do
             print_resp_finding(line_no, filename, fun_name, fun, v, :medium, finding)
           end
-        end
+        end)
       end
-    end
+    end)
   end
 
   def parse_def(fun) do
     {vars, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp)
-    {aliased_vars,_,_} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
+    {aliased_vars, _, _} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
 
-    is_html = Utils.get_funs_of_type(fun, :put_resp_content_type)
-    |> Kernel.++(Utils.get_aliased_funs_of_type(fun, :put_resp_content_type, :Conn))
-    |> Enum.any?(&Utils.is_content_type_html/1)
+    is_html =
+      Utils.get_funs_of_type(fun, :put_resp_content_type)
+      |> Kernel.++(Utils.get_aliased_funs_of_type(fun, :put_resp_content_type, :Conn))
+      |> Enum.any?(&Utils.is_content_type_html/1)
 
     {vars ++ aliased_vars, is_html, params, {fun_name, line_no}}
   end
@@ -37,8 +38,15 @@ defmodule Sobelow.XSS.SendResp do
   end
 
   defp print_resp_finding(line_no, filename, fun_name, fun, var, severity, finding) do
-    Utils.add_finding(line_no, filename, fun,
-                      fun_name, var, severity, finding,
-                      "XSS in `send_resp`")
+    Utils.add_finding(
+      line_no,
+      filename,
+      fun,
+      fun_name,
+      var,
+      severity,
+      finding,
+      "XSS in `send_resp`"
+    )
   end
 end

@@ -20,9 +20,9 @@ defmodule Sobelow.SQL do
   def get_vulns(fun, meta_file, _web_root, skip_mods \\ []) do
     allowed = @submodules -- (Sobelow.get_ignored() ++ skip_mods)
 
-    Enum.each allowed, fn mod ->
+    Enum.each(allowed, fn mod ->
       apply(mod, :run, [fun, meta_file])
-    end
+    end)
   end
 
   def details() do

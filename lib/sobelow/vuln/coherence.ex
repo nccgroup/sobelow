@@ -14,11 +14,16 @@ defmodule Sobelow.Vuln.Coherence do
       case Version.parse(vsn) do
         {:ok, vsn} ->
           if Enum.any?(@vuln_vsn, fn v -> Version.match?(vsn, v) end) do
-            Vuln.print_finding(vsn, "Coherence",
-                               "Permissive parameters and privilege escalation",
-                               "TBA - https://github.com/smpallen99/coherence/issues/270")
+            Vuln.print_finding(
+              vsn,
+              "Coherence",
+              "Permissive parameters and privilege escalation",
+              "TBA - https://github.com/smpallen99/coherence/issues/270"
+            )
           end
-        _ -> nil
+
+        _ ->
+          nil
       end
     end
   end

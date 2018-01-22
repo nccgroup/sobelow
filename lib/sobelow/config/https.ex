@@ -21,7 +21,7 @@ defmodule Sobelow.Config.HTTPS do
     if File.exists?(path) && Enum.member?(configs, "prod.exs") do
       https = Config.get_configs_by_file(:https, path)
 
-      Config.get_configs_by_file(:force_ssl, path) ++ https
+      (Config.get_configs_by_file(:force_ssl, path) ++ https)
       |> handle_https()
     end
   end
@@ -34,24 +34,28 @@ defmodule Sobelow.Config.HTTPS do
 
   defp add_finding() do
     type = "HTTPS Not Enabled"
+
     case Sobelow.format() do
       "json" ->
         finding = [type: type]
         Sobelow.log_finding(finding, :high)
+
       "txt" ->
         Sobelow.log_finding(type, :high)
 
-        IO.puts IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset()
+        IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
         if Sobelow.get_env(:verbose), do: print_info()
-        IO.puts "\n-----------------------------------------------\n"
+        IO.puts("\n-----------------------------------------------\n")
+
       "compact" ->
         Sobelow.Utils.log_compact_finding(type, :high)
+
       _ ->
         Sobelow.log_finding(type, :high)
     end
   end
 
   defp print_info() do
-    IO.puts "\nHTTPS configuration details could not be found in `prod.exs`."
+    IO.puts("\nHTTPS configuration details could not be found in `prod.exs`.")
   end
 end

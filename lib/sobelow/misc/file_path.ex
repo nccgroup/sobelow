@@ -30,14 +30,14 @@ defmodule Sobelow.Misc.FilePath do
   def run(fun, meta_file) do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
-    Enum.each vars, fn var ->
-      add_finding(line_no, meta_file.filename, fun_name,
-                  fun, var, Utils.get_sev(params, var))
-    end
+    Enum.each(vars, fn var ->
+      add_finding(line_no, meta_file.filename, fun_name, fun, var, Utils.get_sev(params, var))
+    end)
   end
 
   defp add_finding(line_no, filename, fun_name, fun, var, severity) do
     type = "Insecure use of `File` and `Path`"
+
     case Sobelow.format() do
       "json" ->
         finding = [
@@ -46,17 +46,21 @@ defmodule Sobelow.Misc.FilePath do
           function: "#{fun_name}:#{line_no}",
           variable: var
         ]
+
         Sobelow.log_finding(finding, severity)
+
       "txt" ->
         Sobelow.log_finding(type, severity)
 
-        IO.puts Utils.finding_header(type, severity)
-        IO.puts Utils.finding_file_metadata(filename, fun_name, line_no)
-        IO.puts Utils.finding_variable(var)
+        IO.puts(Utils.finding_header(type, severity))
+        IO.puts(Utils.finding_file_metadata(filename, fun_name, line_no))
+        IO.puts(Utils.finding_variable(var))
         Utils.maybe_print_file_path_code(fun, var)
-        IO.puts Utils.finding_break()
+        IO.puts(Utils.finding_break())
+
       "compact" ->
         Utils.log_compact_finding(type, filename, line_no, severity)
+
       _ ->
         Sobelow.log_finding(type, severity)
     end
@@ -68,13 +72,15 @@ defmodule Sobelow.Misc.FilePath do
     file_assigns = Utils.get_assigns_from(fun, [:File])
     path_assigns = Utils.get_assigns_from(fun, [:Path])
 
-    path_vars = Utils.get_funs_by_module(fun, [:Path])
-    |> Enum.map(&Utils.extract_opts(&1, 0))
-    |> List.flatten
+    path_vars =
+      Utils.get_funs_by_module(fun, [:Path])
+      |> Enum.map(&Utils.extract_opts(&1, 0))
+      |> List.flatten()
 
-    file_vars = Utils.get_funs_by_module(fun, [:File])
-    |> Enum.map(&Utils.extract_opts(&1, 0))
-    |> List.flatten
+    file_vars =
+      Utils.get_funs_by_module(fun, [:File])
+      |> Enum.map(&Utils.extract_opts(&1, 0))
+      |> List.flatten()
 
     shared_path =
       Enum.filter(path_vars, fn var ->
@@ -86,9 +92,11 @@ defmodule Sobelow.Misc.FilePath do
         Enum.member?(path_assigns, var)
       end)
 
-    vars = Enum.filter(file_vars, fn var ->
-      Enum.member?(path_vars, var)
-    end)
+    vars =
+      Enum.filter(file_vars, fn var ->
+        Enum.member?(path_vars, var)
+      end)
+
     {vars ++ shared_file ++ shared_path, params, {fun_name, line_no}}
   end
 end

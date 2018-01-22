@@ -3,12 +3,15 @@ defmodule Sobelow.Config do
   alias Sobelow.Config.CSRF
   alias Sobelow.Config.CSP
   alias Sobelow.Config.Headers
-  @submodules [Sobelow.Config.CSRF,
-               Sobelow.Config.Headers,
-               Sobelow.Config.CSP,
-               Sobelow.Config.Secrets,
-               Sobelow.Config.HTTPS,
-               Sobelow.Config.HSTS]
+
+  @submodules [
+    Sobelow.Config.CSRF,
+    Sobelow.Config.Headers,
+    Sobelow.Config.CSP,
+    Sobelow.Config.Secrets,
+    Sobelow.Config.HTTPS,
+    Sobelow.Config.HSTS
+  ]
 
   use Sobelow.FindingType
   @skip_files ["dev.exs", "test.exs", "dev.secret.exs", "test.secret.exs"]
@@ -24,17 +27,17 @@ defmodule Sobelow.Config do
         File.ls!(dir_path)
         |> Enum.filter(&want_to_scan?(dir_path <> &1, ignored_files))
 
-      Enum.each allowed, fn mod ->
+      Enum.each(allowed, fn mod ->
         path = if mod in [CSRF, Headers, CSP], do: router, else: dir_path
         apply(mod, :run, [path, configs])
-      end
+      end)
     end
   end
 
   defp want_to_scan?(conf, ignored_files) do
-    if Path.extname(conf) === ".exs" &&
-      !Enum.member?(@skip_files, Path.basename(conf)) &&
-      !Enum.member?(ignored_files, Path.expand(conf)), do: conf
+    if Path.extname(conf) === ".exs" && !Enum.member?(@skip_files, Path.basename(conf)) &&
+         !Enum.member?(ignored_files, Path.expand(conf)),
+       do: conf
   end
 
   def get_configs_by_file(secret, file) do

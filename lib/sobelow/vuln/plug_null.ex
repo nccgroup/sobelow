@@ -7,6 +7,7 @@ defmodule Sobelow.Vuln.PlugNull do
 
   def run(root) do
     plug_conf = root <> "/deps/plug/mix.exs"
+
     if File.exists?(plug_conf) do
       vsn = Utils.get_version(plug_conf)
 

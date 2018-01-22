@@ -66,5 +66,4 @@ defmodule SobelowTest.PipeTest do
 
     assert StringToAtom.parse_def(ast) |> is_vuln?
   end
-
 end

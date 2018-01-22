@@ -16,10 +16,11 @@ defmodule Sobelow.Vuln.HeaderInject do
           if Enum.any?(@vuln_vsn, fn v -> Version.match?(vsn, v) end) do
             Vuln.print_finding(vsn, "Plug", "Header Injection")
           end
-        _ -> nil
+
+        _ ->
+          nil
       end
     end
-
   end
 
   def details() do

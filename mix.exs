@@ -2,15 +2,17 @@ defmodule Sobelow.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :sobelow,
-     version: "0.6.6",
-     elixir: "~> 1.4",
-     build_embedded: Mix.env == :prod,
-     start_permanent: Mix.env == :prod,
-     deps: deps(),
-     package: package(),
-     description: "Security-focused static analysis for the Phoenix framework",
-     name: "Sobelow"]
+    [
+      app: :sobelow,
+      version: "0.6.6",
+      elixir: "~> 1.4",
+      build_embedded: Mix.env() == :prod,
+      start_permanent: Mix.env() == :prod,
+      deps: deps(),
+      package: package(),
+      description: "Security-focused static analysis for the Phoenix framework",
+      name: "Sobelow"
+    ]
   end
 
   # Configuration for the OTP application
@@ -35,8 +37,10 @@ defmodule Sobelow.Mixfile do
   end
 
   defp package() do
-    [licenses: ["Apache 2"],
-     maintainers: ["Griffin Byatt"],
-     links: %{"GitHub" => "https://github.com/nccgroup/sobelow"}]
+    [
+      licenses: ["Apache 2"],
+      maintainers: ["Griffin Byatt"],
+      links: %{"GitHub" => "https://github.com/nccgroup/sobelow"}
+    ]
   end
 end

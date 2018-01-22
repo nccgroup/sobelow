@@ -6,7 +6,7 @@ defmodule SobelowTest.RCE.CodeModuleTest do
   @evil_funcs [:eval_string, :eval_file, :eval_quoted]
 
   test "Code Execution in Code functions" do
-    Enum.each @evil_funcs, fn evil_func ->
+    Enum.each(@evil_funcs, fn evil_func ->
       func = """
       def func(eval_input) do
         Code.#{evil_func}(eval_input)
@@ -16,11 +16,11 @@ defmodule SobelowTest.RCE.CodeModuleTest do
       {_, ast} = Code.string_to_quoted(func)
 
       assert CodeModule.parse_def(ast, evil_func) |> is_vuln?
-    end
+    end)
   end
 
   test "Safe Code functions" do
-    Enum.each @evil_funcs, fn evil_func ->
+    Enum.each(@evil_funcs, fn evil_func ->
       func = """
       def func() do
         Code.#{evil_func}("IO.inspect(1)")
@@ -30,6 +30,6 @@ defmodule SobelowTest.RCE.CodeModuleTest do
       {_, ast} = Code.string_to_quoted(func)
 
       refute CodeModule.parse_def(ast, evil_func) |> is_vuln?
-    end
+    end)
   end
 end

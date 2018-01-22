@@ -14,11 +14,16 @@ defmodule Sobelow.Vuln.Ecto do
       case Version.parse(vsn) do
         {:ok, vsn} ->
           if Enum.any?(@vuln_vsn, fn v -> Version.match?(vsn, v) end) do
-            Vuln.print_finding(vsn, "Ecto",
-                               "Missing `is_nil` requirement",
-                               "TBA - https://groups.google.com/forum/#!topic/elixir-ecto/0m4NPfg_MMU")
+            Vuln.print_finding(
+              vsn,
+              "Ecto",
+              "Missing `is_nil` requirement",
+              "TBA - https://groups.google.com/forum/#!topic/elixir-ecto/0m4NPfg_MMU"
+            )
           end
-        _ -> nil
+
+        _ ->
+          nil
       end
     end
   end

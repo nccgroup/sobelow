@@ -71,6 +71,7 @@ defmodule SobelowTest.XSS.SendRespTest do
     cond do
       length(vars) > 0 && is_html ->
         true
+
       true ->
         false
     end

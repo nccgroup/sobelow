@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.Sobelow do
   use Mix.Task
+
   @moduledoc """
   Sobelow is a static analysis tool for discovering
   vulnerabilities in Phoenix applications.
@@ -75,24 +76,26 @@ defmodule Mix.Tasks.Sobelow do
   * DOS.BinToAtom
 
   """
-  @switches [verbose: :boolean,
-             root: :string,
-             ignore: :string,
-             ignore_files: :string,
-             details: :string,
-             all_details: :boolean,
-             private: :boolean,
-             diff: :string,
-             skip: :boolean,
-             router: :string,
-             exit: :string,
-             format: :string,
-             config: :boolean,
-             save_config: :boolean,
-             quiet: :boolean,
-             compact: :boolean]
+  @switches [
+    verbose: :boolean,
+    root: :string,
+    ignore: :string,
+    ignore_files: :string,
+    details: :string,
+    all_details: :boolean,
+    private: :boolean,
+    diff: :string,
+    skip: :boolean,
+    router: :string,
+    exit: :string,
+    format: :string,
+    config: :boolean,
+    save_config: :boolean,
+    quiet: :boolean,
+    compact: :boolean
+  ]
 
-  @aliases  [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
+  @aliases [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
 
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
@@ -102,28 +105,31 @@ defmodule Mix.Tasks.Sobelow do
     conf_file = root <> "/.sobelow-conf"
     conf_file? = config && File.exists?(conf_file)
 
-    opts = if is_nil(Keyword.get(opts, :exit)) && Enum.member?(argv, "--exit") do
-      [{:exit, "low"}|opts]
-    else
-      opts
-    end
-    opts = if conf_file? do
-      {:ok, opts} = File.read!(conf_file) |> Code.string_to_quoted()
-      opts
-    else
-      opts
-    end
+    opts =
+      if is_nil(Keyword.get(opts, :exit)) && Enum.member?(argv, "--exit") do
+        [{:exit, "low"} | opts]
+      else
+        opts
+      end
 
-    {verbose, diff, details,
-        private, skip, router,
-        exit_on, format, ignored,
-        ignored_files, all_details} = get_opts(opts, root, conf_file?)
+    opts =
+      if conf_file? do
+        {:ok, opts} = File.read!(conf_file) |> Code.string_to_quoted()
+        opts
+      else
+        opts
+      end
+
+    {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
+     all_details} = get_opts(opts, root, conf_file?)
 
     set_env(:verbose, verbose)
+
     if with_code = Keyword.get(opts, :with_code) do
       Mix.Shell.IO.info("WARNING: --with-code is deprecated, please use --verbose instead.\n")
       set_env(:verbose, with_code)
     end
+
     set_env(:root, root)
     set_env(:details, details)
     set_env(:private, private)
@@ -139,12 +145,16 @@ defmodule Mix.Tasks.Sobelow do
     cond do
       diff ->
         run_diff(argv)
+
       !is_nil(save_config) ->
         Sobelow.save_config(conf_file)
+
       !is_nil(all_details) ->
         Sobelow.all_details()
+
       !is_nil(details) ->
         Sobelow.details()
+
       true ->
         Sobelow.run()
     end
@@ -159,7 +169,7 @@ defmodule Mix.Tasks.Sobelow do
     args = Enum.join(list, " ") |> to_charlist()
     diff_target = to_charlist(diff_target)
     :os.cmd('mix sobelow ' ++ args ++ ' > sobelow.tempdiff')
-    IO.puts :os.cmd('diff sobelow.tempdiff ' ++ diff_target)
+    IO.puts(:os.cmd('diff sobelow.tempdiff ' ++ diff_target))
   end
 
   def set_env(key, value) do
@@ -174,21 +184,26 @@ defmodule Mix.Tasks.Sobelow do
     diff = Keyword.get(opts, :diff, false)
     skip = Keyword.get(opts, :skip, false)
     router = Keyword.get(opts, :router)
-    exit_on = case String.downcase(Keyword.get(opts, :exit, "None")) do
-      "high" -> :high
-      "medium" -> :medium
-      "low" -> :low
-      _ -> false
-    end
-    format = cond do
-      Keyword.get(opts, :quiet) -> "quiet"
-      Keyword.get(opts, :compact) -> "compact"
-      true -> Keyword.get(opts, :format, "txt") |> String.downcase()
-    end
+
+    exit_on =
+      case String.downcase(Keyword.get(opts, :exit, "None")) do
+        "high" -> :high
+        "medium" -> :medium
+        "low" -> :low
+        _ -> false
+      end
+
+    format =
+      cond do
+        Keyword.get(opts, :quiet) -> "quiet"
+        Keyword.get(opts, :compact) -> "compact"
+        true -> Keyword.get(opts, :format, "txt") |> String.downcase()
+      end
 
     {ignored, ignored_files} =
       if conf_file? do
-        {Keyword.get(opts, :ignore, []), Keyword.get(opts, :ignore_files, []) |> Enum.map(&Path.expand(&1, root))}
+        {Keyword.get(opts, :ignore, []),
+         Keyword.get(opts, :ignore_files, []) |> Enum.map(&Path.expand(&1, root))}
       else
         ignored =
           Keyword.get(opts, :ignore, "")
@@ -203,6 +218,7 @@ defmodule Mix.Tasks.Sobelow do
         {ignored, ignored_files}
       end
 
-    {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files, all_details}
+    {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
+     all_details}
   end
 end

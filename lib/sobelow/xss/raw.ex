@@ -7,27 +7,36 @@ defmodule Sobelow.XSS.Raw do
     severity = if meta_file.is_controller?, do: false, else: :low
 
     {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
-    Enum.each vars, fn {finding, var} ->
-      Utils.add_finding(line_no, meta_file.filename, fun, fun_name,
-                        var, Utils.get_sev(params, var, severity),
-                        finding, @finding_type)
-    end
+
+    Enum.each(vars, fn {finding, var} ->
+      Utils.add_finding(
+        line_no,
+        meta_file.filename,
+        fun,
+        fun_name,
+        var,
+        Utils.get_sev(params, var, severity),
+        finding,
+        @finding_type
+      )
+    end)
   end
 
   def run(fun, meta_file, web_root, controller) do
     {vars, _, {fun_name, [{_, line_no}]}} = parse_render_def(fun)
     filename = meta_file.filename
 
-    root = if String.ends_with?(web_root, "/lib/") do
-      app_name = Sobelow.get_env(:app_name)
-      prc = web_root <> app_name <> "_web/"
-      rc = web_root <> app_name <> "/web/"
-      Enum.find([rc, prc], "", &File.exists?/1)
-    else
-      web_root
-    end
+    root =
+      if String.ends_with?(web_root, "/lib/") do
+        app_name = Sobelow.get_env(:app_name)
+        prc = web_root <> app_name <> "_web/"
+        rc = web_root <> app_name <> "/web/"
+        Enum.find([rc, prc], "", &File.exists?/1)
+      else
+        web_root
+      end
 
-    Enum.each vars, fn {finding, {template, ref_vars, vars}} ->
+    Enum.each(vars, fn {finding, {template, ref_vars, vars}} ->
       template =
         cond do
           is_atom(template) -> Atom.to_string(template) <> ".html"
@@ -36,8 +45,10 @@ defmodule Sobelow.XSS.Raw do
         end
 
       template_path = root <> "templates/" <> controller <> "/" <> template <> ".eex"
+
       if File.exists?(template_path) do
         raw_vals = Utils.get_template_vars(template_path)
+
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
@@ -52,22 +63,25 @@ defmodule Sobelow.XSS.Raw do
           end
         end)
       end
-    end
+    end)
   end
 
   def parse_render_def(fun) do
     {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
 
-    pipefuns = Utils.get_pipe_funs(fun)
-    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&Utils.get_funs_of_type(&1, :render))
+    pipefuns =
+      Utils.get_pipe_funs(fun)
+      |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+      |> Enum.flat_map(&Utils.get_funs_of_type(&1, :render))
 
-    pipevars = pipefuns
-    |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 0)})
-    |> List.flatten
+    pipevars =
+      pipefuns
+      |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 0)})
+      |> List.flatten()
 
-    vars = Utils.get_funs_of_type(fun, :render) -- pipefuns
-    |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 1)})
+    vars =
+      (Utils.get_funs_of_type(fun, :render) -- pipefuns)
+      |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 1)})
 
     {vars ++ pipevars, params, {fun_name, line_no}}
   end
@@ -85,6 +99,7 @@ defmodule Sobelow.XSS.Raw do
 
   defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity, finding) do
     type = "XSS"
+
     case Sobelow.format() do
       "json" ->
         finding = [
@@ -94,17 +109,21 @@ defmodule Sobelow.XSS.Raw do
           variable: "@#{var}",
           template: "#{t_name}"
         ]
+
         Sobelow.log_finding(finding, severity)
+
       "txt" ->
         Sobelow.log_finding(type, severity)
 
-        IO.puts Utils.finding_header(type, severity)
-        IO.puts Utils.finding_file_metadata(filename, fun_name, line_no)
-        IO.puts "Template: #{t_name} - @#{var}"
+        IO.puts(Utils.finding_header(type, severity))
+        IO.puts(Utils.finding_file_metadata(filename, fun_name, line_no))
+        IO.puts("Template: #{t_name} - @#{var}")
         if Sobelow.get_env(:verbose), do: Utils.print_code(fun, finding)
-        IO.puts Utils.finding_break()
+        IO.puts(Utils.finding_break())
+
       "compact" ->
         Utils.log_compact_finding(type, filename, line_no, severity)
+
       _ ->
         Sobelow.log_finding(type, severity)
     end

@@ -17,15 +17,22 @@ defmodule Sobelow.RCE.EEx do
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low
 
-    Enum.each @eex_funs, fn eex_fun ->
+    Enum.each(@eex_funs, fn eex_fun ->
       {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun, eex_fun)
 
-      Enum.each findings, fn {finding, var} ->
-        Utils.add_finding(line_no, meta_file.filename, fun, fun_name,
-                          var, Utils.get_sev(params, var, severity),
-                          finding, "Code Execution in `EEx.#{eex_fun}`")
-      end
-    end
+      Enum.each(findings, fn {finding, var} ->
+        Utils.add_finding(
+          line_no,
+          meta_file.filename,
+          fun,
+          fun_name,
+          var,
+          Utils.get_sev(params, var, severity),
+          finding,
+          "Code Execution in `EEx.#{eex_fun}`"
+        )
+      end)
+    end)
   end
 
   def parse_def(fun, eex_fun) do
