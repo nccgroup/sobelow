@@ -227,6 +227,9 @@ defmodule Sobelow.Utils do
   end
 
   def log_json_finding(line_no, filename, fun_name, var, severity, type) do
+    # The function name may be a tuple in instances where meta-programming is used.
+    fun_name = if is_tuple(fun_name), do: Macro.to_string(fun_name), else: fun_name
+
     finding = [
       type: type,
       file: filename,
