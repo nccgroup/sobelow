@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.7
+
+  * Enhancements
+    * Remove banner print from JSON format.
+
+  * Bug Fixes
+    * Fix error that occurred with certain function names in JSON format.
+
 ## v0.6.6
 
   * Enhancements
