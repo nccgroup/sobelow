@@ -353,6 +353,23 @@ defmodule Sobelow.Utils do
 
   def get_meta_funs(ast, acc), do: {ast, acc}
 
+  def get_meta_template_funs(filepath) do
+    ast = EEx.compile_string(File.read!(filepath))
+    get_meta_template_fun(ast)
+  end
+
+  def get_meta_template_fun(ast) do
+    init_acc = %{raw: []}
+    {_, acc} = Macro.prewalk(ast, init_acc, &get_meta_template_fun(&1, &2))
+    acc
+  end
+
+  def get_meta_template_fun({:raw, _, _} = ast, acc) do
+    {ast, Map.update!(acc, :raw, &[ast | &1])}
+  end
+
+  def get_meta_template_fun(ast, acc), do: {ast, acc}
+
   def get_fun_vars_and_meta(fun, idx, type, module \\ nil) do
     {params, {fun_name, line_no}} = get_fun_declaration(fun)
 
@@ -784,6 +801,14 @@ defmodule Sobelow.Utils do
     end
   end
 
+  def template_files(filepath, _directory \\ "") do
+    if File.dir?(filepath) do
+      Path.wildcard(filepath <> "/**/*.html.eex")
+    else
+      []
+    end
+  end
+
   # Setup Utils
   def get_app_name(filepath) do
     if File.exists?(filepath) do
@@ -919,10 +944,11 @@ defmodule Sobelow.Utils do
 
   # XSS Utils
 
-  def get_template_vars(filepath) do
-    ast = EEx.compile_string(File.read!(filepath))
-    {_, acc} = Macro.prewalk(ast, [], &extract_template_vars(&1, &2))
-    acc
+  def get_template_vars(raw_funs) do
+    Enum.flat_map(raw_funs, fn ast ->
+      {_, acc} = Macro.prewalk(ast, [], &extract_template_vars(&1, &2))
+      acc
+    end)
   end
 
   defp extract_template_vars({:raw, _, [{_, _, [_, raw]}]} = ast, acc) do

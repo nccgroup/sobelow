@@ -25,6 +25,7 @@ defmodule Sobelow.XSS.Raw do
   def run(fun, meta_file, web_root, controller) do
     {vars, _, {fun_name, [{_, line_no}]}} = parse_render_def(fun)
     filename = meta_file.filename
+    templates = Sobelow.MetaLog.get_templates()
 
     root =
       if String.ends_with?(web_root, "/lib/") do
@@ -45,9 +46,10 @@ defmodule Sobelow.XSS.Raw do
         end
 
       template_path = root <> "templates/" <> controller <> "/" <> template <> ".eex"
+      raw_funs = templates[Utils.normalize_path(template_path)]
 
-      if File.exists?(template_path) do
-        raw_vals = Utils.get_template_vars(template_path)
+      if raw_funs do
+        raw_vals = Utils.get_template_vars(raw_funs.raw)
 
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do

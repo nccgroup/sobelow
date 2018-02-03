@@ -20,6 +20,7 @@ defmodule Sobelow do
   alias Sobelow.Config
   alias Sobelow.Vuln
   alias Sobelow.FindingLog
+  alias Sobelow.MetaLog
   alias Mix.Shell.IO, as: MixIO
   # Remove directory structure check for release candidate
   # prior to 1.0
@@ -49,6 +50,7 @@ defmodule Sobelow do
     # off the test pipeline to avoid dumping warning
     # messages into the findings output.
     root_meta_files = get_meta_files(root)
+    template_meta_files = get_meta_templates(root)
 
     # If web_root ends with the app_name, then it is the
     # more recent version of Phoenix. Meaning, all files are
@@ -61,6 +63,9 @@ defmodule Sobelow do
     libroot_meta_files = if !phx_post_1_2?, do: get_meta_files(lib_root), else: []
 
     FindingLog.start_link()
+    MetaLog.start_link()
+
+    MetaLog.add_templates(template_meta_files)
 
     # This is where the core testing-pipeline starts.
     #
@@ -242,6 +247,25 @@ defmodule Sobelow do
     end
   end
 
+  defp get_meta_templates(root) do
+    ignored_files = get_env(:ignored_files)
+
+    Utils.template_files(root)
+    |> Enum.reject(&is_ignored_file(&1, ignored_files))
+    |> Enum.map(&get_template_meta/1)
+    |> Map.new()
+  end
+
+  defp get_template_meta(filename) do
+    meta_funs = Utils.get_meta_template_funs(filename)
+    raw = meta_funs.raw
+
+    {
+      Utils.normalize_path(filename),
+      %{raw: raw}
+    }
+  end
+
   defp get_meta_files(root) do
     ignored_files = get_env(:ignored_files)
 
@@ -269,14 +293,13 @@ defmodule Sobelow do
       |> Enum.map(&get_mod/1)
 
     Enum.each(mods -- skip_mods, fn mod ->
-      apply(mod, :get_vulns, [fun, meta_file, web_root, skip_mods])
+      params = [fun, meta_file, web_root, skip_mods]
+      apply(mod, :get_vulns, params)
     end)
   end
 
   defp get_fun_vulns(fun, meta_file, web_root, mods) do
-    Enum.each(mods, fn mod ->
-      apply(mod, :get_vulns, [fun, meta_file, web_root])
-    end)
+    get_fun_vulns({fun, []}, meta_file, web_root, mods)
   end
 
   defp combine_skips([]), do: []
