@@ -407,21 +407,21 @@ defmodule Sobelow.Utils do
   defp get_funs_from_pipe(fun, type, nil) do
     get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&get_funs_of_type(&1, type))
+    |> Enum.flat_map(&get_piped_funs_of_type(&1, type))
     |> Enum.uniq()
   end
 
   defp get_funs_from_pipe(fun, type, module) do
     get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&get_aliased_funs_of_type(&1, type, module))
+    |> Enum.flat_map(&get_piped_aliased_funs_of_type(&1, type, module))
     |> Enum.uniq()
   end
 
   def get_erlang_funs_from_pipe(fun, type, module) do
     get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-    |> Enum.flat_map(&get_erlang_aliased_funs_of_type(&1, type, module))
+    |> Enum.flat_map(&get_piped_erlang_aliased_funs_of_type(&1, type, module))
     |> Enum.uniq()
   end
 
@@ -481,6 +481,16 @@ defmodule Sobelow.Utils do
   def get_erlang_aliased_funs_of_type(ast, type, module) do
     {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type, module))
     acc
+  end
+
+  def get_piped_erlang_aliased_funs_of_type(ast, type, module) do
+    case ast do
+      {{:., _, [^module, ^type]}, _, _} ->
+        [ast]
+
+      _ ->
+        []
+    end
   end
 
   def get_funs_by_module(ast, module) do
@@ -579,6 +589,30 @@ defmodule Sobelow.Utils do
     {ast, acc}
   end
 
+  def get_piped_aliased_funs_of_type(ast, type, module) when is_list(module) do
+    case ast do
+      {{:., _, [{:__aliases__, _, ^module}, ^type]}, _, _} ->
+        [ast]
+
+      _ ->
+        []
+    end
+  end
+
+  def get_piped_aliased_funs_of_type(ast, type, module) do
+    case ast do
+      {{:., _, [{:__aliases__, _, aliases}, ^type]}, _, _} ->
+        if List.last(aliases) === module do
+          [ast]
+        else
+          []
+        end
+
+      _ ->
+        []
+    end
+  end
+
   def get_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, type))
     acc
@@ -602,6 +636,16 @@ defmodule Sobelow.Utils do
   end
 
   def get_funs_of_type(ast, acc, _type), do: {ast, acc}
+
+  def get_piped_funs_of_type(ast, type) do
+    case ast do
+      {^type, _, _} ->
+        [ast]
+
+      _ ->
+        []
+    end
+  end
 
   defp create_fun_cap(fun, meta, idx) do
     opts = Enum.map(1..idx, fn i -> {:&, [], [i]} end)
