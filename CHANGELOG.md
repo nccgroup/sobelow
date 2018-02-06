@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.6.8
+
+  * Bug Fixes
+    * Fix bug in the handling of certain piped functions.
+    * Revert not/in update that broke Elixir 1.4 compatibility.
+
 ## v0.6.7
 
   * Enhancements
