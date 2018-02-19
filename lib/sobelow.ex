@@ -94,6 +94,13 @@ defmodule Sobelow do
       |> Enum.each(&get_fun_vulns(&1, meta_file, "", allowed))
     end)
 
+    # Future template handling will look something like this.
+    # XSS checks should be fully handled earlier, and excluded from
+    # the second template pass.
+    # Enum.each(template_meta_files, fn {_, meta_file} ->
+    #   get_fun_vulns(meta_file.ast, meta_file, root, allowed)
+    # end)
+
     if format() != "txt" do
       print_output()
     else
@@ -259,10 +266,17 @@ defmodule Sobelow do
   defp get_template_meta(filename) do
     meta_funs = Utils.get_meta_template_funs(filename)
     raw = meta_funs.raw
+    ast = meta_funs.ast
+    filename = Utils.normalize_path(filename)
 
     {
-      Utils.normalize_path(filename),
-      %{raw: raw}
+      filename,
+      %{
+        filename: filename,
+        raw: raw,
+        ast: [ast],
+        is_controller?: false
+      }
     }
   end
 

@@ -168,6 +168,14 @@ defmodule Sobelow.Utils do
   end
 
   def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
+    line_no = 
+      if String.ends_with?(filename, ".eex") do
+        {_, [line: line], _} = finding
+        line
+      else
+        line_no
+      end
+
     case Sobelow.format() do
       "json" ->
         log_json_finding(line_no, filename, fun_name, var, severity, type)
@@ -247,6 +255,10 @@ defmodule Sobelow.Utils do
 
   def finding_file_metadata(filename, {:unquote, _, _} = fun_name, line_no) do
     finding_file_metadata(filename, Macro.to_string(fun_name), line_no)
+  end
+
+  def finding_file_metadata(filename, "", line_no) do
+    "File: #{filename} - #{line_no}"
   end
 
   def finding_file_metadata(filename, fun_name, line_no) do
@@ -359,7 +371,7 @@ defmodule Sobelow.Utils do
   end
 
   def get_meta_template_fun(ast) do
-    init_acc = %{raw: []}
+    init_acc = %{raw: [], ast: ast}
     {_, acc} = Macro.prewalk(ast, init_acc, &get_meta_template_fun(&1, &2))
     acc
   end
@@ -740,8 +752,7 @@ defmodule Sobelow.Utils do
   defp parse_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
   defp parse_opts(_), do: []
 
-  def get_fun_declaration(fun) do
-    {_, _, fun_opts} = fun
+  def get_fun_declaration({_,_,fun_opts}) do
     [definition | _] = fun_opts
 
     declaration =
@@ -754,6 +765,10 @@ defmodule Sobelow.Utils do
     {fun_name, line_no, _} = declaration
 
     {params, {fun_name, line_no}}
+  end
+
+  def get_fun_declaration(_) do
+    {[], {"", [{"", ""}]}}
   end
 
   ## Get function parameters.
