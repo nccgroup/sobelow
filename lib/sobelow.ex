@@ -74,7 +74,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    if not format() in ["quiet", "compact", "json"], do: IO.puts(:stderr, print_banner())
+    if not (format() in ["quiet", "compact", "json"]), do: IO.puts(:stderr, print_banner())
     Application.put_env(:sobelow, :app_name, app_name)
 
     if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
@@ -97,6 +97,11 @@ defmodule Sobelow do
     # Future template handling will look something like this.
     # XSS checks should be fully handled earlier, and excluded from
     # the second template pass.
+    # template_meta_files = MetaLog.get_templates()
+    # Enum.each template_meta_files, fn {_, meta_file} ->
+    #   Sobelow.XSS.get_raw_template_vulns(meta_file)
+    # end
+    #
     # Enum.each(template_meta_files, fn {_, meta_file} ->
     #   get_fun_vulns(meta_file.ast, meta_file, root, allowed)
     # end)

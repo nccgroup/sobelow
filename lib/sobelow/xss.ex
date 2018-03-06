@@ -37,6 +37,17 @@ defmodule Sobelow.XSS do
     end)
   end
 
+  def get_raw_template_vulns(meta_file) do
+    allowed = @submodules -- Sobelow.get_ignored()
+    funs = meta_file.raw
+
+    if Enum.member?(allowed, Raw) do
+      Enum.each(funs, fn fun ->
+        apply(Raw, :run, [[fun], meta_file, nil, nil])
+      end)
+    end
+  end
+
   def details() do
     IO.ANSI.Docs.print(@moduledoc)
   end

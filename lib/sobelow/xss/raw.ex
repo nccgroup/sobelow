@@ -45,14 +45,18 @@ defmodule Sobelow.XSS.Raw do
           true -> ""
         end
 
-      template_path = root <> "templates/" <> controller <> "/" <> template <> ".eex"
-      raw_funs = templates[Utils.normalize_path(template_path)]
+      template_path =
+        (root <> "templates/" <> controller <> "/" <> template <> ".eex")
+        |> Utils.normalize_path()
+
+      raw_funs = templates[template_path]
 
       if raw_funs do
         raw_vals = Utils.get_template_vars(raw_funs.raw)
 
         Enum.each(ref_vars, fn var ->
           if Enum.member?(raw_vals, var) do
+            Sobelow.MetaLog.delete_raw(var, template_path)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
             add_finding(t_name, line_no, filename, fun_name, fun, var, :high, finding)
           end
@@ -60,6 +64,7 @@ defmodule Sobelow.XSS.Raw do
 
         Enum.each(vars, fn var ->
           if Enum.member?(raw_vals, var) do
+            Sobelow.MetaLog.delete_raw(var, template_path)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
             add_finding(t_name, line_no, filename, fun_name, fun, var, :medium, finding)
           end

@@ -168,13 +168,15 @@ defmodule Sobelow.Utils do
   end
 
   def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
-    line_no = 
+    line_no =
       if String.ends_with?(filename, ".eex") do
         {_, [line: line], _} = finding
         line
       else
         line_no
       end
+
+    fun = if is_list(fun), do: List.first(fun), else: fun
 
     case Sobelow.format() do
       "json" ->
@@ -752,7 +754,7 @@ defmodule Sobelow.Utils do
   defp parse_opts(opts) when is_list(opts), do: Enum.map(opts, &parse_opts/1)
   defp parse_opts(_), do: []
 
-  def get_fun_declaration({_,_,fun_opts}) do
+  def get_fun_declaration({_, _, fun_opts}) do
     [definition | _] = fun_opts
 
     declaration =
@@ -799,7 +801,7 @@ defmodule Sobelow.Utils do
   end
 
   def get_pipe_val({:|>, _, [{fun, _, funopts} = opts, maybe_pipe]} = ast, acc, pipe)
-      when not fun in [:|>] do
+      when not (fun in [:|>]) do
     {_, match_pipe} = Macro.prewalk(maybe_pipe, [], &get_match(&1, &2, pipe))
     {_, match_opts} = Macro.prewalk(opts, [], &get_match(&1, &2, pipe))
 
