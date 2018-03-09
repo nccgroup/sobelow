@@ -76,6 +76,19 @@ defmodule Sobelow.Utils do
     IO.puts(IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset())
   end
 
+  def print_code({:raw, _, _} = fun, _) do
+    func_string =
+      Macro.to_string(fun, fn ast, string ->
+        case normalize_raw(ast) do
+          nil -> string
+          raw -> IO.ANSI.light_magenta() <> raw <> IO.ANSI.reset()
+        end
+      end)
+
+    IO.puts("\n")
+    IO.puts(func_string)
+  end
+
   def print_code(fun, find) do
     acc = ""
 
@@ -133,6 +146,14 @@ defmodule Sobelow.Utils do
       string
     end
   end
+
+  defp normalize_raw(
+         {{_, _, [{_, _, [:EEx, :Engine]}, _]}, _, [{:var!, _, [{:assigns, _, _}]}, key]}
+       ) do
+    "@#{key}"
+  end
+
+  defp normalize_raw(_), do: nil
 
   def is_fun_with_var?(fun, var) do
     {_, acc} = Macro.prewalk(fun, [], &is_fun_var/2)
