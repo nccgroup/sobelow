@@ -58,6 +58,10 @@ defmodule Sobelow.Utils do
     has_use_type?(uses, :controller)
   end
 
+  def is_router?(uses) do
+    has_use_type?(uses, :router)
+  end
+
   def has_use_type?([{:use, _, [_, type]} | _], type), do: true
   def has_use_type?([_ | t], type), do: has_use_type?(t, type)
   def has_use_type?(_, _), do: false
@@ -878,7 +882,15 @@ defmodule Sobelow.Utils do
       Path.wildcard(filepath <> "/**/*.ex")
       |> Enum.reject(&String.contains?(&1, "/mix/tasks/"))
     else
-      IO.puts(:stderr, "WARNING: Could not read web directory.\n")
+      warning = """
+      WARNING: Web directory was not found in the expected location.
+      This may be a result of non-standard directory structure, or use
+      of an umbrella project. All files in the "lib" directory were
+      scanned for vulnerabilities.
+      """
+
+      IO.puts(:stderr, warning)
+
       []
     end
   end

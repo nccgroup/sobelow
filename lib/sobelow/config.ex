@@ -28,8 +28,13 @@ defmodule Sobelow.Config do
         |> Enum.filter(&want_to_scan?(dir_path <> &1, ignored_files))
 
       Enum.each(allowed, fn mod ->
-        path = if mod in [CSRF, Headers, CSP], do: router, else: dir_path
-        apply(mod, :run, [path, configs])
+        if mod in [CSRF, Headers, CSP] do
+          Enum.each(router, fn path ->
+            apply(mod, :run, [path, configs])
+          end)
+        else
+          apply(mod, :run, [dir_path, configs])
+        end
       end)
     end
   end

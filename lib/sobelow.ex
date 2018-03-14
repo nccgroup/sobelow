@@ -40,9 +40,6 @@ defmodule Sobelow do
         lib_root
       end
 
-    router = get_router(app_name, web_root)
-    if !File.exists?(router), do: no_router()
-
     ignored = get_ignored()
     allowed = @submodules -- ignored
 
@@ -62,6 +59,10 @@ defmodule Sobelow do
 
     libroot_meta_files = if !phx_post_1_2?, do: get_meta_files(lib_root), else: []
 
+    default_router = get_router(app_name, web_root)
+    routers = get_routers(root_meta_files ++ libroot_meta_files, default_router)
+    if Enum.empty?(routers), do: no_router()
+
     FindingLog.start_link()
     MetaLog.start_link()
 
@@ -77,7 +78,7 @@ defmodule Sobelow do
     if not (format() in ["quiet", "compact", "json"]), do: IO.puts(:stderr, print_banner())
     Application.put_env(:sobelow, :app_name, app_name)
 
-    if Enum.member?(allowed, Config), do: Config.fetch(project_root, router)
+    if Enum.member?(allowed, Config), do: Config.fetch(project_root, routers)
     if Enum.member?(allowed, Vuln), do: Vuln.get_vulns(project_root)
 
     allowed = allowed -- [Config, Vuln]
@@ -257,6 +258,23 @@ defmodule Sobelow do
       "" -> web_root <> router_path
       router -> router
     end
+    |> Path.expand()
+  end
+
+  defp get_routers(meta_files, router) do
+    routers =
+      Enum.flat_map(meta_files, fn meta_file ->
+        case meta_file.is_router? do
+          true -> [meta_file.file_path]
+          _ -> []
+        end
+      end)
+
+    if File.exists?(router) do
+      Enum.uniq(routers ++ [router])
+    else
+      routers
+    end
   end
 
   defp get_meta_templates(root) do
@@ -301,8 +319,10 @@ defmodule Sobelow do
 
     %{
       filename: Utils.normalize_path(filename),
+      file_path: Path.expand(filename),
       def_funs: def_funs,
-      is_controller?: Utils.is_controller?(use_funs)
+      is_controller?: Utils.is_controller?(use_funs),
+      is_router?: Utils.is_router?(use_funs)
     }
   end
 
