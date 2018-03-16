@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.6.9
+
+  * Enhancements
+    * Improve template parsing and validation.
+    * Support multiple routers, and improve route discovery.
+
+  * Misc.
+    * Update language for missing directory.
+
 ## v0.6.8
 
   * Bug Fixes
