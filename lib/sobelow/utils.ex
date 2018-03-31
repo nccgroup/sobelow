@@ -754,6 +754,10 @@ defmodule Sobelow.Utils do
     val
   end
 
+  defp parse_opts({{:., _, [{_, _, [:EEx, :Engine]}, _]}, _, [_, var]}) do
+    "@#{var}"
+  end
+
   defp parse_opts({{:., _, [{:__aliases__, _, module}, _func]}, _, _}) do
     Module.concat(module)
   end
