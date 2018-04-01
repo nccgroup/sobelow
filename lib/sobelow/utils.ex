@@ -754,7 +754,7 @@ defmodule Sobelow.Utils do
     val
   end
 
-  defp parse_opts({{:., _, [{_, _, [:EEx, :Engine]}, _]}, _, [_, var]}) do
+  defp parse_opts({{:., _, _}, _, [{:var!, _, [{:assigns, _, EEx.Engine}]}, var]}) do
     "@#{var}"
   end
 
