@@ -37,7 +37,7 @@ defmodule Sobelow.XSS do
     end)
   end
 
-  def get_raw_template_vulns(meta_file) do
+  def get_template_vulns(meta_file) do
     allowed = @submodules -- Sobelow.get_ignored()
     funs = meta_file.raw
 

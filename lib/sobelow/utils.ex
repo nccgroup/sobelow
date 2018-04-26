@@ -72,25 +72,9 @@ defmodule Sobelow.Utils do
     |> String.replace_prefix("/", "")
   end
 
-  # This should be about as big as it gets, and is still fairly simple
-  # to understand. If it gets much more convoluted, an alternate
-  # solution should be explored.
   def print_code(fun, :highlight_all) do
     IO.puts("\n")
     IO.puts(IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset())
-  end
-
-  def print_code({:raw, _, _} = fun, _) do
-    func_string =
-      Macro.to_string(fun, fn ast, string ->
-        case normalize_raw(ast) do
-          nil -> string
-          raw -> IO.ANSI.light_magenta() <> raw <> IO.ANSI.reset()
-        end
-      end)
-
-    IO.puts("\n")
-    IO.puts(func_string)
   end
 
   def print_code(fun, find) do
@@ -151,14 +135,6 @@ defmodule Sobelow.Utils do
     end
   end
 
-  defp normalize_raw(
-         {{_, _, [{_, _, [:EEx, :Engine]}, _]}, _, [{:var!, _, [{:assigns, _, _}]}, key]}
-       ) do
-    "@#{key}"
-  end
-
-  defp normalize_raw(_), do: nil
-
   def is_fun_with_var?(fun, var) do
     {_, acc} = Macro.prewalk(fun, [], &is_fun_var/2)
     if Enum.member?(acc, var), do: true, else: false
@@ -193,12 +169,13 @@ defmodule Sobelow.Utils do
   end
 
   def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
+    is_template? = String.ends_with?(filename, ".eex")
     line_no =
-      if String.ends_with?(filename, ".eex") do
-        {_, [line: line], _} = finding
-        line
-      else
-        line_no
+      cond do
+        is_template? ->
+          {_, [line: line], _} = finding
+          line
+        true -> line_no
       end
 
     fun = if is_list(fun), do: List.first(fun), else: fun
@@ -403,6 +380,10 @@ defmodule Sobelow.Utils do
     acc
   end
 
+  # This is some minor code duplication, but feels worth it
+  def get_meta_template_fun({:|>, _, [_, {:raw, _, _}]} = ast, acc) do
+    {ast, Map.update!(acc, :raw, &[ast | &1])}
+  end
   def get_meta_template_fun({:raw, _, _} = ast, acc) do
     {ast, Map.update!(acc, :raw, &[ast | &1])}
   end
