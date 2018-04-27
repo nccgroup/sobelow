@@ -100,7 +100,7 @@ defmodule Sobelow do
     # the second template pass.
     template_meta_files = MetaLog.get_templates()
     Enum.each template_meta_files, fn {_, meta_file} ->
-      Sobelow.XSS.get_template_vulns(meta_file)
+      if Sobelow.XSS in allowed, do: Sobelow.XSS.get_template_vulns(meta_file)
     end
 
     # Enum.each(template_meta_files, fn {_, meta_file} ->
