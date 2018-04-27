@@ -1025,16 +1025,14 @@ defmodule Sobelow.Utils do
 
   def get_template_vars(raw_funs) do
     Enum.flat_map(raw_funs, fn ast ->
-      {_, acc} = Macro.prewalk(ast, [], &extract_template_vars(&1, &2))
-      acc
+      {vars, _, _} = get_fun_vars_and_meta([ast], 0, :raw)
+      {aliased, _, _} = get_fun_vars_and_meta([ast], 0, :raw, :HTML)
+
+      Enum.flat_map(vars ++ aliased, fn {_, var} ->
+        var
+      end)
     end)
   end
-
-  defp extract_template_vars({:raw, _, [{_, _, [_, raw]}]} = ast, acc) do
-    {ast, [raw | acc]}
-  end
-
-  defp extract_template_vars(ast, acc), do: {ast, acc}
 
   def is_content_type_html({:put_resp_content_type, _, opts}) do
     Enum.filter(opts, &is_binary/1)

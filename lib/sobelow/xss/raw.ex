@@ -55,6 +55,7 @@ defmodule Sobelow.XSS.Raw do
         raw_vals = Utils.get_template_vars(raw_funs.raw)
 
         Enum.each(ref_vars, fn var ->
+          var = "@#{var}"
           if Enum.member?(raw_vals, var) do
             Sobelow.MetaLog.delete_raw(var, template_path)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
@@ -63,6 +64,7 @@ defmodule Sobelow.XSS.Raw do
         end)
 
         Enum.each(vars, fn var ->
+          var = "@#{var}"
           if Enum.member?(raw_vals, var) do
             Sobelow.MetaLog.delete_raw(var, template_path)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
@@ -124,7 +126,7 @@ defmodule Sobelow.XSS.Raw do
 
         IO.puts(Utils.finding_header(type, severity))
         IO.puts(Utils.finding_file_metadata(filename, fun_name, line_no))
-        IO.puts("Template: #{t_name} - @#{var}")
+        IO.puts("Template: #{t_name} - #{var}")
         if Sobelow.get_env(:verbose), do: Utils.print_code(fun, finding)
         IO.puts(Utils.finding_break())
 
