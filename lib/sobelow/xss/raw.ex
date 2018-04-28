@@ -56,6 +56,7 @@ defmodule Sobelow.XSS.Raw do
 
         Enum.each(ref_vars, fn var ->
           var = "@#{var}"
+
           if Enum.member?(raw_vals, var) do
             Sobelow.MetaLog.delete_raw(var, template_path)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")
@@ -65,6 +66,7 @@ defmodule Sobelow.XSS.Raw do
 
         Enum.each(vars, fn var ->
           var = "@#{var}"
+
           if Enum.member?(raw_vals, var) do
             Sobelow.MetaLog.delete_raw(var, template_path)
             t_name = String.replace_prefix(Path.expand(template_path, ""), "/", "")

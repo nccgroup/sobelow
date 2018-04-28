@@ -99,9 +99,10 @@ defmodule Sobelow do
     # XSS checks should be fully handled earlier, and excluded from
     # the second template pass.
     template_meta_files = MetaLog.get_templates()
-    Enum.each template_meta_files, fn {_, meta_file} ->
+
+    Enum.each(template_meta_files, fn {_, meta_file} ->
       if Sobelow.XSS in allowed, do: Sobelow.XSS.get_template_vulns(meta_file)
-    end
+    end)
 
     # Enum.each(template_meta_files, fn {_, meta_file} ->
     #   get_fun_vulns(meta_file.ast, meta_file, root, allowed)
