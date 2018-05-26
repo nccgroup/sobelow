@@ -25,8 +25,9 @@ red, medium confidence is yellow, and low confidence is green.
 A finding is typically marked "low confidence" if it looks 
 like a function could be used insecurely, but it cannot 
 reliably be determined if the function accepts user-supplied 
-input. That is to say, green findings are not secure, they 
-just require greater manual validation.
+input. That is to say, if a finding is marked green, it may be 
+critically insecure, but it will require greater manual 
+validation. 
 
 **Note:** This project is in constant development, and 
 additional vulnerabilities will be flagged as time goes on. 
