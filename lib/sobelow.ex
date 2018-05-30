@@ -95,9 +95,6 @@ defmodule Sobelow do
       |> Enum.each(&get_fun_vulns(&1, meta_file, "", allowed))
     end)
 
-    # Future template handling will look something like this.
-    # XSS checks should be fully handled earlier, and excluded from
-    # the second template pass.
     template_meta_files = MetaLog.get_templates()
 
     Enum.each(template_meta_files, fn {_, meta_file} ->

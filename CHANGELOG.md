@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.7.0
+
+  * Enhancements
+    * Improved handling of vulnerabilities within templates.
+
+  * Bug Fixes
+    * Sobelow no longer incorrectly flags :binary `send_download` functions.
+
 ## v0.6.9
 
   * Enhancements
