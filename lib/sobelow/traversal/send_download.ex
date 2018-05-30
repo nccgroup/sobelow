@@ -39,6 +39,7 @@ defmodule Sobelow.Traversal.SendDownload do
   end
 
   defp download_type_binary?({:send_download, _, opts}), do: type_binary?(opts)
+  defp type_binary?([_, {:binary, _}, _]), do: true
   defp type_binary?([_, {:binary, _}]), do: true
   defp type_binary?([{:binary, _}]), do: true
   defp type_binary?(_), do: false
