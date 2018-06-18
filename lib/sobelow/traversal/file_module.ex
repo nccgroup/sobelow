@@ -1,9 +1,27 @@
 defmodule Sobelow.Traversal.FileModule do
   alias Sobelow.Utils
   use Sobelow.Finding
-  @file_funcs [:read, :read!, :write, :write!, :rm, :rm!, :rm_rf]
 
-  @double_file_funcs [:cp, :cp!, :cp_r, :cp_r!, :ln, :ln!, :ln_s, :ln_s!]
+  @file_funcs [
+    :read,
+    :read!,
+    :write,
+    :write!,
+    :rm,
+    :rm!,
+    :rm_rf,
+    :open,
+    :open!,
+    :chmod,
+    :chmod!,
+    :chown,
+    :chown!,
+    :mkdir,
+    :mkdir!,
+    :mkdir_p,
+    :mkdir_p!
+  ]
+  @double_file_funcs [:cp, :copy, :cp!, :copy!, :cp_r, :cp_r!, :ln, :ln!, :ln_s, :ln_s!]
 
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low
