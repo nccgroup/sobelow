@@ -34,7 +34,11 @@ defmodule Sobelow.FindingLog do
       %{
         sobelow_version: vsn,
         total_findings: length(highs) + length(meds) + length(lows),
-        findings: [high_confidence: highs, medium_confidence: meds, low_confidence: lows]
+        findings: %{
+          high_confidence: highs,
+          medium_confidence: meds,
+          low_confidence: lows
+        }
       },
       pretty: true
     )
