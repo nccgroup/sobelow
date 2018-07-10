@@ -1,6 +1,8 @@
 defmodule Sobelow.FindingLog do
   use GenServer
 
+  alias Poison, as: JSON
+
   @json_template """
   {
     "sobelow_version": "<%= @version %>",
@@ -30,7 +32,7 @@ defmodule Sobelow.FindingLog do
   def json(vsn) do
     %{high: highs, medium: meds, low: lows} = log()
 
-    Poison.encode!(
+    JSON.encode!(
       %{
         sobelow_version: vsn,
         total_findings: length(highs) + length(meds) + length(lows),
