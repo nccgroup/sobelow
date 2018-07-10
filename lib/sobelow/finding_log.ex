@@ -1,22 +1,6 @@
 defmodule Sobelow.FindingLog do
   use GenServer
 
-  alias Poison, as: JSON
-
-  @json_template """
-  {
-    "sobelow_version": "<%= @version %>",
-    "total_findings": "<%= @total_findings %>",
-    "findings": {<%= for {confidence, items} <- @findings do %>
-      "<%= confidence %>": [<% last = List.last(items) %><%= for item <- items do %>
-        {<% {lk, _} = List.last(item) %><%= for {k, v} <- item do %>
-          "<%= k %>": "<%= v %>"<%= if lk != k do %>,<% end %><% end %>
-        }<%= if last != item do %>,<% end %><% end %>
-      ]<%= if confidence != :low_confidence do %>,<% end %><% end %>
-    }
-  }
-  """
-
   def start_link() do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
@@ -32,18 +16,11 @@ defmodule Sobelow.FindingLog do
   def json(vsn) do
     %{high: highs, medium: meds, low: lows} = log()
 
-    JSON.encode!(
-      %{
-        sobelow_version: vsn,
-        total_findings: length(highs) + length(meds) + length(lows),
-        findings: %{
-          high_confidence: highs,
-          medium_confidence: meds,
-          low_confidence: lows
-        }
-      },
-      pretty: true
-    )
+    format_json(%{
+      findings: %{high_confidence: highs, medium_confidence: meds, low_confidence: lows},
+      total_findings: length(highs) + length(meds) + length(lows),
+      version: vsn
+    })
   end
 
   def quiet() do
@@ -70,4 +47,28 @@ defmodule Sobelow.FindingLog do
   def handle_call(:log, _from, findings) do
     {:reply, findings, findings}
   end
+
+  def format_json(map) when is_map(map) do
+    map
+    |> Enum.map(fn {k, v} -> "\"#{k}\": #{format_json(v)}" end)
+    |> Enum.join(",\n")
+    |> interpolate("{\n", "\n}")
+  end
+
+  def format_json(l) when is_list(l) do
+    l
+    |> Enum.map(&format_json/1)
+    |> Enum.join(",\n")
+    |> interpolate("[\n", "\n]")
+  end
+
+  def format_json(true), do: "true"
+  def format_json(nil), do: "null"
+  def format_json(false), do: "false"
+  def format_json(atom) when is_atom(atom), do: "\"#{atom}\""
+  def format_json(str) when is_binary(str), do: "\"#{str}\""
+
+  def format_json(v), do: to_string(v)
+
+  defp interpolate(val, f, l), do: f <> val <> l
 end
