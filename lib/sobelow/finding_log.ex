@@ -58,7 +58,7 @@ defmodule Sobelow.FindingLog do
     |> Enum.map(fn {k, v} -> "\"#{k}\": #{format_json(v, level + 1)}" end)
     |> Enum.map(&indent(&1, level + 1))
     |> Enum.join(",\n")
-    |> interpolate("{\n", indent("\n}", level))
+    |> interpolate("{\n", "\n" <> indent("}", level))
   end
 
   def format_json(l, level) when is_list(l) do
@@ -66,7 +66,7 @@ defmodule Sobelow.FindingLog do
     |> Enum.map(&format_json(&1, level + 1))
     |> Enum.map(&indent(&1, level + 1))
     |> Enum.join(",\n")
-    |> interpolate("[\n", indent("\n]", level))
+    |> interpolate("[\n", "\n" <> indent("]", level))
   end
 
   def format_json(true, _), do: "true"
