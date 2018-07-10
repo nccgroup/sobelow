@@ -30,13 +30,13 @@ defmodule Sobelow.FindingLog do
   def json(vsn) do
     %{high: highs, medium: meds, low: lows} = log()
 
-    EEx.eval_string(
-      @json_template,
-      assigns: [
-        findings: [high_confidence: highs, medium_confidence: meds, low_confidence: lows],
+    Poison.encode!(
+      %{
+        sobelow_version: vsn,
         total_findings: length(highs) + length(meds) + length(lows),
-        version: vsn
-      ]
+        findings: [high_confidence: highs, medium_confidence: meds, low_confidence: lows]
+      },
+      pretty: true
     )
   end
 
