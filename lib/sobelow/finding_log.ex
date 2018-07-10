@@ -15,6 +15,9 @@ defmodule Sobelow.FindingLog do
 
   def json(vsn) do
     %{high: highs, medium: meds, low: lows} = log()
+    highs = normalize(highs)
+    meds = normalize(meds)
+    lows = normalize(lows)
 
     format_json(%{
       findings: %{high_confidence: highs, medium_confidence: meds, low_confidence: lows},
@@ -69,6 +72,8 @@ defmodule Sobelow.FindingLog do
   def format_json(str) when is_binary(str), do: "\"#{str}\""
 
   def format_json(v), do: to_string(v)
+
+  defp normalize(l), do: l |> Enum.map(&Map.new/1)
 
   defp interpolate(val, f, l), do: f <> val <> l
 end
