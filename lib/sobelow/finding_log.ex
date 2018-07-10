@@ -79,7 +79,7 @@ defmodule Sobelow.FindingLog do
 
   defp normalize(l), do: l |> Enum.map(&Map.new/1)
 
-  defp indent(str, level), do: String.duplicate(" ", level) <> str
+  defp indent(str, level), do: String.duplicate("   ", level) <> str
 
   defp interpolate(val, f, l), do: f <> val <> l
 end
