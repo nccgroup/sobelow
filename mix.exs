@@ -35,7 +35,6 @@ defmodule Sobelow.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.14", only: :dev},
-      {:poison, "~> 3.1"}
     ]
   end
 
