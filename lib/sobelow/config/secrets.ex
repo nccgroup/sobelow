@@ -68,7 +68,7 @@ defmodule Sobelow.Config.Secrets do
 
     case Sobelow.get_env(:format) do
       "json" ->
-        finding = [type: type]
+        finding = [type: type, file: "#{file} - line #{line_no}", key: "#{key}"]
         Sobelow.log_finding(finding, :high)
 
       "txt" ->
