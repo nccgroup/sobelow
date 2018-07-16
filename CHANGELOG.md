@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.7.1
+
+  * Enhancements
+    * Improved handling of JSON format
+    * Additional checks for File functions
+
 ## v0.7.0
 
   * Enhancements
