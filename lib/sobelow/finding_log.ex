@@ -22,7 +22,7 @@ defmodule Sobelow.FindingLog do
     format_json(%{
       findings: %{high_confidence: highs, medium_confidence: meds, low_confidence: lows},
       total_findings: length(highs) + length(meds) + length(lows),
-      version: vsn
+      sobelow_version: vsn
     })
   end
 
