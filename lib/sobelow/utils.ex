@@ -35,6 +35,17 @@ defmodule Sobelow.Utils do
     :|
   ]
   # General Utils
+
+  def get_context(filepath, line_no) do
+    context_lines = (line_no - 1)..(line_no + 1)
+
+    File.stream!(filepath)
+    |> Stream.with_index()
+    |> Stream.filter(fn {_, index} -> Enum.member?(context_lines, index) end)
+    |> Stream.map(fn {element, _} -> element end)
+    |> Enum.join("")
+  end
+
   def ast(filepath) do
     {:ok, ast} = Code.string_to_quoted(read_file(filepath))
     ast
@@ -193,9 +204,12 @@ defmodule Sobelow.Utils do
 
     fun = if is_list(fun), do: List.first(fun), else: fun
 
+    filename = filename |> String.replace("//", "/")
+    context = get_context(filename, line_no)
+
     case Sobelow.format() do
       "json" ->
-        log_json_finding(line_no, filename, fun_name, var, severity, type)
+        log_json_finding(line_no, filename, fun_name, var, severity, type, context)
 
       "txt" ->
         Sobelow.log_finding(type, severity)
@@ -251,15 +265,17 @@ defmodule Sobelow.Utils do
     IO.puts("#{sev}[+]#{IO.ANSI.reset()} #{details}")
   end
 
-  def log_json_finding(line_no, filename, fun_name, var, severity, type) do
+  def log_json_finding(line_no, filename, fun_name, var, severity, type, context) do
     # The function name may be a tuple in instances where meta-programming is used.
     fun_name = if is_tuple(fun_name), do: Macro.to_string(fun_name), else: fun_name
 
     finding = [
       type: type,
       file: filename,
-      function: "#{fun_name}:#{line_no}",
-      variable: var
+      function: "#{fun_name}",
+      line: "#{line_no}",
+      variable: var,
+      context: context
     ]
 
     Sobelow.log_finding(finding, severity)

@@ -33,10 +33,11 @@ defmodule Sobelow.Config.HSTS do
 
   defp add_finding(file) do
     type = "HSTS Not Enabled"
+    file = file |> String.replace("//", "/")
 
     case Sobelow.format() do
       "json" ->
-        finding = [type: type]
+        finding = [type: type, file: file]
         Sobelow.log_finding(finding, :medium)
 
       "txt" ->

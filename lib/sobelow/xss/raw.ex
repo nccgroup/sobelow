@@ -110,15 +110,19 @@ defmodule Sobelow.XSS.Raw do
 
   defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity, finding) do
     type = "XSS"
+    filename = filename |> String.replace("//", "/")
+    context = Utils.get_context(filename, line_no)
 
     case Sobelow.format() do
       "json" ->
         finding = [
           type: type,
           file: filename,
-          function: "#{fun_name}:#{line_no}",
+          function: "#{fun_name}",
+          line: "#{line_no}",
           variable: "@#{var}",
-          template: "#{t_name}"
+          template: "#{t_name}",
+          context: context
         ]
 
         Sobelow.log_finding(finding, severity)

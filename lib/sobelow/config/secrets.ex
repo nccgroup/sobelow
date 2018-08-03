@@ -66,15 +66,25 @@ defmodule Sobelow.Config.Secrets do
   defp add_finding(file, line_no, fun, key, _val) do
     type = "Hardcoded Secret"
 
+    file = file |> String.replace("//", "/")
+    context = Utils.get_context(file, line_no)
+
     case Sobelow.get_env(:format) do
       "json" ->
-        finding = [type: type, file: "#{file} - line #{line_no}", key: "#{key}"]
+        finding = [
+          type: type,
+          file: "#{file}",
+          line: "#{line_no}",
+          variable: "#{key}",
+          context: context
+        ]
+
         Sobelow.log_finding(finding, :high)
 
       "txt" ->
         IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
         IO.puts("File: #{file} - line #{line_no}")
-        IO.puts("Type: #{key}")
+        IO.puts("Variable: #{key}")
         if Sobelow.get_env(:verbose), do: Utils.print_code(fun, :highlight_all)
         IO.puts("\n-----------------------------------------------\n")
 

@@ -38,13 +38,18 @@ defmodule Sobelow.Misc.FilePath do
   defp add_finding(line_no, filename, fun_name, fun, var, severity) do
     type = "Insecure use of `File` and `Path`"
 
+    filename = filename |> String.replace("//", "/")
+    context = Utils.get_context(filename, line_no)
+
     case Sobelow.format() do
       "json" ->
         finding = [
           type: type,
           file: filename,
-          function: "#{fun_name}:#{line_no}",
-          variable: var
+          function: "#{fun_name}",
+          line: "#{line_no}",
+          variable: var,
+          context: context
         ]
 
         Sobelow.log_finding(finding, severity)

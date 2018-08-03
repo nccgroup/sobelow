@@ -33,7 +33,7 @@ defmodule Sobelow.Config.CSP do
     Utils.get_pipelines(router)
     |> Enum.map(&check_vuln_pipeline(&1, meta_file))
     |> Enum.each(fn {vuln?, conf, pipeline} ->
-      if vuln?, do: add_finding(pipeline, conf)
+      if vuln?, do: add_finding(pipeline, conf, router)
     end)
   end
 
@@ -86,14 +86,20 @@ defmodule Sobelow.Config.CSP do
     end)
   end
 
-  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, conf) do
+  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, conf, file) do
     custom_header = "Pipeline: #{pipeline_name}:#{line_no}"
+
+    file = file |> String.replace("//", "/")
+    context = Utils.get_context(file, line_no)
 
     case Sobelow.format() do
       "json" ->
         finding = [
           type: @finding_type,
-          pipeline: "#{pipeline_name}:#{line_no}"
+          file: file,
+          pipeline: "#{pipeline_name}",
+          line: "#{line_no}",
+          context: context
         ]
 
         Sobelow.log_finding(finding, conf)
