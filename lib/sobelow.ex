@@ -256,7 +256,6 @@ defmodule Sobelow do
       "" -> web_root <> router_path
       router -> router
     end
-    |> Path.expand()
   end
 
   defp get_routers(meta_files, router) do
@@ -317,7 +316,7 @@ defmodule Sobelow do
 
     %{
       filename: Utils.normalize_path(filename),
-      file_path: Path.expand(filename),
+      file_path: filename,
       def_funs: def_funs,
       is_controller?: Utils.is_controller?(use_funs),
       is_router?: Utils.is_router?(use_funs)

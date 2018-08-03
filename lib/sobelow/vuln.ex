@@ -27,12 +27,13 @@ defmodule Sobelow.Vuln do
     end)
   end
 
-  def print_finding(vsn, package, detail, cve \\ "TBA") do
+  def print_finding(vsn, package, detail, cve \\ "TBA", file) do
     type = "Known Vulnerable Dependency - #{package} v#{vsn}"
+    file = file |> String.replace("//", "/")
 
     case Sobelow.format() do
       "json" ->
-        finding = [type: type, details: detail, cve: cve]
+        finding = [type: type, details: detail, cve: cve, file: file]
         Sobelow.log_finding(finding, :high)
 
       "txt" ->

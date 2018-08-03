@@ -22,22 +22,23 @@ defmodule Sobelow.Config.HTTPS do
       https = Config.get_configs_by_file(:https, path)
 
       (Config.get_configs_by_file(:force_ssl, path) ++ https)
-      |> handle_https()
+      |> handle_https(path)
     end
   end
 
-  defp handle_https(opts) do
+  defp handle_https(opts, path) do
     if length(opts) === 0 do
-      add_finding()
+      add_finding(path)
     end
   end
 
-  defp add_finding() do
+  defp add_finding(file) do
     type = "HTTPS Not Enabled"
+    file = file |> String.replace("//", "/")
 
     case Sobelow.format() do
       "json" ->
-        finding = [type: type]
+        finding = [type: type, file: file]
         Sobelow.log_finding(finding, :high)
 
       "txt" ->

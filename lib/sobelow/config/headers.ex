@@ -21,23 +21,29 @@ defmodule Sobelow.Config.Headers do
 
   def run(router, _) do
     Utils.get_pipelines(router)
-    |> Enum.each(&is_vuln_pipeline?/1)
+    |> Enum.each(&is_vuln_pipeline?(&1, router))
   end
 
-  defp is_vuln_pipeline?(pipeline) do
+  defp is_vuln_pipeline?(pipeline, router) do
     if Utils.is_vuln_pipeline?(pipeline, :headers) do
-      add_finding(pipeline)
+      add_finding(pipeline, router)
     end
   end
 
-  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline) do
+  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, file) do
     custom_header = "Pipeline: #{pipeline_name}:#{line_no}"
+
+    file = file |> String.replace("//", "/")
+    context = Utils.get_context(file, line_no)
 
     case Sobelow.format() do
       "json" ->
         finding = [
           type: @finding_type,
-          pipeline: "#{pipeline_name}:#{line_no}"
+          file: file,
+          pipeline: "#{pipeline_name}",
+          line: "#{line_no}",
+          context: context
         ]
 
         Sobelow.log_finding(finding, :high)

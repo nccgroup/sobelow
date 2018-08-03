@@ -18,7 +18,8 @@ defmodule Sobelow.Vuln.Ecto do
               vsn,
               "Ecto",
               "Missing `is_nil` requirement",
-              "TBA - https://groups.google.com/forum/#!topic/elixir-ecto/0m4NPfg_MMU"
+              "TBA - https://groups.google.com/forum/#!topic/elixir-ecto/0m4NPfg_MMU",
+              plug_conf
             )
           end
 

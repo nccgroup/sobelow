@@ -12,7 +12,13 @@ defmodule Sobelow.Vuln.PlugNull do
       vsn = Utils.get_version(plug_conf)
 
       if Enum.member?(@vuln_vsn, vsn) do
-        Vuln.print_finding(vsn, "Plug", "Null Byte Injection in Plug.Static", "CVE-2017-1000052")
+        Vuln.print_finding(
+          vsn,
+          "Plug",
+          "Null Byte Injection in Plug.Static",
+          "CVE-2017-1000052",
+          plug_conf
+        )
       end
     end
   end
