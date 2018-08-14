@@ -33,7 +33,7 @@ defmodule Sobelow.Config.CSP do
     Utils.get_pipelines(router)
     |> Enum.map(&check_vuln_pipeline(&1, meta_file))
     |> Enum.each(fn {vuln?, conf, pipeline} ->
-      if vuln?, do: add_finding(pipeline, conf)
+      if vuln?, do: add_finding(pipeline, conf, router)
     end)
   end
 
@@ -86,7 +86,8 @@ defmodule Sobelow.Config.CSP do
     end)
   end
 
-  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, conf) do
+  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, conf, router) do
+    router_path = "File: #{Utils.normalize_path(router)}"
     custom_header = "Pipeline: #{pipeline_name}:#{line_no}"
 
     case Sobelow.format() do
@@ -106,7 +107,7 @@ defmodule Sobelow.Config.CSP do
           :put_secure_browser_headers,
           conf,
           @finding_type,
-          [custom_header]
+          [router_path, custom_header]
         )
 
       "compact" ->

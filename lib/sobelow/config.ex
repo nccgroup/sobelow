@@ -30,7 +30,7 @@ defmodule Sobelow.Config do
       Enum.each(allowed, fn mod ->
         if mod in [CSRF, Headers, CSP] do
           Enum.each(router, fn path ->
-            apply(mod, :run, [path, configs])
+            apply(mod, :run, [root <> Path.relative_to(path, Path.expand(root)), configs])
           end)
         else
           apply(mod, :run, [dir_path, configs])

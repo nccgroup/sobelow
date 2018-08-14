@@ -21,16 +21,19 @@ defmodule Sobelow.Config.Headers do
 
   def run(router, _) do
     Utils.get_pipelines(router)
-    |> Enum.each(&is_vuln_pipeline?/1)
+    |> Enum.each(fn pipeline ->
+      if is_vuln_pipeline?(pipeline) do
+        add_finding(pipeline, router)
+      end
+    end)
   end
 
   defp is_vuln_pipeline?(pipeline) do
-    if Utils.is_vuln_pipeline?(pipeline, :headers) do
-      add_finding(pipeline)
-    end
+    Utils.is_vuln_pipeline?(pipeline, :headers)
   end
 
-  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline) do
+  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, router) do
+    router_path = "File: #{Utils.normalize_path(router)}"
     custom_header = "Pipeline: #{pipeline_name}:#{line_no}"
 
     case Sobelow.format() do
@@ -50,7 +53,7 @@ defmodule Sobelow.Config.Headers do
           :put_secure_browser_headers,
           :high,
           @finding_type,
-          [custom_header]
+          [router_path, custom_header]
         )
 
       "compact" ->

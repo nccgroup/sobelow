@@ -22,16 +22,19 @@ defmodule Sobelow.Config.CSRF do
 
   def run(router, _) do
     Utils.get_pipelines(router)
-    |> Enum.each(&is_vuln_pipeline?/1)
+    |> Enum.each(fn pipeline ->
+      if is_vuln_pipeline?(pipeline) do
+        add_finding(pipeline, router)
+      end
+    end)
   end
 
   defp is_vuln_pipeline?(pipeline) do
-    if Utils.is_vuln_pipeline?(pipeline, :csrf) do
-      add_finding(pipeline)
-    end
+    Utils.is_vuln_pipeline?(pipeline, :csrf)
   end
 
-  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline) do
+  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, router) do
+    router_path = "File: #{Utils.normalize_path(router)}"
     type = "Missing CSRF Protections"
 
     case Sobelow.format() do
@@ -46,6 +49,7 @@ defmodule Sobelow.Config.CSRF do
       "txt" ->
         Sobelow.log_finding(type, :high)
         IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
+        IO.puts(router_path)
         IO.puts("Pipeline: #{pipeline_name}:#{line_no}")
         if Sobelow.get_env(:verbose), do: Utils.print_code(pipeline, pipeline_name)
         IO.puts("\n-----------------------------------------------\n")
