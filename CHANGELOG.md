@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.2
+
+  * Enhancements
+    * Add router path to config findings
+
 ## v0.7.1
 
   * Enhancements
