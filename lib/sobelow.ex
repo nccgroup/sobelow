@@ -127,7 +127,16 @@ defmodule Sobelow do
           nil
       end
 
-    if !is_nil(details), do: IO.puts(details)
+    if !is_nil(details) do
+      print_std_or_file(details)
+    end
+  end
+
+  defp print_std_or_file(details) do
+    case get_env(:out) do
+      nil -> IO.puts(details)
+      out -> File.write(out, details)
+    end
   end
 
   defp exit_with_status() do

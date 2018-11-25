@@ -92,7 +92,8 @@ defmodule Mix.Tasks.Sobelow do
     config: :boolean,
     save_config: :boolean,
     quiet: :boolean,
-    compact: :boolean
+    compact: :boolean,
+    out: :string
   ]
 
   @aliases [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
@@ -121,7 +122,7 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
-     all_details} = get_opts(opts, root, conf_file?)
+     all_details, out} = get_opts(opts, root, conf_file?)
 
     set_env(:verbose, verbose)
 
@@ -139,6 +140,7 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:format, format)
     set_env(:ignored, ignored)
     set_env(:ignored_files, ignored_files)
+    set_env(:out, out)
 
     save_config = Keyword.get(opts, :save_config)
 
@@ -184,6 +186,7 @@ defmodule Mix.Tasks.Sobelow do
     diff = Keyword.get(opts, :diff, false)
     skip = Keyword.get(opts, :skip, false)
     router = Keyword.get(opts, :router)
+    out = Keyword.get(opts, :out)
 
     exit_on =
       case String.downcase(Keyword.get(opts, :exit, "None")) do
@@ -195,6 +198,7 @@ defmodule Mix.Tasks.Sobelow do
 
     format =
       cond do
+        !is_nil(out) -> out_format(out)
         Keyword.get(opts, :quiet) -> "quiet"
         Keyword.get(opts, :compact) -> "compact"
         true -> Keyword.get(opts, :format, "txt") |> String.downcase()
@@ -219,6 +223,13 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
-     all_details}
+     all_details, out}
+  end
+
+  defp out_format(out) do
+    case Path.extname(out) do
+      ".json" -> "json"
+      _ -> "quiet"
+    end
   end
 end
