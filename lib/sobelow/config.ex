@@ -30,7 +30,7 @@ defmodule Sobelow.Config do
       Enum.each(allowed, fn mod ->
         if mod in [CSRF, Headers, CSP] do
           Enum.each(router, fn path ->
-            apply(mod, :run, [root <> Path.relative_to(path, Path.expand(root)), configs])
+            apply(mod, :run, [relative_router(path, root), configs])
           end)
         else
           apply(mod, :run, [dir_path, configs])
@@ -43,6 +43,15 @@ defmodule Sobelow.Config do
     if Path.extname(conf) === ".exs" && !Enum.member?(@skip_files, Path.basename(conf)) &&
          !Enum.member?(ignored_files, Path.expand(conf)),
        do: conf
+  end
+
+  defp relative_router(path, root) do
+    path = Path.relative_to(path, Path.expand(root))
+
+    case Path.type(path) do
+      :absolute -> path
+      _ -> root <> path
+    end
   end
 
   def get_configs_by_file(secret, file) do
