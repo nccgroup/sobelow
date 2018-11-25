@@ -4,6 +4,7 @@
 
   * Enhancements
     * Add router path to config findings
+    * Add `--out` flag for writing to file
 
 ## v0.7.1
 
