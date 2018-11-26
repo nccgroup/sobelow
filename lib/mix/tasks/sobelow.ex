@@ -198,11 +198,12 @@ defmodule Mix.Tasks.Sobelow do
 
     format =
       cond do
-        !is_nil(out) -> out_format(out)
         Keyword.get(opts, :quiet) -> "quiet"
         Keyword.get(opts, :compact) -> "compact"
         true -> Keyword.get(opts, :format, "txt") |> String.downcase()
       end
+
+    format = out_format(out, format)
 
     {ignored, ignored_files} =
       if conf_file? do
@@ -226,10 +227,15 @@ defmodule Mix.Tasks.Sobelow do
      all_details, out}
   end
 
-  defp out_format(out) do
-    case Path.extname(out) do
-      ".json" -> "json"
-      _ -> "quiet"
+  # Future updates will include format hinting based on the outfile name. Additional output
+  # formats will also be added.
+  defp out_format(nil, format), do: format
+  defp out_format("", format), do: format
+
+  defp out_format(_out, format) do
+    cond do
+      format in ["json", "quiet"] -> format
+      true -> "json"
     end
   end
 end

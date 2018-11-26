@@ -196,6 +196,7 @@ defmodule Sobelow do
       router: "#{get_env(:router)}",
       exit: "#{get_env(:exit_on)}",
       format: "#{get_env(:format)}",
+      out: "#{get_env(:out)}",
       ignore: ["#{Enum.join(get_env(:ignored), "\", \"")}"],
       ignore_files: ["#{Enum.join(get_env(:ignored_files), "\", \"")}"]
     ]
