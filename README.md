@@ -120,6 +120,14 @@ This command will create the `.sobelow-conf` file at the root
 of your application. You can edit this file directly to make 
 changes.
 
+You can also run the command without any options:
+
+    $ mix sobelow --save-config
+
+when you first start out using this package - the generated configuration file
+will be populated with the default values for each option. (This helps in
+quickly incorporating this package into a pre-existing codebase.)
+
 Now if you want to run Sobelow with the saved configuration,
 you can run Sobelow with the `--config` flag.
 
