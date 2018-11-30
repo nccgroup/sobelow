@@ -72,6 +72,8 @@ defmodule Sobelow.Config.Secrets do
         Sobelow.log_finding(finding, :high)
 
       "txt" ->
+        Sobelow.log_finding(type, :high)
+
         IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
         IO.puts("File: #{file} - line #{line_no}")
         IO.puts("Type: #{key}")
