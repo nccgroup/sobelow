@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.4
+
+  * Bug Fixes
+    * Log hardcoded secrets for txt output
+
 ## v0.7.3
 
   * Misc
