@@ -163,7 +163,7 @@ defmodule Sobelow do
       end
 
     exit_status = if is_nil(status), do: 0, else: status
-    System.halt(exit_status)
+    if exit_status != 0, do: System.halt(exit_status)
   end
 
   def details() do
