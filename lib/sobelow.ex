@@ -162,9 +162,8 @@ defmodule Sobelow do
           0
       end
 
-    if exit_on do
-      exit_status = if is_nil(status), do: 0, else: status
-      System.halt(exit_status)
+    if exit_on && !is_nil(status) do
+      System.halt(status)
     end
   end
 
