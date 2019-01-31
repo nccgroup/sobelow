@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.5
+
+  * Misc
+    * Sobelow will now only halt when `--exit` flag is used
+
 ## v0.7.4
 
   * Bug Fixes
