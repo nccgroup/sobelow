@@ -135,6 +135,7 @@ defmodule Sobelow do
   defp print_std_or_file(details) do
     case get_env(:out) do
       nil -> IO.puts(details)
+      "" -> IO.puts(details)
       out -> File.write(out, details)
     end
   end
