@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.7.6
+
+  * Bug Fixes
+    * Fix issue that suppressed output options when config files were in use
+
 ## v0.7.5
 
   * Misc
