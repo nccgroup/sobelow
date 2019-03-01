@@ -60,7 +60,10 @@ defmodule Sobelow do
     libroot_meta_files = if !phx_post_1_2?, do: get_meta_files(lib_root), else: []
 
     default_router = get_router(app_name, web_root)
-    routers = get_routers(root_meta_files ++ libroot_meta_files, default_router)
+
+    {routers, endpoints} =
+      get_phoenix_files(root_meta_files ++ libroot_meta_files, default_router)
+
     if Enum.empty?(routers), do: no_router()
 
     FindingLog.start_link()
@@ -78,7 +81,7 @@ defmodule Sobelow do
     if not (format() in ["quiet", "compact", "json"]), do: IO.puts(:stderr, print_banner())
     Application.put_env(:sobelow, :app_name, app_name)
 
-    if Enum.member?(allowed, Config), do: Config.fetch(project_root, routers)
+    if Enum.member?(allowed, Config), do: Config.fetch(project_root, routers, endpoints)
     if Enum.member?(allowed, Vuln), do: Vuln.get_vulns(project_root)
 
     allowed = allowed -- [Config, Vuln]
@@ -271,20 +274,31 @@ defmodule Sobelow do
     |> Path.expand()
   end
 
-  defp get_routers(meta_files, router) do
-    routers =
-      Enum.flat_map(meta_files, fn meta_file ->
-        case meta_file.is_router? do
-          true -> [meta_file.file_path]
-          _ -> []
+  defp get_phoenix_files(meta_files, router) do
+    phoenix_files =
+      Enum.reduce(meta_files, %{routers: [], endpoints: []}, fn meta_file, acc ->
+        cond do
+          meta_file.is_router? ->
+            Map.update!(acc, :routers, &[meta_file.file_path | &1])
+
+          meta_file.is_endpoint? ->
+            Map.update!(acc, :endpoints, &[meta_file.file_path | &1])
+
+          true ->
+            acc
         end
       end)
 
-    if File.exists?(router) do
-      Enum.uniq(routers ++ [router])
-    else
-      routers
-    end
+    uniq_phoenix_files =
+      if File.exists?(router) do
+        Map.update!(phoenix_files, :routers, fn routers ->
+          Enum.uniq(routers ++ [router])
+        end)
+      else
+        phoenix_files
+      end
+
+    {uniq_phoenix_files.routers, uniq_phoenix_files.endpoints}
   end
 
   defp get_meta_templates(root) do
@@ -332,7 +346,8 @@ defmodule Sobelow do
       file_path: Path.expand(filename),
       def_funs: def_funs,
       is_controller?: Utils.is_controller?(use_funs),
-      is_router?: Utils.is_router?(use_funs)
+      is_router?: Utils.is_router?(use_funs),
+      is_endpoint?: Utils.is_endpoint?(use_funs)
     }
   end
 
@@ -478,6 +493,7 @@ defmodule Sobelow do
       "Config.Secrets" -> Sobelow.Config.Secrets
       "Config.HTTPS" -> Sobelow.Config.HTTPS
       "Config.HSTS" -> Sobelow.Config.HSTS
+      "Config.CSWH" -> Sobelow.Config.CSWH
       "Vuln" -> Sobelow.Vuln
       "Vuln.CookieRCE" -> Sobelow.Vuln.CookieRCE
       "Vuln.HeaderInject" -> Sobelow.Vuln.HeaderInject

@@ -62,6 +62,10 @@ defmodule Sobelow.Utils do
     has_use_type?(uses, :router)
   end
 
+  def is_endpoint?([{:use, _, [{_, _, [:Phoenix, :Endpoint]}, _]} | _]), do: true
+  def is_endpoint?([_ | t]), do: is_endpoint?(t)
+  def is_endpoint?(_), do: false
+
   def has_use_type?([{:use, _, [_, type]} | _], type), do: true
   def has_use_type?([_ | t], type), do: has_use_type?(t, type)
   def has_use_type?(_, _), do: false
