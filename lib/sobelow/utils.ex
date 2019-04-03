@@ -912,8 +912,24 @@ defmodule Sobelow.Utils do
       ast = ast(filepath)
       {_, project_block} = Macro.prewalk(ast, [], &extract_project_block/2)
       {_, app_name} = Macro.prewalk(project_block, [], &extract_app_name/2)
-      if is_atom(app_name), do: Atom.to_string(app_name), else: app_name
+      binarize_app_name(app_name, ast)
     end
+  end
+
+  defp binarize_app_name(app_name, _) when is_binary(app_name), do: app_name
+  defp binarize_app_name(app_name, _) when is_atom(app_name), do: Atom.to_string(app_name)
+
+  defp binarize_app_name({:@, _, [{module_attribute, _, _}]}, ast) do
+    ast
+    |> Macro.prewalk([], fn
+      {:@, _, [{^module_attribute, _, [name]}]}, [] ->
+        {[], name}
+
+      ast, acc ->
+        {ast, acc}
+    end)
+    |> elem(1)
+    |> binarize_app_name(ast)
   end
 
   defp extract_project_block({:def, _, [{:project, _, _}, [do: block]]} = ast, _) do
