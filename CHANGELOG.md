@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.7.7
+  * Enhancements
+    * Add check for insecure websocket settings
+    
+  * Bug Fixes
+    * Accept module attributes for application name
+
 ## v0.7.6
 
   * Bug Fixes
