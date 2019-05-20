@@ -19,12 +19,14 @@ defmodule Mix.Tasks.Sobelow do
   * `--details -d` - Get module details
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
-  * `--skip` - Skip functions flagged with `@sobelow_skip`
+  * `--skip` - Skip functions flagged with `#sobelow_skip`
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
   * `--format` - Specify findings output format
   * `--quiet` - Return no output if there are no findings
   * `--compact` - Minimal, single-line findings
+  * `--save-config` - Generates a configuration file based on command line options
+  * `--config` - Run Sobelow with configuration file
 
   ## Ignoring modules
 
