@@ -76,6 +76,11 @@ defmodule Sobelow.Utils do
     |> String.replace_prefix("/", "")
   end
 
+  def print_code(nil, out) when is_binary(out) do
+    IO.puts("\n")
+    IO.puts(out)
+  end
+
   def print_code(fun, :highlight_all) do
     IO.puts("\n")
     IO.puts(IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset())

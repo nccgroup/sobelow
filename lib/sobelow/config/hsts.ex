@@ -33,6 +33,7 @@ defmodule Sobelow.Config.HSTS do
 
   defp add_finding(file) do
     type = "HSTS Not Enabled"
+    reason = "HSTS configuration details could not be found in `#{file}`."
 
     case Sobelow.format() do
       "json" ->
@@ -42,9 +43,7 @@ defmodule Sobelow.Config.HSTS do
       "txt" ->
         Sobelow.log_finding(type, :medium)
 
-        IO.puts(IO.ANSI.yellow() <> type <> " - Medium Confidence" <> IO.ANSI.reset())
-        if Sobelow.get_env(:verbose), do: print_info(file)
-        IO.puts("\n-----------------------------------------------\n")
+        Utils.print_custom_finding_metadata(nil, reason, :medium, type, [])
 
       "compact" ->
         Utils.log_compact_finding(type, :medium)
@@ -52,9 +51,5 @@ defmodule Sobelow.Config.HSTS do
       _ ->
         Sobelow.log_finding(type, :medium)
     end
-  end
-
-  defp print_info(file) do
-    IO.puts("\nHSTS configuration details could not be found in `#{file}`.")
   end
 end

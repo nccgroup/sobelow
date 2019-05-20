@@ -65,6 +65,8 @@ defmodule Sobelow.Config.Secrets do
 
   defp add_finding(file, line_no, fun, key, _val) do
     type = "Hardcoded Secret"
+    file_path = "File: #{file} - line #{line_no}"
+    type_details = "Type: #{key}"
 
     case Sobelow.get_env(:format) do
       "json" ->
@@ -74,11 +76,10 @@ defmodule Sobelow.Config.Secrets do
       "txt" ->
         Sobelow.log_finding(type, :high)
 
-        IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
-        IO.puts("File: #{file} - line #{line_no}")
-        IO.puts("Type: #{key}")
-        if Sobelow.get_env(:verbose), do: Utils.print_code(fun, :highlight_all)
-        IO.puts("\n-----------------------------------------------\n")
+        Utils.print_custom_finding_metadata(fun, :highlight_all, :high, type, [
+          file_path,
+          type_details
+        ])
 
       "compact" ->
         Utils.log_compact_finding(type, file, line_no, :high)

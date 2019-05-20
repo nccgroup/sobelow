@@ -13,6 +13,7 @@ defmodule Sobelow.Config.HTTPS do
       $ mix sobelow -i Config.HTTPS
   """
   alias Sobelow.Config
+  alias Sobelow.Utils
   use Sobelow.Finding
 
   def run(dir_path, configs) do
@@ -34,6 +35,7 @@ defmodule Sobelow.Config.HTTPS do
 
   defp add_finding() do
     type = "HTTPS Not Enabled"
+    reason = "HTTPS configuration details could not be found in `prod.exs`."
 
     case Sobelow.format() do
       "json" ->
@@ -43,9 +45,7 @@ defmodule Sobelow.Config.HTTPS do
       "txt" ->
         Sobelow.log_finding(type, :high)
 
-        IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
-        if Sobelow.get_env(:verbose), do: print_info()
-        IO.puts("\n-----------------------------------------------\n")
+        Utils.print_custom_finding_metadata(nil, reason, :high, type, [])
 
       "compact" ->
         Sobelow.Utils.log_compact_finding(type, :high)
