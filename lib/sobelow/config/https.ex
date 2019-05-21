@@ -54,8 +54,4 @@ defmodule Sobelow.Config.HTTPS do
         Sobelow.log_finding(type, :high)
     end
   end
-
-  defp print_info() do
-    IO.puts("\nHTTPS configuration details could not be found in `prod.exs`.")
-  end
 end

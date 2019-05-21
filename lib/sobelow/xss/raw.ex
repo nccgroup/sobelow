@@ -126,11 +126,10 @@ defmodule Sobelow.XSS.Raw do
       "txt" ->
         Sobelow.log_finding(type, severity)
 
-        IO.puts(Utils.finding_header(type, severity))
-        IO.puts(Utils.finding_file_metadata(filename, fun_name, line_no))
-        IO.puts("Template: #{t_name} - #{var}")
-        if Sobelow.get_env(:verbose), do: Utils.print_code(fun, finding)
-        IO.puts(Utils.finding_break())
+        Utils.print_custom_finding_metadata(fun, finding, severity, type, [
+          Utils.finding_file_metadata(filename, fun_name, line_no),
+          "Template: #{t_name} - #{var}"
+        ])
 
       "compact" ->
         Utils.log_compact_finding(type, filename, line_no, severity)
