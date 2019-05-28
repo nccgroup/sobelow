@@ -2,6 +2,9 @@ defmodule Sobelow.Misc.FilePath do
   @moduledoc ~S"""
   # Insecure use of `File` and `Path`
 
+  Note: This check has been deprecated. File/Path issues were
+  addressed with the release of OTP 21.
+
   In Elixir, `File` methods are null-terminated, while `Path`
   functions are not. This may cause security issues in certain
   situations. For example:
