@@ -10,8 +10,8 @@ defmodule Sobelow.Config.CSRF do
   https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
 
   Cross-Site Request Forgery is flagged by `sobelow` when
-  a pipeline accepts "html" requests, but does not implement
-  the `:protect_from_forgery` plug.
+  a pipeline fetches a session, but does not implement the
+  `:protect_from_forgery` plug.
 
   CSRF checks can be ignored with the following command:
 
