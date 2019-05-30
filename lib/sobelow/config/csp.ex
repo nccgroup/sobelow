@@ -23,7 +23,7 @@ defmodule Sobelow.Config.CSP do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "Missing Content-Security-Policy"
+  @finding_type "Config.CSP: Missing Content-Security-Policy"
 
   def run(router, _) do
     meta_file =

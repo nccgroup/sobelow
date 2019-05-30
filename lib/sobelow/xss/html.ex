@@ -1,7 +1,7 @@
 defmodule Sobelow.XSS.HTML do
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "XSS in `html`"
+  @finding_type "XSS.HTML: XSS in `html`"
 
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low

@@ -46,7 +46,7 @@ defmodule Sobelow.XSS.SendResp do
       var,
       severity,
       finding,
-      "XSS in `send_resp`"
+      "XSS.SendResp: XSS in `send_resp`"
     )
   end
 end

@@ -1,7 +1,7 @@
 defmodule Sobelow.Traversal.SendFile do
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "Directory Traversal in `send_file`"
+  @finding_type "Traversal.SendFile: Directory Traversal in `send_file`"
 
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low

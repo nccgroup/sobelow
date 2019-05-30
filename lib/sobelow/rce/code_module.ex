@@ -18,7 +18,7 @@ defmodule Sobelow.RCE.CodeModule do
           var,
           Utils.get_sev(params, var, severity),
           finding,
-          "Code Execution in `Code.#{code_fun}`"
+          "RCE.CodeModule: Code Execution in `Code.#{code_fun}`"
         )
       end)
     end)

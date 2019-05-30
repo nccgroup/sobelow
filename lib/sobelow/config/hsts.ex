@@ -32,7 +32,7 @@ defmodule Sobelow.Config.HSTS do
   end
 
   defp add_finding(file) do
-    type = "HSTS Not Enabled"
+    type = "Config.HSTS: HSTS Not Enabled"
     reason = "HSTS configuration details could not be found in `#{file}`."
 
     case Sobelow.format() do

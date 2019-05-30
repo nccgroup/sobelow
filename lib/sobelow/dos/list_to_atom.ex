@@ -13,7 +13,7 @@ defmodule Sobelow.DOS.ListToAtom do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "Unsafe `List.to_atom`"
+  @finding_type "DOS.ListToAtom: Unsafe `List.to_atom`"
 
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low

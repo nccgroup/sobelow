@@ -14,7 +14,7 @@ defmodule Sobelow.DOS.BinToAtom do
   alias Sobelow.Utils
   use Sobelow.Finding
 
-  @finding_type "Unsafe atom interpolation"
+  @finding_type "DOS.BinToAtom: Unsafe atom interpolation"
 
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low

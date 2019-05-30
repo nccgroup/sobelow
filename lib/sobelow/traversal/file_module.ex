@@ -38,7 +38,7 @@ defmodule Sobelow.Traversal.FileModule do
           var,
           Utils.get_sev(params, var, severity),
           finding,
-          "Directory Traversal in `File.#{file_func}`"
+          "Traversal.FileModule: Directory Traversal in `File.#{file_func}`"
         )
       end)
     end)
@@ -55,7 +55,7 @@ defmodule Sobelow.Traversal.FileModule do
           var,
           Utils.get_sev(params, var, severity),
           finding,
-          "Directory Traversal in `File.#{file_func}`"
+          "Traversal.FileModule: Directory Traversal in `File.#{file_func}`"
         )
       end)
     end)

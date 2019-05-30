@@ -13,7 +13,7 @@ defmodule Sobelow.Misc.BinToTerm do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "Unsafe `binary_to_term`"
+  @finding_type "Misc.BinToTerm: Unsafe `binary_to_term`"
 
   def run(fun, meta_file) do
     {vars, _params, {fun_name, [{_, line_no}]}} = parse_def(fun)

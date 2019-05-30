@@ -1,7 +1,7 @@
 defmodule Sobelow.SQL.Stream do
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "SQL injection"
+  @finding_type "SQL.Stream: SQL injection"
 
   def run(fun, meta_file) do
     {findings, params, {fun_name, [{_, line_no}]}} = parse_sql_def(fun)

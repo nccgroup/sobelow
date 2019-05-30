@@ -34,7 +34,7 @@ defmodule Sobelow.Config.HTTPS do
   end
 
   defp add_finding() do
-    type = "HTTPS Not Enabled"
+    type = "Config.HTTPS: HTTPS Not Enabled"
     reason = "HTTPS configuration details could not be found in `prod.exs`."
 
     case Sobelow.format() do

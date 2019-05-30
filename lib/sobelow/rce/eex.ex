@@ -29,7 +29,7 @@ defmodule Sobelow.RCE.EEx do
           var,
           Utils.get_sev(params, var, severity),
           finding,
-          "Code Execution in `EEx.#{eex_fun}`"
+          "RCE.EEx: Code Execution in `EEx.#{eex_fun}`"
         )
       end)
     end)

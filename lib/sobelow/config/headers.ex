@@ -17,7 +17,7 @@ defmodule Sobelow.Config.Headers do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "Missing Secure Browser Headers"
+  @finding_type "Config.Headers: Missing Secure Browser Headers"
 
   def run(router, _) do
     Utils.get_pipelines(router)

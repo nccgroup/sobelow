@@ -49,7 +49,7 @@ defmodule Sobelow.Config.CSWH do
   defp add_finding({false, _}, _, _), do: nil
 
   defp add_finding({true, confidence}, socket, endpoint) do
-    type = "Cross-Site Websocket Hijacking"
+    type = "Config.CSWH: Cross-Site Websocket Hijacking"
     endpoint_path = "File: #{Utils.normalize_path(endpoint)}"
 
     case Sobelow.format() do

@@ -23,7 +23,7 @@ defmodule Sobelow.XSS.ContentType do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "XSS in `put_resp_content_type`"
+  @finding_type "XSS.ContentType: XSS in `put_resp_content_type`"
 
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low

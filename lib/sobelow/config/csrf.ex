@@ -35,7 +35,7 @@ defmodule Sobelow.Config.CSRF do
 
   defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, router) do
     router_path = "File: #{Utils.normalize_path(router)}"
-    type = "Missing CSRF Protections"
+    type = "Config.CSRF: Missing CSRF Protections"
 
     case Sobelow.format() do
       "json" ->

@@ -1,7 +1,7 @@
 defmodule Sobelow.XSS.Raw do
   alias Sobelow.Utils
   use Sobelow.Finding
-  @finding_type "XSS"
+  @finding_type "XSS.Raw: XSS"
 
   def run(fun, meta_file, _, nil) do
     severity = if meta_file.is_controller?, do: false, else: :low
@@ -109,7 +109,7 @@ defmodule Sobelow.XSS.Raw do
   end
 
   defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity, finding) do
-    type = "XSS"
+    type = "XSS.Raw: XSS"
 
     case Sobelow.format() do
       "json" ->

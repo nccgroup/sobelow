@@ -64,7 +64,7 @@ defmodule Sobelow.Config.Secrets do
   def is_env_var?(_), do: false
 
   defp add_finding(file, line_no, fun, key, _val) do
-    type = "Hardcoded Secret"
+    type = "Config.Secrets: Hardcoded Secret"
     file_path = "File: #{file} - line #{line_no}"
     type_details = "Type: #{key}"
 
