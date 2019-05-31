@@ -48,11 +48,14 @@ defmodule Sobelow.Config.CSRF do
 
       "txt" ->
         Sobelow.log_finding(type, :high)
-        IO.puts(IO.ANSI.red() <> type <> " - High Confidence" <> IO.ANSI.reset())
-        IO.puts(router_path)
-        IO.puts("Pipeline: #{pipeline_name}:#{line_no}")
-        if Sobelow.get_env(:verbose), do: Utils.print_code(pipeline, pipeline_name)
-        IO.puts("\n-----------------------------------------------\n")
+
+        Utils.print_custom_finding_metadata(
+          pipeline,
+          pipeline_name,
+          :high,
+          type,
+          [router_path, "Pipeline: #{pipeline_name}:#{line_no}"]
+        )
 
       "compact" ->
         Utils.log_compact_finding(type, :high)
