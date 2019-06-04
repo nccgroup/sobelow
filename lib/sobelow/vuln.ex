@@ -27,8 +27,8 @@ defmodule Sobelow.Vuln do
     end)
   end
 
-  def print_finding(vsn, package, detail, cve \\ "TBA") do
-    type = "Known Vulnerable Dependency - #{package} v#{vsn}"
+  def print_finding(vsn, package, detail, cve \\ "TBA", mod) do
+    type = "Vuln.#{mod}: Known Vulnerable Dependency - #{package} v#{vsn}"
 
     case Sobelow.format() do
       "json" ->

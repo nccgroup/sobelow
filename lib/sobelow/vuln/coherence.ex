@@ -18,7 +18,8 @@ defmodule Sobelow.Vuln.Coherence do
               vsn,
               "Coherence",
               "Permissive parameters and privilege escalation",
-              "TBA - https://github.com/smpallen99/coherence/issues/270"
+              "TBA - https://github.com/smpallen99/coherence/issues/270",
+              "Coherence"
             )
           end
 

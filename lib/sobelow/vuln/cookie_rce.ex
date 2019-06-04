@@ -16,7 +16,8 @@ defmodule Sobelow.Vuln.CookieRCE do
           vsn,
           "Plug",
           "Arbitrary Code Execution in Cookie Serialization",
-          "CVE-2017-1000053"
+          "CVE-2017-1000053",
+          "CookieRCE"
         )
       end
     end

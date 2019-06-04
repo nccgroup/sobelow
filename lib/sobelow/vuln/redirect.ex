@@ -12,7 +12,7 @@ defmodule Sobelow.Vuln.Redirect do
       vsn = Utils.get_version(plug_conf)
 
       if Enum.member?(@vuln_vsn, vsn) do
-        Vuln.print_finding(vsn, "Phoenix", "Arbitrary URL Redirect")
+        Vuln.print_finding(vsn, "Phoenix", "Arbitrary URL Redirect", "Redirect")
       end
     end
   end
