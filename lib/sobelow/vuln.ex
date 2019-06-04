@@ -17,6 +17,8 @@ defmodule Sobelow.Vuln do
     Sobelow.Vuln.Coherence,
     Sobelow.Vuln.Ecto
   ]
+
+  alias Sobelow.Utils
   use Sobelow.FindingType
 
   def get_vulns(root) do
@@ -29,6 +31,7 @@ defmodule Sobelow.Vuln do
 
   def print_finding(vsn, package, detail, cve \\ "TBA", mod) do
     type = "Vuln.#{mod}: Known Vulnerable Dependency - #{package} v#{vsn}"
+    finding_details = "Details: #{detail}\nCVE: #{cve}"
 
     case Sobelow.format() do
       "json" ->
@@ -37,9 +40,8 @@ defmodule Sobelow.Vuln do
 
       "txt" ->
         Sobelow.log_finding(type, :high)
-        IO.puts(IO.ANSI.red() <> type <> IO.ANSI.reset())
-        if Sobelow.get_env(:verbose), do: print_detail(detail, cve)
-        IO.puts("\n-----------------------------------------------\n")
+
+        Utils.print_custom_finding_metadata(nil, finding_details, :high, type, [])
 
       "compact" ->
         Sobelow.Utils.log_compact_finding(type, :high)
@@ -47,11 +49,6 @@ defmodule Sobelow.Vuln do
       _ ->
         Sobelow.log_finding(type, :high)
     end
-  end
-
-  defp print_detail(detail, cve) do
-    IO.puts("Details: #{detail}")
-    IO.puts("CVE: #{cve}")
   end
 
   def details() do
