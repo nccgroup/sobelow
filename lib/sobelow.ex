@@ -184,7 +184,9 @@ defmodule Sobelow do
   end
 
   def log_finding(finding, severity) do
-    FindingLog.add(finding, severity)
+    if Sobelow.meets_threshold?(severity) do
+      FindingLog.add(finding, severity)
+    end
   end
 
   def all_details() do
@@ -218,6 +220,10 @@ defmodule Sobelow do
       File.write!(conf_file, conf)
       MixIO.info("Updated .sobelow-conf")
     end
+  end
+
+  def meets_threshold?(severity) do
+    severity in get_env(:threshold)
   end
 
   def format() do

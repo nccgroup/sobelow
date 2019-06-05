@@ -219,6 +219,12 @@ defmodule Sobelow.Utils do
   end
 
   def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding) do
+    if Sobelow.meets_threshold?(severity) do
+      do_print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding)
+    end
+  end
+
+  def do_print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding) do
     IO.puts(finding_header(type, severity))
     IO.puts(finding_file_metadata(filename, fun_name, line_no))
     IO.puts(finding_variable(var))
@@ -227,6 +233,12 @@ defmodule Sobelow.Utils do
   end
 
   def print_custom_finding_metadata(fun, finding, severity, type, headers) do
+    if Sobelow.meets_threshold?(severity) do
+      do_print_custom_finding_metadata(fun, finding, severity, type, headers)
+    end
+  end
+
+  def do_print_custom_finding_metadata(fun, finding, severity, type, headers) do
     IO.puts(finding_header(type, severity))
 
     Enum.each(headers, fn header ->
@@ -250,6 +262,12 @@ defmodule Sobelow.Utils do
   end
 
   defp print_compact_finding(details, severity) do
+    if Sobelow.meets_threshold?(severity) do
+      do_print_compact_finding(details, severity)
+    end
+  end
+
+  defp do_print_compact_finding(details, severity) do
     sev =
       case severity do
         :high -> IO.ANSI.red()

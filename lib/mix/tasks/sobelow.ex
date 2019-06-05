@@ -96,7 +96,8 @@ defmodule Mix.Tasks.Sobelow do
     save_config: :boolean,
     quiet: :boolean,
     compact: :boolean,
-    out: :string
+    out: :string,
+    threshold: :string
   ]
 
   @aliases [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
@@ -125,7 +126,7 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
-     all_details, out} = get_opts(opts, root, conf_file?)
+     all_details, out, threshold} = get_opts(opts, root, conf_file?)
 
     set_env(:verbose, verbose)
 
@@ -144,6 +145,7 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:ignored, ignored)
     set_env(:ignored_files, ignored_files)
     set_env(:out, out)
+    set_env(:threshold, threshold)
 
     save_config = Keyword.get(opts, :save_config)
 
@@ -226,8 +228,15 @@ defmodule Mix.Tasks.Sobelow do
         {ignored, ignored_files}
       end
 
+    threshold =
+      case String.downcase(Keyword.get(opts, :threshold, "low")) do
+        "high" -> [:high]
+        "medium" -> [:high, :medium]
+        _ -> [:high, :medium, :low]
+      end
+
     {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
-     all_details, out}
+     all_details, out, threshold}
   end
 
   # Future updates will include format hinting based on the outfile name. Additional output
