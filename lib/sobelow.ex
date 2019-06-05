@@ -204,6 +204,7 @@ defmodule Sobelow do
       exit: "#{get_env(:exit_on)}",
       format: "#{get_env(:format)}",
       out: "#{get_env(:out)}",
+      threshold: "#{get_env(:threshold)}",
       ignore: ["#{Enum.join(get_env(:ignored), "\", \"")}"],
       ignore_files: ["#{Enum.join(get_env(:ignored_files), "\", \"")}"]
     ]
@@ -223,7 +224,13 @@ defmodule Sobelow do
   end
 
   def meets_threshold?(severity) do
-    severity in get_env(:threshold)
+    threshold = case get_env(:threshold) do
+      :high -> [:high]
+      :medium -> [:high, :medium]
+      _ -> [:high, :medium, :low]
+    end
+
+    severity in threshold
   end
 
   def format() do

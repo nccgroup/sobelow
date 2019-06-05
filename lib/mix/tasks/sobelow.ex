@@ -230,9 +230,9 @@ defmodule Mix.Tasks.Sobelow do
 
     threshold =
       case String.downcase(Keyword.get(opts, :threshold, "low")) do
-        "high" -> [:high]
-        "medium" -> [:high, :medium]
-        _ -> [:high, :medium, :low]
+        "high" -> :high
+        "medium" -> :medium
+        _ -> :low
       end
 
     {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
