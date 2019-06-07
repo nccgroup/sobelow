@@ -22,8 +22,7 @@ defmodule Sobelow do
   alias Sobelow.FindingLog
   alias Sobelow.MetaLog
   alias Mix.Shell.IO, as: MixIO
-  # Remove directory structure check for release candidate
-  # prior to 1.0
+
   def run() do
     project_root = get_env(:root) <> "/"
     if !get_env(:private), do: version_check(project_root)
