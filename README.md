@@ -64,9 +64,12 @@ following from the project root:
   * `--private` - Skip update checks
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
+  * `--threshold` - Only return findings at or above a given confidence level
   * `--format -f` - Specify findings output format
   * `--quiet` - Return no output if there are no findings
-  * `--compact` - Minimal, single-line findings  
+  * `--compact` - Minimal, single-line findings
+  * `--save-config` - Generates a configuration file based on command line options
+  * `--config` - Run Sobelow with configuration file
   
 The `root` option takes a path argument:
 
@@ -94,6 +97,11 @@ The `exit` option accepts a confidence threshold (low, medium, or high),
 and will return a non-zero exit status at or above that threshold.
 
     $ mix sobelow --exit Low
+    
+The `threshold` option accepts a confidence threshold (low, medium, or high), 
+and will only return findings at or above that threshold.
+
+    $ mix sobelow --threshold Medium  
     
 The `format` option accepts an output format for findings. Current formats 
 include `txt` (the default) and `json`. 

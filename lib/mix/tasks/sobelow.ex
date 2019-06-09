@@ -22,6 +22,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--skip` - Skip functions flagged with `#sobelow_skip`
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
+  * `--threshold` - Only return findings at or above a given confidence level
   * `--format` - Specify findings output format
   * `--quiet` - Return no output if there are no findings
   * `--compact` - Minimal, single-line findings
