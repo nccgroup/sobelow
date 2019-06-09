@@ -443,8 +443,7 @@ defmodule Sobelow do
     {:ok, _} = Application.ensure_all_started(:inets)
     {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
 
-    # update to sobelow.io for future versions
-    url = 'https://griffinbyatt.com/static/sobelow-version'
+    url = 'https://sobelow.io/version'
 
     IO.puts(:stderr, "Checking Sobelow version...\n")
 
