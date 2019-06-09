@@ -223,11 +223,12 @@ defmodule Sobelow do
   end
 
   def meets_threshold?(severity) do
-    threshold = case get_env(:threshold) do
-      :high -> [:high]
-      :medium -> [:high, :medium]
-      _ -> [:high, :medium, :low]
-    end
+    threshold =
+      case get_env(:threshold) do
+        :high -> [:high]
+        :medium -> [:high, :medium]
+        _ -> [:high, :medium, :low]
+      end
 
     severity in threshold
   end

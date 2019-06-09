@@ -876,7 +876,7 @@ defmodule Sobelow.Utils do
 
   defp parse_string_interpolation({key, _, nil}), do: key
 
-  defp parse_string_interpolation({:::, _, opts}) do
+  defp parse_string_interpolation({:"::", _, opts}) do
     parse_string_interpolation(opts)
   end
 
