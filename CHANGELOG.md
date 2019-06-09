@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.7.8
+  * Enhancements
+    * Add `--threshold` flag
+    * Add module names to finding output
+    
+  * Deprecations
+    * File/Path check has been deprecated  
+   
+  * Bug Fixes
+    * Fix inaccurate CSRF details
+
 ## v0.7.7
   * Enhancements
     * Add check for insecure websocket settings
