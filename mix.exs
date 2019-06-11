@@ -11,7 +11,10 @@ defmodule Sobelow.Mixfile do
       deps: deps(),
       package: package(),
       description: "Security-focused static analysis for the Phoenix framework",
-      name: "Sobelow"
+      name: "Sobelow",
+      source_url: "https://github.com/nccgroup/sobelow",
+      homepage_url: "https://sobelow.io",
+      docs: docs()
     ]
   end
 
@@ -41,6 +44,13 @@ defmodule Sobelow.Mixfile do
       licenses: ["Apache 2"],
       maintainers: ["Griffin Byatt"],
       links: %{"GitHub" => "https://github.com/nccgroup/sobelow"}
+    ]
+  end
+
+  defp docs() do
+    [
+      main: "readme",
+      extras: ["README.md"]
     ]
   end
 end
