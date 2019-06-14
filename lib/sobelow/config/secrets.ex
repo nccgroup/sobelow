@@ -17,6 +17,7 @@ defmodule Sobelow.Config.Secrets do
   alias Sobelow.Config
   alias Sobelow.Utils
   use Sobelow.Finding
+  @finding_type "Config.Secrets: Hardcoded Secret"
 
   def run(dir_path, configs) do
     Enum.each(configs, fn conf ->
@@ -36,8 +37,6 @@ defmodule Sobelow.Config.Secrets do
   end
 
   defp enumerate_secrets(secrets, file) do
-    file = Path.expand(file, "") |> String.replace_prefix("/", "")
-
     Enum.each(secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
         add_finding(file, lineno, fun, key, val)
@@ -46,8 +45,6 @@ defmodule Sobelow.Config.Secrets do
   end
 
   defp enumerate_fuzzy_secrets(secrets, file) do
-    file = Path.expand(file, "") |> String.replace_prefix("/", "")
-
     Enum.each(secrets, fn {{_, [line: lineno], _} = fun, vals} ->
       Enum.each(vals, fn {k, v} ->
         if is_binary(v) && String.length(v) > 0 && !is_env_var?(v) do
@@ -63,29 +60,55 @@ defmodule Sobelow.Config.Secrets do
 
   def is_env_var?(_), do: false
 
-  defp add_finding(file, line_no, fun, key, _val) do
-    type = "Config.Secrets: Hardcoded Secret"
-    file_path = "File: #{file} - line #{line_no}"
-    type_details = "Type: #{key}"
+  defp add_finding(file, line_no, fun, key, val) do
+    vuln_line_no = get_vuln_line(file, line_no, val)
+
+    file_path = Utils.normalize_path(file)
+    file_header = "File: #{file_path}"
+    line_header = "Line: #{vuln_line_no}"
+    key_header = "Key: #{key}"
 
     case Sobelow.get_env(:format) do
       "json" ->
-        finding = [type: type, file: "#{file} - line #{line_no}", key: "#{key}"]
+        finding = [
+          type: @finding_type,
+          file: file_path,
+          line: vuln_line_no,
+          key: key
+        ]
+
         Sobelow.log_finding(finding, :high)
 
       "txt" ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(@finding_type, :high)
 
-        Utils.print_custom_finding_metadata(fun, :highlight_all, :high, type, [
-          file_path,
-          type_details
+        Utils.print_custom_finding_metadata(fun, :highlight_all, :high, @finding_type, [
+          file_header,
+          line_header,
+          key_header
         ])
 
       "compact" ->
-        Utils.log_compact_finding(type, file, line_no, :high)
+        Utils.log_compact_finding(vuln_line_no, @finding_type, file, :high)
 
       _ ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(@finding_type, :high)
     end
   end
+
+  defp get_vuln_line(file, config_line_no, secret) do
+    {_, secrets} =
+      File.read!(file)
+      |> String.replace("\"#{secret}\"", "@sobelow_secret")
+      |> Code.string_to_quoted()
+      |> Macro.prewalk([], &get_vuln_line/2)
+
+    Enum.find(secrets, config_line_no, &(&1 > config_line_no))
+  end
+
+  defp get_vuln_line({:@, [line: line_no], [{:sobelow_secret, _, _}]} = ast, acc) do
+    {ast, [line_no | acc]}
+  end
+
+  defp get_vuln_line(ast, acc), do: {ast, acc}
 end

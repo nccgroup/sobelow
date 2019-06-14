@@ -19,6 +19,7 @@ defmodule Sobelow.Config.CSRF do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
+  @finding_type "Config.CSRF: Missing CSRF Protections"
 
   def run(router, _) do
     Utils.get_pipelines(router)
@@ -34,34 +35,38 @@ defmodule Sobelow.Config.CSRF do
   end
 
   defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, router) do
-    router_path = "File: #{Utils.normalize_path(router)}"
-    type = "Config.CSRF: Missing CSRF Protections"
+    router_path = Utils.normalize_path(router)
+    file_header = "File: #{router_path}"
+    pipeline_header = "Pipeline: #{pipeline_name}"
+    line_header = "Line: #{line_no}"
 
     case Sobelow.format() do
       "json" ->
         finding = [
-          type: type,
-          pipeline: "#{pipeline_name}:#{line_no}"
+          type: @finding_type,
+          file: router_path,
+          pipeline: pipeline_name,
+          line: line_no
         ]
 
         Sobelow.log_finding(finding, :high)
 
       "txt" ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(@finding_type, :high)
 
         Utils.print_custom_finding_metadata(
           pipeline,
           pipeline_name,
           :high,
-          type,
-          [router_path, "Pipeline: #{pipeline_name}:#{line_no}"]
+          @finding_type,
+          [file_header, pipeline_header, line_header]
         )
 
       "compact" ->
-        Utils.log_compact_finding(type, :high)
+        Utils.log_compact_finding(@finding_type, :high)
 
       _ ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(@finding_type, :high)
     end
   end
 end

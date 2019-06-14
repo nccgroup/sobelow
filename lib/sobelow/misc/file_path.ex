@@ -55,14 +55,19 @@ defmodule Sobelow.Misc.FilePath do
       "txt" ->
         Sobelow.log_finding(type, severity)
 
-        IO.puts(Utils.finding_header(type, severity))
-        IO.puts(Utils.finding_file_metadata(filename, fun_name, line_no))
-        IO.puts(Utils.finding_variable(var))
-        Utils.maybe_print_file_path_code(fun, var)
-        IO.puts(Utils.finding_break())
+        Utils.add_finding(
+          line_no,
+          filename,
+          fun,
+          fun_name,
+          var,
+          severity,
+          fun,
+          type
+        )
 
       "compact" ->
-        Utils.log_compact_finding(type, filename, line_no, severity)
+        Utils.log_compact_finding(line_no, type, filename, severity)
 
       _ ->
         Sobelow.log_finding(type, severity)

@@ -32,31 +32,32 @@ defmodule Sobelow.Config.CSP do
 
     Utils.get_pipelines(router)
     |> Enum.map(&check_vuln_pipeline(&1, meta_file))
-    |> Enum.each(fn {vuln?, conf, pipeline} ->
-      if vuln?, do: add_finding(pipeline, conf, router)
+    |> Enum.each(fn {vuln?, conf, plug, pipeline} ->
+      if vuln?, do: add_finding(plug, pipeline, conf, router)
     end)
   end
 
   def check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline, meta_file) do
-    {vuln?, conf} =
+    {vuln?, conf, plug} =
       Utils.get_plug_list(block)
       |> Enum.find(&is_header_plug?/1)
       |> missing_csp_status(meta_file)
 
-    {vuln?, conf, pipeline}
+    {vuln?, conf, plug, pipeline}
   end
 
   defp is_header_plug?({:plug, _, [:put_secure_browser_headers]}), do: true
   defp is_header_plug?({:plug, _, [:put_secure_browser_headers, _]}), do: true
   defp is_header_plug?(_), do: false
 
-  defp missing_csp_status({_, _, [:put_secure_browser_headers]}, _), do: {true, :high}
+  defp missing_csp_status({_, _, [:put_secure_browser_headers]} = plug, _),
+    do: {true, :high, plug}
 
-  defp missing_csp_status({_, _, [:put_secure_browser_headers, {:%{}, _, opts}]}, _) do
-    {!include_csp?(opts), :high}
+  defp missing_csp_status({_, _, [:put_secure_browser_headers, {:%{}, _, opts}]} = plug, _) do
+    {!include_csp?(opts), :high, plug}
   end
 
-  defp missing_csp_status({_, _, [:put_secure_browser_headers, {:@, _, opts}]}, meta_file) do
+  defp missing_csp_status({_, _, [:put_secure_browser_headers, {:@, _, opts}]} = plug, meta_file) do
     [{attr, _, nil} | _] = opts
 
     has_csp? =
@@ -68,11 +69,13 @@ defmodule Sobelow.Config.CSP do
       end)
       |> include_csp?()
 
-    {!has_csp?, :high}
+    {!has_csp?, :high, plug}
   end
 
-  defp missing_csp_status({_, _, [:put_secure_browser_headers, _]}, _), do: {true, :low}
-  defp missing_csp_status(_, _), do: {false, :high}
+  defp missing_csp_status({_, _, [:put_secure_browser_headers, _]} = plug, _),
+    do: {true, :low, plug}
+
+  defp missing_csp_status(plug, _), do: {false, :high, plug}
 
   defp include_csp?(nil), do: false
 
@@ -86,15 +89,24 @@ defmodule Sobelow.Config.CSP do
     end)
   end
 
-  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, conf, router) do
-    router_path = "File: #{Utils.normalize_path(router)}"
-    custom_header = "Pipeline: #{pipeline_name}:#{line_no}"
+  defp add_finding(
+         {_, [line: line_no], _},
+         {:pipeline, _, [pipeline_name, _]} = pipeline,
+         conf,
+         router
+       ) do
+    router_path = Utils.normalize_path(router)
+    file_header = "File: #{router_path}"
+    pipeline_header = "Pipeline: #{pipeline_name}"
+    line_header = "Line: #{line_no}"
 
     case Sobelow.format() do
       "json" ->
         finding = [
           type: @finding_type,
-          pipeline: "#{pipeline_name}:#{line_no}"
+          file: router_path,
+          pipeline: pipeline_name,
+          line: line_no
         ]
 
         Sobelow.log_finding(finding, conf)
@@ -107,7 +119,7 @@ defmodule Sobelow.Config.CSP do
           :put_secure_browser_headers,
           conf,
           @finding_type,
-          [router_path, custom_header]
+          [file_header, pipeline_header, line_header]
         )
 
       "compact" ->

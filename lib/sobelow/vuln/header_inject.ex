@@ -14,7 +14,7 @@ defmodule Sobelow.Vuln.HeaderInject do
       case Version.parse(vsn) do
         {:ok, vsn} ->
           if Enum.any?(@vuln_vsn, fn v -> Version.match?(vsn, v) end) do
-            Vuln.print_finding(vsn, "Plug", "Header Injection", "HeaderInject")
+            Vuln.print_finding(plug_conf, vsn, "Plug", "Header Injection", "HeaderInject")
           end
 
         _ ->

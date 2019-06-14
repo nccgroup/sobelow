@@ -15,6 +15,7 @@ defmodule Sobelow.Config.CSWH do
   """
   alias Sobelow.Utils
   use Sobelow.Finding
+  @finding_type "Config.CSWH: Cross-Site Websocket Hijacking"
 
   def run(endpoint) do
     Utils.ast(endpoint)
@@ -48,35 +49,37 @@ defmodule Sobelow.Config.CSWH do
   defp add_finding(nil, _, _), do: nil
   defp add_finding({false, _}, _, _), do: nil
 
-  defp add_finding({true, confidence}, socket, endpoint) do
-    type = "Config.CSWH: Cross-Site Websocket Hijacking"
-    endpoint_path = "File: #{Utils.normalize_path(endpoint)}"
+  defp add_finding({true, confidence}, {_, [line: line_no], _} = socket, endpoint) do
+    endpoint_path = Utils.normalize_path(endpoint)
+    file_header = "File: #{endpoint_path}"
+    line_header = "Line: #{line_no}"
 
     case Sobelow.format() do
       "json" ->
         finding = [
-          type: type,
-          endpoint: endpoint
+          type: @finding_type,
+          file: endpoint_path,
+          line: line_no
         ]
 
         Sobelow.log_finding(finding, confidence)
 
       "txt" ->
-        Sobelow.log_finding(type, confidence)
+        Sobelow.log_finding(@finding_type, confidence)
 
         Utils.print_custom_finding_metadata(
           socket,
           :highlight_all,
           confidence,
-          type,
-          [endpoint_path]
+          @finding_type,
+          [file_header, line_header]
         )
 
       "compact" ->
-        Utils.log_compact_finding(type, confidence)
+        Utils.log_compact_finding(@finding_type, confidence)
 
       _ ->
-        Sobelow.log_finding(type, confidence)
+        Sobelow.log_finding(@finding_type, confidence)
     end
   end
 end

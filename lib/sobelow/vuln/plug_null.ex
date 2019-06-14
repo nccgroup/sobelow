@@ -13,6 +13,7 @@ defmodule Sobelow.Vuln.PlugNull do
 
       if Enum.member?(@vuln_vsn, vsn) do
         Vuln.print_finding(
+          plug_conf,
           vsn,
           "Plug",
           "Null Byte Injection in Plug.Static",

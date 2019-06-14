@@ -10,7 +10,7 @@ defmodule SobelowTest.LogTest do
           "high_confidence": [
              {
                 "file": "file.ex",
-                "function": "function(:details):1",
+                "line": 1,
                 "type": "N/A",
                 "variable": "var"
              }
@@ -28,7 +28,7 @@ defmodule SobelowTest.LogTest do
     """
 
     FindingLog.start_link()
-    Utils.log_json_finding(1, "file.ex", {:function, [], [:details]}, "var", :high, "N/A")
+    Utils.log_json_finding(1, "file.ex", "var", :high, "N/A")
 
     assert FindingLog.json("1.0.0") <> "\n" == output
   end

@@ -109,33 +109,32 @@ defmodule Sobelow.XSS.Raw do
   end
 
   defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity, finding) do
-    type = "XSS.Raw: XSS"
-
     case Sobelow.format() do
       "json" ->
         finding = [
-          type: type,
+          type: @finding_type,
           file: filename,
-          function: "#{fun_name}:#{line_no}",
-          variable: "@#{var}",
+          variable: "#{var}",
           template: "#{t_name}"
         ]
 
         Sobelow.log_finding(finding, severity)
 
       "txt" ->
-        Sobelow.log_finding(type, severity)
+        Sobelow.log_finding(@finding_type, severity)
 
-        Utils.print_custom_finding_metadata(fun, finding, severity, type, [
-          Utils.finding_file_metadata(filename, fun_name, line_no),
+        Utils.print_custom_finding_metadata(fun, finding, severity, @finding_type, [
+          Utils.finding_file_name(filename),
+          Utils.finding_line(finding),
+          Utils.finding_fun_metadata(fun_name, line_no),
           "Template: #{t_name} - #{var}"
         ])
 
       "compact" ->
-        Utils.log_compact_finding(type, filename, line_no, severity)
+        Utils.log_compact_finding(line_no, @finding_type, filename, severity)
 
       _ ->
-        Sobelow.log_finding(type, severity)
+        Sobelow.log_finding(@finding_type, severity)
     end
   end
 end

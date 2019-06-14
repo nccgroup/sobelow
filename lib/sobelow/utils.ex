@@ -76,6 +76,8 @@ defmodule Sobelow.Utils do
     |> String.replace_prefix("/", "")
   end
 
+  def print_code(nil, nil), do: nil
+
   def print_code(nil, out) when is_binary(out) do
     IO.puts("\n")
     IO.puts(out)
@@ -188,45 +190,77 @@ defmodule Sobelow.Utils do
   end
 
   def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
-    is_template? = String.ends_with?(filename, ".eex")
-
-    line_no =
-      cond do
-        is_template? ->
-          {_, [line: line], _} = finding
-          line
-
-        true ->
-          line_no
-      end
-
     fun = if is_list(fun), do: List.first(fun), else: fun
+    vuln_line_no = get_finding_line(finding)
 
     case Sobelow.format() do
       "json" ->
-        log_json_finding(line_no, filename, fun_name, var, severity, type)
+        log_json_finding(vuln_line_no, filename, var, severity, type)
 
       "txt" ->
         Sobelow.log_finding(type, severity)
-        print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding)
+
+        print_finding_metadata(
+          vuln_line_no,
+          line_no,
+          filename,
+          fun,
+          fun_name,
+          var,
+          severity,
+          type,
+          finding
+        )
 
       "compact" ->
-        log_compact_finding(type, filename, line_no, severity)
+        log_compact_finding(vuln_line_no, type, filename, severity)
 
       _ ->
         Sobelow.log_finding(type, severity)
     end
   end
 
-  def print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding) do
+  def print_finding_metadata(
+        vuln_line_no,
+        fun_line_no,
+        filename,
+        fun,
+        fun_name,
+        var,
+        severity,
+        type,
+        finding
+      ) do
     if Sobelow.meets_threshold?(severity) do
-      do_print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding)
+      do_print_finding_metadata(
+        vuln_line_no,
+        fun_line_no,
+        filename,
+        fun,
+        fun_name,
+        var,
+        severity,
+        type,
+        finding
+      )
     end
   end
 
-  def do_print_finding_metadata(line_no, filename, fun, fun_name, var, severity, type, finding) do
+  def do_print_finding_metadata(
+        vuln_line_no,
+        fun_line_no,
+        filename,
+        fun,
+        fun_name,
+        var,
+        severity,
+        type,
+        finding
+      ) do
     IO.puts(finding_header(type, severity))
-    IO.puts(finding_file_metadata(filename, fun_name, line_no))
+    IO.puts(finding_file_name(filename))
+    IO.puts(finding_line(vuln_line_no))
+    maybe_print_finding_fun_metadata(fun_name, fun_line_no)
     IO.puts(finding_variable(var))
     maybe_print_code(fun, finding)
     IO.puts(finding_break())
@@ -249,7 +283,7 @@ defmodule Sobelow.Utils do
     IO.puts(finding_break())
   end
 
-  def log_compact_finding(type, filename, line_no, severity) do
+  def log_compact_finding(line_no, type, filename, severity) do
     details = "#{type} - #{filename}:#{line_no}"
     Sobelow.log_finding(details, severity)
 
@@ -278,14 +312,11 @@ defmodule Sobelow.Utils do
     IO.puts("#{sev}[+]#{IO.ANSI.reset()} #{details}")
   end
 
-  def log_json_finding(line_no, filename, fun_name, var, severity, type) do
-    # The function name may be a tuple in instances where meta-programming is used.
-    fun_name = if is_tuple(fun_name), do: Macro.to_string(fun_name), else: fun_name
-
+  def log_json_finding(vuln_line_no, filename, var, severity, type) do
     finding = [
       type: type,
       file: filename,
-      function: "#{fun_name}:#{line_no}",
+      line: vuln_line_no,
       variable: var
     ]
 
@@ -297,16 +328,36 @@ defmodule Sobelow.Utils do
     color <> type <> " - #{confidence} Confidence" <> IO.ANSI.reset()
   end
 
-  def finding_file_metadata(filename, {:unquote, _, _} = fun_name, line_no) do
-    finding_file_metadata(filename, Macro.to_string(fun_name), line_no)
+  def finding_file_name(filename) do
+    "File: #{filename}"
   end
 
-  def finding_file_metadata(filename, "", line_no) do
-    "File: #{filename} - #{line_no}"
+  def finding_line(line_no) when is_integer(line_no) do
+    "Line: #{line_no}"
   end
 
-  def finding_file_metadata(filename, fun_name, line_no) do
-    "File: #{filename} - #{fun_name}:#{line_no}"
+  def finding_line(finding) do
+    "Line: #{get_finding_line(finding)}"
+  end
+
+  defp get_finding_line({_, [line: line_no], _}), do: line_no
+  defp get_finding_line(_), do: 0
+
+  def maybe_print_finding_fun_metadata("", _), do: nil
+
+  def maybe_print_finding_fun_metadata(fun_name, line_no),
+    do: print_finding_fun_metadata(fun_name, line_no)
+
+  def print_finding_fun_metadata({:unquote, _, _} = fun_name, line_no) do
+    print_finding_fun_metadata(Macro.to_string(fun_name), line_no)
+  end
+
+  def print_finding_fun_metadata(fun_name, line_no) do
+    finding_fun_metadata(fun_name, line_no) |> IO.puts()
+  end
+
+  def finding_fun_metadata(fun_name, line_no) do
+    "Function: #{fun_name}:#{line_no}"
   end
 
   def finding_variable(var) do

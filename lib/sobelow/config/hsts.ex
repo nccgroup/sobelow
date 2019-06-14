@@ -13,6 +13,7 @@ defmodule Sobelow.Config.HSTS do
   alias Sobelow.Config
   alias Sobelow.Utils
   use Sobelow.Finding
+  @finding_type "Config.HSTS: HSTS Not Enabled"
 
   def run(dir_path, configs) do
     Enum.each(configs, fn conf ->
@@ -27,29 +28,34 @@ defmodule Sobelow.Config.HSTS do
     # If HTTPS configs were found in any config file and there
     # are no accompanying HSTS configs, add an HSTS finding.
     if length(opts) > 0 && length(Utils.get_configs(:force_ssl, file)) === 0 do
-      add_finding(Path.basename(file))
+      add_finding(file)
     end
   end
 
   defp add_finding(file) do
-    type = "Config.HSTS: HSTS Not Enabled"
-    reason = "HSTS configuration details could not be found in `#{file}`."
+    filename = Utils.normalize_path(file)
+    reason = "HSTS configuration details could not be found in `#{Path.basename(file)}`."
 
     case Sobelow.format() do
       "json" ->
-        finding = [type: type]
+        finding = [
+          type: @finding_type,
+          file: filename,
+          line: 0
+        ]
+
         Sobelow.log_finding(finding, :medium)
 
       "txt" ->
-        Sobelow.log_finding(type, :medium)
+        Sobelow.log_finding(@finding_type, :medium)
 
-        Utils.print_custom_finding_metadata(nil, reason, :medium, type, [])
+        Utils.print_custom_finding_metadata(nil, reason, :medium, @finding_type, [])
 
       "compact" ->
-        Utils.log_compact_finding(type, :medium)
+        Utils.log_compact_finding(@finding_type, :medium)
 
       _ ->
-        Sobelow.log_finding(type, :medium)
+        Sobelow.log_finding(@finding_type, :medium)
     end
   end
 end

@@ -15,6 +15,7 @@ defmodule Sobelow.Config.HTTPS do
   alias Sobelow.Config
   alias Sobelow.Utils
   use Sobelow.Finding
+  @finding_type "Config.HTTPS: HTTPS Not Enabled"
 
   def run(dir_path, configs) do
     path = dir_path <> "prod.exs"
@@ -23,35 +24,40 @@ defmodule Sobelow.Config.HTTPS do
       https = Config.get_configs_by_file(:https, path)
 
       (Config.get_configs_by_file(:force_ssl, path) ++ https)
-      |> handle_https()
+      |> handle_https(path)
     end
   end
 
-  defp handle_https(opts) do
+  defp handle_https(opts, path) do
     if length(opts) === 0 do
-      add_finding()
+      add_finding(path)
     end
   end
 
-  defp add_finding() do
-    type = "Config.HTTPS: HTTPS Not Enabled"
+  defp add_finding(file) do
+    filename = Utils.normalize_path(file)
     reason = "HTTPS configuration details could not be found in `prod.exs`."
 
     case Sobelow.format() do
       "json" ->
-        finding = [type: type]
+        finding = [
+          type: @finding_type,
+          file: filename,
+          line: 0
+        ]
+
         Sobelow.log_finding(finding, :high)
 
       "txt" ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(@finding_type, :high)
 
-        Utils.print_custom_finding_metadata(nil, reason, :high, type, [])
+        Utils.print_custom_finding_metadata(nil, reason, :high, @finding_type, [])
 
       "compact" ->
-        Sobelow.Utils.log_compact_finding(type, :high)
+        Sobelow.Utils.log_compact_finding(@finding_type, :high)
 
       _ ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(@finding_type, :high)
     end
   end
 end

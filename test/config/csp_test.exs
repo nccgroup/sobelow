@@ -51,6 +51,6 @@ defmodule SobelowTest.Config.CSPTest do
            |> Enum.any?(&is_vuln?/1)
   end
 
-  defp is_vuln?({true, _, _}), do: true
+  defp is_vuln?({true, _, _, _}), do: true
   defp is_vuln?(_), do: false
 end

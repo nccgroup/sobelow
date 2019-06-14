@@ -13,6 +13,7 @@ defmodule Sobelow.Vuln.CookieRCE do
 
       if Enum.member?(@vuln_vsn, vsn) do
         Vuln.print_finding(
+          plug_conf,
           vsn,
           "Plug",
           "Arbitrary Code Execution in Cookie Serialization",

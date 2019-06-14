@@ -15,6 +15,7 @@ defmodule Sobelow.Vuln.Ecto do
         {:ok, vsn} ->
           if Enum.any?(@vuln_vsn, fn v -> Version.match?(vsn, v) end) do
             Vuln.print_finding(
+              plug_conf,
               vsn,
               "Ecto",
               "Missing `is_nil` requirement",

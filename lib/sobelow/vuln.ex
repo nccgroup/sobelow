@@ -29,19 +29,30 @@ defmodule Sobelow.Vuln do
     end)
   end
 
-  def print_finding(vsn, package, detail, cve \\ "TBA", mod) do
+  def print_finding(file, vsn, package, detail, cve \\ "TBA", mod) do
+    filename = Utils.normalize_path(file)
     type = "Vuln.#{mod}: Known Vulnerable Dependency - #{package} v#{vsn}"
-    finding_details = "Details: #{detail}\nCVE: #{cve}"
 
     case Sobelow.format() do
       "json" ->
-        finding = [type: type, details: detail, cve: cve]
+        finding = [
+          type: type,
+          details: detail,
+          file: filename,
+          cve: cve,
+          line: 0
+        ]
+
         Sobelow.log_finding(finding, :high)
 
       "txt" ->
         Sobelow.log_finding(type, :high)
 
-        Utils.print_custom_finding_metadata(nil, finding_details, :high, type, [])
+        Utils.print_custom_finding_metadata(nil, nil, :high, type, [
+          "Details: #{detail}",
+          "File: #{filename}",
+          "CVE: #{cve}"
+        ])
 
       "compact" ->
         Sobelow.Utils.log_compact_finding(type, :high)
