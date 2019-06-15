@@ -49,7 +49,8 @@ defmodule Sobelow.Config.CSWH do
   defp add_finding(nil, _, _), do: nil
   defp add_finding({false, _}, _, _), do: nil
 
-  defp add_finding({true, confidence}, {_, [line: line_no], _} = socket, endpoint) do
+  defp add_finding({true, confidence}, socket, endpoint) do
+    line_no = Parse.get_fun_line(socket)
     endpoint_path = Utils.normalize_path(endpoint)
     file_header = "File: #{endpoint_path}"
     line_header = "Line: #{line_no}"

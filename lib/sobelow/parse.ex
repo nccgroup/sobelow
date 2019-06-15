@@ -585,6 +585,10 @@ defmodule Sobelow.Parse do
     []
   end
 
+  def get_fun_line({_, meta, _}) when is_list(meta) do
+    Keyword.get(meta, :line, 0)
+  end
+
   # XSS Utils
 
   def get_template_vars(raw_funs) do
@@ -647,7 +651,7 @@ defmodule Sobelow.Parse do
   end
 
   def is_conn_params?({_, {{:., _, [Access, :get]}, _, access_opts}}),
-      do: is_conn_params?(access_opts)
+    do: is_conn_params?(access_opts)
 
   def is_conn_params?([{{:., _, [{:conn, _, nil}, :params]}, _, []}, _]), do: true
   def is_conn_params?(_), do: false

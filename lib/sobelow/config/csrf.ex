@@ -17,7 +17,7 @@ defmodule Sobelow.Config.CSRF do
 
       $ mix sobelow -i Config.CSRF
   """
-  alias Sobelow.{Config, Print, Utils}
+  alias Sobelow.{Config, Parse, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.CSRF: Missing CSRF Protections"
 
@@ -34,7 +34,8 @@ defmodule Sobelow.Config.CSRF do
     Config.is_vuln_pipeline?(pipeline, :csrf)
   end
 
-  defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, router) do
+  defp add_finding({:pipeline, _, [pipeline_name, _]} = pipeline, router) do
+    line_no = Parse.get_fun_line(pipeline)
     router_path = Utils.normalize_path(router)
     file_header = "File: #{router_path}"
     pipeline_header = "Pipeline: #{pipeline_name}"

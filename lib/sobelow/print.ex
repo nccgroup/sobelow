@@ -1,5 +1,6 @@
 defmodule Sobelow.Print do
   @moduledoc false
+  alias Sobelow.Parse
 
   def add_finding(line_no, filename, fun, fun_name, vars, severity, finding, type)
       when is_list(vars) do
@@ -9,7 +10,7 @@ defmodule Sobelow.Print do
 
   def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
     fun = if is_list(fun), do: List.first(fun), else: fun
-    vuln_line_no = get_finding_line(finding)
+    vuln_line_no = Parse.get_fun_line(finding)
 
     case Sobelow.format() do
       "json" ->
@@ -155,11 +156,8 @@ defmodule Sobelow.Print do
   end
 
   def finding_line(finding) do
-    "Line: #{get_finding_line(finding)}"
+    "Line: #{Parse.get_fun_line(finding)}"
   end
-
-  defp get_finding_line({_, [line: line_no], _}), do: line_no
-  defp get_finding_line(_), do: 0
 
   def maybe_print_finding_fun_metadata("", _), do: nil
 

@@ -14,7 +14,7 @@ defmodule Sobelow.Config.Secrets do
 
       $ mix sobelow -i Config.Secrets
   """
-  alias Sobelow.{Config, Print, Utils}
+  alias Sobelow.{Config, Parse, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.Secrets: Hardcoded Secret"
 
@@ -36,18 +36,18 @@ defmodule Sobelow.Config.Secrets do
   end
 
   defp enumerate_secrets(secrets, file) do
-    Enum.each(secrets, fn {{_, [line: lineno], _} = fun, key, val} ->
+    Enum.each(secrets, fn {fun, key, val} ->
       if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
-        add_finding(file, lineno, fun, key, val)
+        add_finding(file, Parse.get_fun_line(fun), fun, key, val)
       end
     end)
   end
 
   defp enumerate_fuzzy_secrets(secrets, file) do
-    Enum.each(secrets, fn {{_, [line: lineno], _} = fun, vals} ->
+    Enum.each(secrets, fn {fun, vals} ->
       Enum.each(vals, fn {k, v} ->
         if is_binary(v) && String.length(v) > 0 && !is_env_var?(v) do
-          add_finding(file, lineno, fun, k, v)
+          add_finding(file, Parse.get_fun_line(fun), fun, k, v)
         end
       end)
     end)
@@ -105,7 +105,8 @@ defmodule Sobelow.Config.Secrets do
     Enum.find(secrets, config_line_no, &(&1 > config_line_no))
   end
 
-  defp get_vuln_line({:@, [line: line_no], [{:sobelow_secret, _, _}]} = ast, acc) do
+  defp get_vuln_line({:@, _, [{:sobelow_secret, _, _}]} = ast, acc) do
+    line_no = Parse.get_fun_line(ast)
     {ast, [line_no | acc]}
   end
 

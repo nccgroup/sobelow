@@ -88,11 +88,12 @@ defmodule Sobelow.Config.CSP do
   end
 
   defp add_finding(
-         {_, [line: line_no], _},
+         fun,
          {:pipeline, _, [pipeline_name, _]} = pipeline,
          conf,
          router
        ) do
+    line_no = Parse.get_fun_line(fun)
     router_path = Utils.normalize_path(router)
     file_header = "File: #{router_path}"
     pipeline_header = "Pipeline: #{pipeline_name}"
