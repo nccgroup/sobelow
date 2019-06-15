@@ -27,14 +27,14 @@ defmodule Sobelow.Misc.FilePath do
 
       $ mix sobelow -i Misc.FilePath
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
 
   def run(fun, meta_file) do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each(vars, fn var ->
-      add_finding(line_no, meta_file.filename, fun_name, fun, var, Utils.get_sev(params, var))
+      add_finding(line_no, meta_file.filename, fun_name, fun, var, Print.get_sev(params, var))
     end)
   end
 
@@ -55,7 +55,7 @@ defmodule Sobelow.Misc.FilePath do
       "txt" ->
         Sobelow.log_finding(type, severity)
 
-        Utils.add_finding(
+        Print.add_finding(
           line_no,
           filename,
           fun,
@@ -67,7 +67,7 @@ defmodule Sobelow.Misc.FilePath do
         )
 
       "compact" ->
-        Utils.log_compact_finding(line_no, type, filename, severity)
+        Print.log_compact_finding(line_no, type, filename, severity)
 
       _ ->
         Sobelow.log_finding(type, severity)
@@ -75,19 +75,19 @@ defmodule Sobelow.Misc.FilePath do
   end
 
   def parse_def(fun) do
-    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
+    {params, {fun_name, line_no}} = Parse.get_fun_declaration(fun)
 
-    file_assigns = Utils.get_assigns_from(fun, [:File])
-    path_assigns = Utils.get_assigns_from(fun, [:Path])
+    file_assigns = Parse.get_assigns_from(fun, [:File])
+    path_assigns = Parse.get_assigns_from(fun, [:Path])
 
     path_vars =
-      Utils.get_funs_by_module(fun, [:Path])
-      |> Enum.map(&Utils.extract_opts(&1, 0))
+      Parse.get_funs_by_module(fun, [:Path])
+      |> Enum.map(&Parse.extract_opts(&1, 0))
       |> List.flatten()
 
     file_vars =
-      Utils.get_funs_by_module(fun, [:File])
-      |> Enum.map(&Utils.extract_opts(&1, 0))
+      Parse.get_funs_by_module(fun, [:File])
+      |> Enum.map(&Parse.extract_opts(&1, 0))
       |> List.flatten()
 
     shared_path =

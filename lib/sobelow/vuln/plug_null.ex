@@ -1,5 +1,5 @@
 defmodule Sobelow.Vuln.PlugNull do
-  alias Sobelow.Utils
+  alias Sobelow.Config
   alias Sobelow.Vuln
   use Sobelow.Finding
 
@@ -9,7 +9,7 @@ defmodule Sobelow.Vuln.PlugNull do
     plug_conf = root <> "/deps/plug/mix.exs"
 
     if File.exists?(plug_conf) do
-      vsn = Utils.get_version(plug_conf)
+      vsn = Config.get_version(plug_conf)
 
       if Enum.member?(@vuln_vsn, vsn) do
         Vuln.print_finding(

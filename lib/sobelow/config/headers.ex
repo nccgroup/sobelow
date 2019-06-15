@@ -15,12 +15,12 @@ defmodule Sobelow.Config.Headers do
 
       $ mix sobelow -i Config.Headers
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Config, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.Headers: Missing Secure Browser Headers"
 
   def run(router, _) do
-    Utils.get_pipelines(router)
+    Config.get_pipelines(router)
     |> Enum.each(fn pipeline ->
       if is_vuln_pipeline?(pipeline) do
         add_finding(pipeline, router)
@@ -29,7 +29,7 @@ defmodule Sobelow.Config.Headers do
   end
 
   defp is_vuln_pipeline?(pipeline) do
-    Utils.is_vuln_pipeline?(pipeline, :headers)
+    Config.is_vuln_pipeline?(pipeline, :headers)
   end
 
   defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, router) do
@@ -52,7 +52,7 @@ defmodule Sobelow.Config.Headers do
       "txt" ->
         Sobelow.log_finding(@finding_type, :high)
 
-        Utils.print_custom_finding_metadata(
+        Print.print_custom_finding_metadata(
           pipeline,
           pipeline_name,
           :high,
@@ -61,7 +61,7 @@ defmodule Sobelow.Config.Headers do
         )
 
       "compact" ->
-        Utils.log_compact_finding(@finding_type, :high)
+        Print.log_compact_finding(@finding_type, :high)
 
       _ ->
         Sobelow.log_finding(@finding_type, :high)

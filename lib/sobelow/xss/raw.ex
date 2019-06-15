@@ -1,5 +1,5 @@
 defmodule Sobelow.XSS.Raw do
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print, Utils}
   use Sobelow.Finding
   @finding_type "XSS.Raw: XSS"
 
@@ -9,13 +9,13 @@ defmodule Sobelow.XSS.Raw do
     {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
 
     Enum.each(vars, fn {finding, var} ->
-      Utils.add_finding(
+      Print.add_finding(
         line_no,
         meta_file.filename,
         fun,
         fun_name,
         var,
-        Utils.get_sev(params, var, severity),
+        Print.get_sev(params, var, severity),
         finding,
         @finding_type
       )
@@ -52,7 +52,7 @@ defmodule Sobelow.XSS.Raw do
       raw_funs = templates[template_path]
 
       if raw_funs do
-        raw_vals = Utils.get_template_vars(raw_funs.raw)
+        raw_vals = Parse.get_template_vars(raw_funs.raw)
 
         Enum.each(ref_vars, fn var ->
           var = "@#{var}"
@@ -78,28 +78,28 @@ defmodule Sobelow.XSS.Raw do
   end
 
   def parse_render_def(fun) do
-    {params, {fun_name, line_no}} = Utils.get_fun_declaration(fun)
+    {params, {fun_name, line_no}} = Parse.get_fun_declaration(fun)
 
     pipefuns =
-      Utils.get_pipe_funs(fun)
+      Parse.get_pipe_funs(fun)
       |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
-      |> Enum.flat_map(&Utils.get_funs_of_type(&1, :render))
+      |> Enum.flat_map(&Parse.get_funs_of_type(&1, :render))
 
     pipevars =
       pipefuns
-      |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 0)})
+      |> Enum.map(&{&1, Parse.parse_render_opts(&1, params, 0)})
       |> List.flatten()
 
     vars =
-      (Utils.get_funs_of_type(fun, :render) -- pipefuns)
-      |> Enum.map(&{&1, Utils.parse_render_opts(&1, params, 1)})
+      (Parse.get_funs_of_type(fun, :render) -- pipefuns)
+      |> Enum.map(&{&1, Parse.parse_render_opts(&1, params, 1)})
 
     {vars ++ pipevars, params, {fun_name, line_no}}
   end
 
   def parse_raw_def(fun) do
-    {vars, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 0, :raw)
-    {aliased, _, _} = Utils.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
+    {vars, params, {fun_name, line_no}} = Parse.get_fun_vars_and_meta(fun, 0, :raw)
+    {aliased, _, _} = Parse.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
 
     {vars ++ aliased, params, {fun_name, line_no}}
   end
@@ -123,15 +123,15 @@ defmodule Sobelow.XSS.Raw do
       "txt" ->
         Sobelow.log_finding(@finding_type, severity)
 
-        Utils.print_custom_finding_metadata(fun, finding, severity, @finding_type, [
-          Utils.finding_file_name(filename),
-          Utils.finding_line(finding),
-          Utils.finding_fun_metadata(fun_name, line_no),
+        Print.print_custom_finding_metadata(fun, finding, severity, @finding_type, [
+          Print.finding_file_name(filename),
+          Print.finding_line(finding),
+          Print.finding_fun_metadata(fun_name, line_no),
           "Template: #{t_name} - #{var}"
         ])
 
       "compact" ->
-        Utils.log_compact_finding(line_no, @finding_type, filename, severity)
+        Print.log_compact_finding(line_no, @finding_type, filename, severity)
 
       _ ->
         Sobelow.log_finding(@finding_type, severity)

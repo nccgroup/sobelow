@@ -13,7 +13,7 @@ defmodule Sobelow.Config.HTTPS do
       $ mix sobelow -i Config.HTTPS
   """
   alias Sobelow.Config
-  alias Sobelow.Utils
+  alias Sobelow.{Config, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.HTTPS: HTTPS Not Enabled"
 
@@ -51,10 +51,10 @@ defmodule Sobelow.Config.HTTPS do
       "txt" ->
         Sobelow.log_finding(@finding_type, :high)
 
-        Utils.print_custom_finding_metadata(nil, reason, :high, @finding_type, [])
+        Print.print_custom_finding_metadata(nil, reason, :high, @finding_type, [])
 
       "compact" ->
-        Sobelow.Utils.log_compact_finding(@finding_type, :high)
+        Print.log_compact_finding(@finding_type, :high)
 
       _ ->
         Sobelow.log_finding(@finding_type, :high)

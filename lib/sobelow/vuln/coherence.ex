@@ -1,5 +1,5 @@
 defmodule Sobelow.Vuln.Coherence do
-  alias Sobelow.Utils
+  alias Sobelow.Config
   alias Sobelow.Vuln
   use Sobelow.Finding
 
@@ -9,7 +9,7 @@ defmodule Sobelow.Vuln.Coherence do
     plug_conf = root <> "/deps/coherence/mix.exs"
 
     if File.exists?(plug_conf) do
-      vsn = Utils.get_version(plug_conf)
+      vsn = Config.get_version(plug_conf)
 
       case Version.parse(vsn) do
         {:ok, vsn} ->

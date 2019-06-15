@@ -10,7 +10,7 @@ defmodule Sobelow.RCE.EEx do
 
       $ mix sobelow -i RCE.EEx
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
   @eex_funs [:eval_string, :eval_file]
 
@@ -21,13 +21,13 @@ defmodule Sobelow.RCE.EEx do
       {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun, eex_fun)
 
       Enum.each(findings, fn {finding, var} ->
-        Utils.add_finding(
+        Print.add_finding(
           line_no,
           meta_file.filename,
           fun,
           fun_name,
           var,
-          Utils.get_sev(params, var, severity),
+          Print.get_sev(params, var, severity),
           finding,
           "RCE.EEx: Code Execution in `EEx.#{eex_fun}`"
         )
@@ -36,6 +36,6 @@ defmodule Sobelow.RCE.EEx do
   end
 
   def parse_def(fun, eex_fun) do
-    Utils.get_fun_vars_and_meta(fun, 0, eex_fun, [:EEx])
+    Parse.get_fun_vars_and_meta(fun, 0, eex_fun, [:EEx])
   end
 end

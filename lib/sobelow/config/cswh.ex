@@ -13,13 +13,13 @@ defmodule Sobelow.Config.CSWH do
 
       $ mix sobelow -i Config.CSWH
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.CSWH: Cross-Site Websocket Hijacking"
 
   def run(endpoint) do
-    Utils.ast(endpoint)
-    |> Utils.get_funs_of_type(:socket)
+    Parse.ast(endpoint)
+    |> Parse.get_funs_of_type(:socket)
     |> handle_sockets(endpoint)
   end
 
@@ -67,7 +67,7 @@ defmodule Sobelow.Config.CSWH do
       "txt" ->
         Sobelow.log_finding(@finding_type, confidence)
 
-        Utils.print_custom_finding_metadata(
+        Print.print_custom_finding_metadata(
           socket,
           :highlight_all,
           confidence,
@@ -76,7 +76,7 @@ defmodule Sobelow.Config.CSWH do
         )
 
       "compact" ->
-        Utils.log_compact_finding(@finding_type, confidence)
+        Print.log_compact_finding(@finding_type, confidence)
 
       _ ->
         Sobelow.log_finding(@finding_type, confidence)

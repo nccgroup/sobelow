@@ -1,5 +1,5 @@
 defmodule Sobelow.XSS.SendResp do
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
 
   def run(fun, meta_file) do
@@ -22,13 +22,13 @@ defmodule Sobelow.XSS.SendResp do
   end
 
   def parse_def(fun) do
-    {vars, params, {fun_name, line_no}} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp)
-    {aliased_vars, _, _} = Utils.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
+    {vars, params, {fun_name, line_no}} = Parse.get_fun_vars_and_meta(fun, 2, :send_resp)
+    {aliased_vars, _, _} = Parse.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
 
     is_html =
-      Utils.get_funs_of_type(fun, :put_resp_content_type)
-      |> Kernel.++(Utils.get_aliased_funs_of_type(fun, :put_resp_content_type, :Conn))
-      |> Enum.any?(&Utils.is_content_type_html/1)
+      Parse.get_funs_of_type(fun, :put_resp_content_type)
+      |> Kernel.++(Parse.get_aliased_funs_of_type(fun, :put_resp_content_type, :Conn))
+      |> Enum.any?(&Parse.is_content_type_html/1)
 
     {vars ++ aliased_vars, is_html, params, {fun_name, line_no}}
   end
@@ -38,7 +38,7 @@ defmodule Sobelow.XSS.SendResp do
   end
 
   defp print_resp_finding(line_no, filename, fun_name, fun, var, severity, finding) do
-    Utils.add_finding(
+    Print.add_finding(
       line_no,
       filename,
       fun,

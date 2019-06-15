@@ -11,7 +11,7 @@ defmodule Sobelow.DOS.BinToAtom do
 
       $ mix sobelow -i DOS.BinToAtom
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
 
   @finding_type "DOS.BinToAtom: Unsafe atom interpolation"
@@ -21,13 +21,13 @@ defmodule Sobelow.DOS.BinToAtom do
     {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each(findings, fn {finding, var} ->
-      Utils.add_finding(
+      Print.add_finding(
         line_no,
         meta_file.filename,
         fun,
         fun_name,
         var,
-        Utils.get_sev(params, var, severity),
+        Print.get_sev(params, var, severity),
         finding,
         @finding_type
       )
@@ -35,6 +35,6 @@ defmodule Sobelow.DOS.BinToAtom do
   end
 
   def parse_def(fun) do
-    Utils.get_erlang_fun_vars_and_meta(fun, 0, :binary_to_atom, :erlang)
+    Parse.get_erlang_fun_vars_and_meta(fun, 0, :binary_to_atom, :erlang)
   end
 end

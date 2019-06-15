@@ -1,16 +1,16 @@
 defmodule SobelowTest.Config.CSPTest do
   use ExUnit.Case
-  alias Sobelow.Utils
+  alias Sobelow.{Config, Parse}
   alias Sobelow.Config.CSP
 
   test "Missing CSP" do
     router = "./test/fixtures/csp/bad_router.ex"
 
     meta_file =
-      Utils.ast(router)
-      |> Utils.get_meta_funs()
+      Parse.ast(router)
+      |> Parse.get_meta_funs()
 
-    assert Utils.get_pipelines(router)
+    assert Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
            |> Enum.any?(&is_vuln?/1)
   end
@@ -19,10 +19,10 @@ defmodule SobelowTest.Config.CSPTest do
     router = "./test/fixtures/csp/good_router.ex"
 
     meta_file =
-      Utils.ast(router)
-      |> Utils.get_meta_funs()
+      Parse.ast(router)
+      |> Parse.get_meta_funs()
 
-    refute Utils.get_pipelines(router)
+    refute Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
            |> Enum.any?(&is_vuln?/1)
   end
@@ -31,10 +31,10 @@ defmodule SobelowTest.Config.CSPTest do
     router = "./test/fixtures/csp/good_router_attr.ex"
 
     meta_file =
-      Utils.ast(router)
-      |> Utils.get_meta_funs()
+      Parse.ast(router)
+      |> Parse.get_meta_funs()
 
-    refute Utils.get_pipelines(router)
+    refute Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
            |> Enum.any?(&is_vuln?/1)
   end
@@ -43,10 +43,10 @@ defmodule SobelowTest.Config.CSPTest do
     router = "./test/fixtures/csp/bad_router_attr.ex"
 
     meta_file =
-      Utils.ast(router)
-      |> Utils.get_meta_funs()
+      Parse.ast(router)
+      |> Parse.get_meta_funs()
 
-    assert Utils.get_pipelines(router)
+    assert Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
            |> Enum.any?(&is_vuln?/1)
   end

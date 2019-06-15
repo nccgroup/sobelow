@@ -11,7 +11,7 @@ defmodule Sobelow.Config.HSTS do
       $ mix sobelow -i Config.HSTS
   """
   alias Sobelow.Config
-  alias Sobelow.Utils
+  alias Sobelow.{Config, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.HSTS: HSTS Not Enabled"
 
@@ -27,7 +27,7 @@ defmodule Sobelow.Config.HSTS do
   defp handle_https(opts, file) do
     # If HTTPS configs were found in any config file and there
     # are no accompanying HSTS configs, add an HSTS finding.
-    if length(opts) > 0 && length(Utils.get_configs(:force_ssl, file)) === 0 do
+    if length(opts) > 0 && length(Config.get_configs(:force_ssl, file)) === 0 do
       add_finding(file)
     end
   end
@@ -49,10 +49,10 @@ defmodule Sobelow.Config.HSTS do
       "txt" ->
         Sobelow.log_finding(@finding_type, :medium)
 
-        Utils.print_custom_finding_metadata(nil, reason, :medium, @finding_type, [])
+        Print.print_custom_finding_metadata(nil, reason, :medium, @finding_type, [])
 
       "compact" ->
-        Utils.log_compact_finding(@finding_type, :medium)
+        Print.log_compact_finding(@finding_type, :medium)
 
       _ ->
         Sobelow.log_finding(@finding_type, :medium)

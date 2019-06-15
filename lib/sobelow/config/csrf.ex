@@ -17,12 +17,12 @@ defmodule Sobelow.Config.CSRF do
 
       $ mix sobelow -i Config.CSRF
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Config, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.CSRF: Missing CSRF Protections"
 
   def run(router, _) do
-    Utils.get_pipelines(router)
+    Config.get_pipelines(router)
     |> Enum.each(fn pipeline ->
       if is_vuln_pipeline?(pipeline) do
         add_finding(pipeline, router)
@@ -31,7 +31,7 @@ defmodule Sobelow.Config.CSRF do
   end
 
   defp is_vuln_pipeline?(pipeline) do
-    Utils.is_vuln_pipeline?(pipeline, :csrf)
+    Config.is_vuln_pipeline?(pipeline, :csrf)
   end
 
   defp add_finding({:pipeline, [line: line_no], [pipeline_name, _]} = pipeline, router) do
@@ -54,7 +54,7 @@ defmodule Sobelow.Config.CSRF do
       "txt" ->
         Sobelow.log_finding(@finding_type, :high)
 
-        Utils.print_custom_finding_metadata(
+        Print.print_custom_finding_metadata(
           pipeline,
           pipeline_name,
           :high,
@@ -63,7 +63,7 @@ defmodule Sobelow.Config.CSRF do
         )
 
       "compact" ->
-        Utils.log_compact_finding(@finding_type, :high)
+        Print.log_compact_finding(@finding_type, :high)
 
       _ ->
         Sobelow.log_finding(@finding_type, :high)

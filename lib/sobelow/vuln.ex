@@ -18,7 +18,7 @@ defmodule Sobelow.Vuln do
     Sobelow.Vuln.Ecto
   ]
 
-  alias Sobelow.Utils
+  alias Sobelow.{Utils, Print}
   use Sobelow.FindingType
 
   def get_vulns(root) do
@@ -48,14 +48,14 @@ defmodule Sobelow.Vuln do
       "txt" ->
         Sobelow.log_finding(type, :high)
 
-        Utils.print_custom_finding_metadata(nil, nil, :high, type, [
+        Print.print_custom_finding_metadata(nil, nil, :high, type, [
           "Details: #{detail}",
           "File: #{filename}",
           "CVE: #{cve}"
         ])
 
       "compact" ->
-        Sobelow.Utils.log_compact_finding(type, :high)
+        Sobelow.Print.log_compact_finding(type, :high)
 
       _ ->
         Sobelow.log_finding(type, :high)

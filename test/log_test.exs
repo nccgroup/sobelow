@@ -1,6 +1,6 @@
 defmodule SobelowTest.LogTest do
   use ExUnit.Case
-  alias Sobelow.{Utils, FindingLog}
+  alias Sobelow.{Print, FindingLog}
 
   # log_json_finding(line_no, filename, fun_name, var, severity, type)
   test "Log JSON finding with function as function name" do
@@ -28,7 +28,7 @@ defmodule SobelowTest.LogTest do
     """
 
     FindingLog.start_link()
-    Utils.log_json_finding(1, "file.ex", "var", :high, "N/A")
+    Print.log_json_finding(1, "file.ex", "var", :high, "N/A")
 
     assert FindingLog.json("1.0.0") <> "\n" == output
   end

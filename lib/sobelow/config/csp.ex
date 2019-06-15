@@ -21,16 +21,14 @@ defmodule Sobelow.Config.CSP do
 
       $ mix sobelow -i Config.CSP
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Config, Parse, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.CSP: Missing Content-Security-Policy"
 
   def run(router, _) do
-    meta_file =
-      Utils.ast(router)
-      |> Utils.get_meta_funs()
+    meta_file = Parse.ast(router) |> Parse.get_meta_funs()
 
-    Utils.get_pipelines(router)
+    Config.get_pipelines(router)
     |> Enum.map(&check_vuln_pipeline(&1, meta_file))
     |> Enum.each(fn {vuln?, conf, plug, pipeline} ->
       if vuln?, do: add_finding(plug, pipeline, conf, router)
@@ -39,7 +37,7 @@ defmodule Sobelow.Config.CSP do
 
   def check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline, meta_file) do
     {vuln?, conf, plug} =
-      Utils.get_plug_list(block)
+      Config.get_plug_list(block)
       |> Enum.find(&is_header_plug?/1)
       |> missing_csp_status(meta_file)
 
@@ -114,7 +112,7 @@ defmodule Sobelow.Config.CSP do
       "txt" ->
         Sobelow.log_finding(@finding_type, conf)
 
-        Utils.print_custom_finding_metadata(
+        Print.print_custom_finding_metadata(
           pipeline,
           :put_secure_browser_headers,
           conf,
@@ -123,7 +121,7 @@ defmodule Sobelow.Config.CSP do
         )
 
       "compact" ->
-        Utils.log_compact_finding(@finding_type, conf)
+        Print.log_compact_finding(@finding_type, conf)
 
       _ ->
         Sobelow.log_finding(@finding_type, conf)

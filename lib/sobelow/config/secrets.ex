@@ -14,8 +14,7 @@ defmodule Sobelow.Config.Secrets do
 
       $ mix sobelow -i Config.Secrets
   """
-  alias Sobelow.Config
-  alias Sobelow.Utils
+  alias Sobelow.{Config, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.Secrets: Hardcoded Secret"
 
@@ -28,10 +27,10 @@ defmodule Sobelow.Config.Secrets do
         |> enumerate_secrets(path)
       end
 
-      Utils.get_fuzzy_configs("password", path)
+      Config.get_fuzzy_configs("password", path)
       |> enumerate_fuzzy_secrets(path)
 
-      Utils.get_fuzzy_configs("secret", path)
+      Config.get_fuzzy_configs("secret", path)
       |> enumerate_fuzzy_secrets(path)
     end)
   end
@@ -82,14 +81,14 @@ defmodule Sobelow.Config.Secrets do
       "txt" ->
         Sobelow.log_finding(@finding_type, :high)
 
-        Utils.print_custom_finding_metadata(fun, :highlight_all, :high, @finding_type, [
+        Print.print_custom_finding_metadata(fun, :highlight_all, :high, @finding_type, [
           file_header,
           line_header,
           key_header
         ])
 
       "compact" ->
-        Utils.log_compact_finding(vuln_line_no, @finding_type, file, :high)
+        Print.log_compact_finding(vuln_line_no, @finding_type, file, :high)
 
       _ ->
         Sobelow.log_finding(@finding_type, :high)

@@ -21,7 +21,7 @@ defmodule Sobelow.XSS.ContentType do
 
       $ mix sobelow -i XSS.ContentType
   """
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
   @finding_type "XSS.ContentType: XSS in `put_resp_content_type`"
 
@@ -30,13 +30,13 @@ defmodule Sobelow.XSS.ContentType do
     {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
 
     Enum.each(findings, fn {finding, var} ->
-      Utils.add_finding(
+      Print.add_finding(
         line_no,
         meta_file.filename,
         fun,
         fun_name,
         var,
-        Utils.get_sev(params, var, severity),
+        Print.get_sev(params, var, severity),
         finding,
         @finding_type
       )
@@ -46,9 +46,9 @@ defmodule Sobelow.XSS.ContentType do
   ## put_resp_content_type(conn, content_type, charset \\ "utf-8")
   def parse_def(fun) do
     {vars, params, {fun_name, line_no}} =
-      Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type)
+      Parse.get_fun_vars_and_meta(fun, 1, :put_resp_content_type)
 
-    {aliased_vars, _, _} = Utils.get_fun_vars_and_meta(fun, 1, :put_resp_content_type, :Conn)
+    {aliased_vars, _, _} = Parse.get_fun_vars_and_meta(fun, 1, :put_resp_content_type, :Conn)
 
     {vars ++ aliased_vars, params, {fun_name, line_no}}
   end

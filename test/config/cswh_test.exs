@@ -1,14 +1,14 @@
 defmodule SobelowTest.Config.CSWHTest do
   use ExUnit.Case
-  alias Sobelow.Utils
+  alias Sobelow.Parse
   alias Sobelow.Config.CSWH
 
   test "checks normal endpoint" do
     endpoint = "./test/fixtures/cswh/good_endpoint.ex"
 
     is_vuln? =
-      Utils.ast(endpoint)
-      |> Utils.get_funs_of_type(:socket)
+      Parse.ast(endpoint)
+      |> Parse.get_funs_of_type(:socket)
       |> Enum.any?(fn socket ->
         case CSWH.check_socket(socket) do
           {true, _} -> true
@@ -23,8 +23,8 @@ defmodule SobelowTest.Config.CSWHTest do
     endpoint = "./test/fixtures/cswh/bad_endpoint.ex"
 
     is_vuln? =
-      Utils.ast(endpoint)
-      |> Utils.get_funs_of_type(:socket)
+      Parse.ast(endpoint)
+      |> Parse.get_funs_of_type(:socket)
       |> Enum.any?(fn socket ->
         case CSWH.check_socket(socket) do
           {true, :high} -> true
@@ -39,8 +39,8 @@ defmodule SobelowTest.Config.CSWHTest do
     endpoint = "./test/fixtures/cswh/soso_endpoint.ex"
 
     is_vuln? =
-      Utils.ast(endpoint)
-      |> Utils.get_funs_of_type(:socket)
+      Parse.ast(endpoint)
+      |> Parse.get_funs_of_type(:socket)
       |> Enum.any?(fn socket ->
         case CSWH.check_socket(socket) do
           {true, :low} -> true

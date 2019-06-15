@@ -1,6 +1,6 @@
 defmodule Sobelow.MetaLog do
   use GenServer
-  alias Sobelow.Utils
+  alias Sobelow.Parse
 
   def start_link() do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -30,7 +30,7 @@ defmodule Sobelow.MetaLog do
     raw_funs =
       get_in(log, [:templates, template_path, :raw])
       |> Enum.reject(fn raw ->
-        Enum.member?(Utils.get_template_vars([raw]), var)
+        Enum.member?(Parse.get_template_vars([raw]), var)
       end)
 
     {:noreply, put_in(log, [:templates, template_path, :raw], raw_funs)}

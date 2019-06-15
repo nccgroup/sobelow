@@ -1,5 +1,5 @@
 defmodule Sobelow.Traversal.FileModule do
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
 
   @file_funcs [
@@ -30,13 +30,13 @@ defmodule Sobelow.Traversal.FileModule do
       {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun, file_func)
 
       Enum.each(findings, fn {finding, var} ->
-        Utils.add_finding(
+        Print.add_finding(
           line_no,
           meta_file.filename,
           fun,
           fun_name,
           var,
-          Utils.get_sev(params, var, severity),
+          Print.get_sev(params, var, severity),
           finding,
           "Traversal.FileModule: Directory Traversal in `File.#{file_func}`"
         )
@@ -47,13 +47,13 @@ defmodule Sobelow.Traversal.FileModule do
       {findings, params, {fun_name, [{_, line_no}]}} = parse_second_def(fun, file_func)
 
       Enum.each(findings, fn {finding, var} ->
-        Utils.add_finding(
+        Print.add_finding(
           line_no,
           meta_file.filename,
           fun,
           fun_name,
           var,
-          Utils.get_sev(params, var, severity),
+          Print.get_sev(params, var, severity),
           finding,
           "Traversal.FileModule: Directory Traversal in `File.#{file_func}`"
         )
@@ -62,11 +62,11 @@ defmodule Sobelow.Traversal.FileModule do
   end
 
   def parse_def(fun, type) do
-    Utils.get_fun_vars_and_meta(fun, 0, type, [:File])
+    Parse.get_fun_vars_and_meta(fun, 0, type, [:File])
   end
 
   def parse_second_def(fun, type) do
-    Utils.get_fun_vars_and_meta(fun, 1, type, [:File])
+    Parse.get_fun_vars_and_meta(fun, 1, type, [:File])
   end
 
   def details() do

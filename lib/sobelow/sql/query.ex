@@ -1,5 +1,5 @@
 defmodule Sobelow.SQL.Query do
-  alias Sobelow.Utils
+  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
   @finding_type "SQL.Query: SQL injection"
 
@@ -8,13 +8,13 @@ defmodule Sobelow.SQL.Query do
     severity = if meta_file.is_controller?, do: false, else: :low
 
     Enum.each(findings, fn {finding, var} ->
-      Utils.add_finding(
+      Print.add_finding(
         line_no,
         meta_file.filename,
         fun,
         fun_name,
         var,
-        Utils.get_sev(params, var, severity),
+        Print.get_sev(params, var, severity),
         finding,
         @finding_type
       )
@@ -23,13 +23,13 @@ defmodule Sobelow.SQL.Query do
     {findings, params, {fun_name, [{_, line_no}]}} = parse_repo_query_def(fun)
 
     Enum.each(findings, fn {finding, var} ->
-      Utils.add_finding(
+      Print.add_finding(
         line_no,
         meta_file.filename,
         fun,
         fun_name,
         var,
-        Utils.get_sev(params, var, severity),
+        Print.get_sev(params, var, severity),
         finding,
         @finding_type
       )
@@ -38,11 +38,11 @@ defmodule Sobelow.SQL.Query do
 
   ## query(repo, sql, params \\ [], opts \\ [])
   def parse_sql_def(fun) do
-    Utils.get_fun_vars_and_meta(fun, 1, :query, :SQL)
+    Parse.get_fun_vars_and_meta(fun, 1, :query, :SQL)
   end
 
   def parse_repo_query_def(fun) do
-    Utils.get_fun_vars_and_meta(fun, 0, :query, :Repo)
+    Parse.get_fun_vars_and_meta(fun, 0, :query, :Repo)
   end
 
   def details() do

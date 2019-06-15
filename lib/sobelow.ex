@@ -18,6 +18,7 @@ defmodule Sobelow do
 
   alias Sobelow.Utils
   alias Sobelow.Config
+  alias Sobelow.Parse
   alias Sobelow.Vuln
   alias Sobelow.FindingLog
   alias Sobelow.MetaLog
@@ -324,7 +325,7 @@ defmodule Sobelow do
   end
 
   defp get_template_meta(filename) do
-    meta_funs = Utils.get_meta_template_funs(filename)
+    meta_funs = Parse.get_meta_template_funs(filename)
     raw = meta_funs.raw
     ast = meta_funs.ast
     filename = Utils.normalize_path(filename)
@@ -349,8 +350,8 @@ defmodule Sobelow do
   end
 
   defp get_file_meta(filename) do
-    ast = Utils.ast(filename)
-    meta_funs = Utils.get_meta_funs(ast)
+    ast = Parse.ast(filename)
+    meta_funs = Parse.get_meta_funs(ast)
     def_funs = meta_funs.def_funs
     use_funs = meta_funs.use_funs
 
