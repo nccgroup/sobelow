@@ -14,6 +14,7 @@ security issues:
 * Cross-Site Scripting
 * SQL injection
 * Command injection
+* Code execution
 * Denial of Service
 * Directory traversal
 * Unsafe serialization
