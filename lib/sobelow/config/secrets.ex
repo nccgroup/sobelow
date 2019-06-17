@@ -88,7 +88,7 @@ defmodule Sobelow.Config.Secrets do
         ])
 
       "compact" ->
-        Print.log_compact_finding(vuln_line_no, @finding_type, file, :high)
+        Print.log_compact_finding(vuln_line_no, @finding_type, file_path, :high)
 
       _ ->
         Sobelow.log_finding(@finding_type, :high)
