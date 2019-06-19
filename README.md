@@ -56,62 +56,107 @@ following from the project root:
 
 ## Options
 
-  * `--root -r` - Specify application root directory
-  * `--verbose -v` - Print code snippets and additional finding details
-  * `--ignore -i` - Ignore modules
-  * `--ignore-files` - Ignore files
-  * `--details -d` - Get module details
-  * `--all-details` - Get all module details
-  * `--private` - Skip update checks
-  * `--router` - Specify router location
-  * `--exit` - Return non-zero exit status
-  * `--threshold` - Only return findings at or above a given confidence level
-  * `--format -f` - Specify findings output format
-  * `--quiet` - Return no output if there are no findings
-  * `--compact` - Minimal, single-line findings
-  * `--save-config` - Generates a configuration file based on command line options
-  * `--config` - Run Sobelow with configuration file
+**Note:** Any path arguments should be absolute paths, or 
+relative to the application root.
+
+  * `--root` or `-r` - Specify the application root directory 
+  with a path argument.
   
-The `root` option takes a path argument:
-
-    $ mix sobelow --root ../my_project
-
-The `verbose` option takes no arguments:
-
-    $ mix sobelow --verbose
-    
-The `ignore` option takes a comma-separated list of modules:
-
-    $ mix sobelow -i XSS.Raw,Traversal
-    
-The `ignore-files` option takes a comma-separated list of file 
-names. File names should be absolute paths, or relative to the 
-application root.
-
-    $ mix sobelow --ignore-files config/prod.exs
-    
-The `details` option takes a single module:
-
-    $ mix sobelow -d Config.CSRF
-    
-The `exit` option accepts a confidence threshold (low, medium, or high), 
-and will return a non-zero exit status at or above that threshold.
-
-    $ mix sobelow --exit Low
-    
-The `threshold` option accepts a confidence threshold (low, medium, or high), 
-and will only return findings at or above that threshold.
-
-    $ mix sobelow --threshold Medium  
-    
-The `format` option accepts an output format for findings. Current formats 
-include `txt` (the default) and `json`. 
-
-Note: The `json` format option does not support the `--verbose` flag. 
-All findings are organized by confidence level, and contain a "type" 
-key. However, other keys may vary between finding types.
-
-    $ mix sobelow --format json
+  ~~~    
+  mix sobelow --root ../my_project
+  ~~~
+        
+  * `--verbose` or `-v` - Print code snippets and additional 
+  finding details.
+  
+  ~~~
+  mix sobelow --verbose
+  ~~~
+  
+  * `--ignore` or `-i` - Ignore findings specified via a 
+  comma-separated list of module names.
+  
+  ~~~
+  mix sobelow -i XSS.Raw,Traversal
+  ~~~
+  
+  * `--ignore-files` - Ignore files based on a comma-separated 
+  list of file names.
+  
+  ~~~
+  mix sobelow --ignore-files config/prod.exs,config/prod.secret.exs
+  ~~~
+  
+  * `--details` or `-d` - Get finding-type details via module name.
+  
+  ~~~
+  mix sobelow -d Config.CSRF
+  ~~~
+  
+  * `--all-details` - Get details of all finding-types.
+  
+  ~~~
+  mix sobelow --all-details
+  ~~~
+  
+  * `--private` - Skip update checks.
+  
+  ~~~
+  mix sobelow --private
+  ~~~
+  
+  * `--router` - Specify router location with a path argument. This 
+  only needs to be used if the router location is non-standard.
+  
+  ~~~
+  mix sobelow --router my/strange/router.ex
+  ~~~
+  
+  * `--exit` - Return non-zero exit status at or above a confidence 
+  threshold of `low` (default), `medium`, or `high`.
+  
+  ~~~
+  mix sobelow --exit low
+  ~~~
+  
+  * `--threshold` - Return findings at or above a confidence level 
+  of `low` (default), `medium`, or `high`.
+  
+  ~~~
+  mix sobelow --threshold medium
+  ~~~
+  
+  * `--format` or `-f` - Specify findings output format. Current 
+  formats include `txt` (default) and `json`. Note that options such as 
+  `--verbose` will not work with the `json` format. All `json` formatted 
+  findings contain a `type`, `file`, and `line` key. Other keys may vary.
+  
+  ~~~
+  mix sobelow --format json
+  ~~~
+  
+  * `--quiet` - Return a single line indicating number of findings. 
+  Otherwise, return no output if there are no findings.
+  
+  ~~~
+  mix sobelow --quiet
+  ~~~
+  
+  * `--compact` - Minimal, single-line findings.
+  
+  ~~~
+  mix sobelow --compact
+  ~~~
+  
+  * `--save-config` - Generates a configuration file based on command 
+  line options. See [Configuration Files](#configuration-files) for more 
+  information.
+  
+  * `--config` - Run Sobelow with configuration file. See [Configuration Files](#configuration-files) 
+  for more information.
+  
+  * `--skip` - Ignore findings in a specified function. See [False Positives](#false-positives) 
+  for more information.
     
 ## Configuration Files
 Sobelow allows users to save frequently used options in a 
