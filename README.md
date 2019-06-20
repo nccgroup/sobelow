@@ -59,94 +59,46 @@ following from the project root:
 **Note:** Any path arguments should be absolute paths, or 
 relative to the application root.
 
-  * `--root` or `-r` - Specify the application root directory 
-  with a path argument.
-  
-  ~~~    
-  mix sobelow --root ../my_project
-  ~~~
+  * `--root` or `-r` - Specify the application root directory. 
+  Accepts a path argument, e.g. `../my_project`.
         
   * `--verbose` or `-v` - Print code snippets and additional 
   finding details.
   
-  ~~~
-  mix sobelow --verbose
-  ~~~
+  * `--ignore` or `-i` - Ignore given finding types. Accepts a 
+  comma-separated list of module names, e.g. `XSS.Raw,Traversal`.
   
-  * `--ignore` or `-i` - Ignore findings specified via a 
-  comma-separated list of module names.
+  * `--ignore-files` - Ignore files. Accepts a comma-separated 
+  list of file names, e.g. `config/prod.exs`.
   
-  ~~~
-  mix sobelow -i XSS.Raw,Traversal
-  ~~~
-  
-  * `--ignore-files` - Ignore files based on a comma-separated 
-  list of file names.
-  
-  ~~~
-  mix sobelow --ignore-files config/prod.exs,config/prod.secret.exs
-  ~~~
-  
-  * `--details` or `-d` - Get finding-type details via module name.
-  
-  ~~~
-  mix sobelow -d Config.CSRF
-  ~~~
+  * `--details` or `-d` - Get finding-type details. Accepts a 
+  single module name, e.g. `Config.CSRF`.
   
   * `--all-details` - Get details of all finding-types.
   
-  ~~~
-  mix sobelow --all-details
-  ~~~
-  
   * `--private` - Skip update checks.
   
-  ~~~
-  mix sobelow --private
-  ~~~
-  
-  * `--router` - Specify router location with a path argument. This 
-  only needs to be used if the router location is non-standard.
-  
-  ~~~
-  mix sobelow --router my/strange/router.ex
-  ~~~
+  * `--router` - Specify router location. This only needs to be 
+  used if the router location is non-standard. Accepts a path 
+  argument, e.g. `my/strange/router.ex`.
   
   * `--exit` - Return non-zero exit status at or above a confidence 
   threshold of `low` (default), `medium`, or `high`.
   
-  ~~~
-  mix sobelow --exit low
-  ~~~
-  
   * `--threshold` - Return findings at or above a confidence level 
   of `low` (default), `medium`, or `high`.
   
-  ~~~
-  mix sobelow --threshold medium
-  ~~~
+  * `--format` or `-f` - Specify findings output format. Accepts a format, 
+  e.g. `txt` or `json`. 
   
-  * `--format` or `-f` - Specify findings output format. Current 
-  formats include `txt` (default) and `json`. Note that options such as 
-  `--verbose` will not work with the `json` format. All `json` formatted 
-  findings contain a `type`, `file`, and `line` key. Other keys may vary.
-  
-  ~~~
-  mix sobelow --format json
-  ~~~
+      Note that options such as `--verbose` will not work with the `json` format. 
+      All `json` formatted findings contain a `type`, `file`, and `line` key. 
+      Other keys may vary.
   
   * `--quiet` - Return a single line indicating number of findings. 
   Otherwise, return no output if there are no findings.
   
-  ~~~
-  mix sobelow --quiet
-  ~~~
-  
   * `--compact` - Minimal, single-line findings.
-  
-  ~~~
-  mix sobelow --compact
-  ~~~
   
   * `--save-config` - Generates a configuration file based on command 
   line options. See [Configuration Files](#configuration-files) for more 
@@ -227,5 +179,3 @@ Sobelow keeps track of the last update-check by creating a
 
 If this functionality is not desired, the `--private` flag can 
 be used with the scan.
-
-    $ mix sobelow --private
