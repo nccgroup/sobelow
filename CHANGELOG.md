@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.8.0
+  * Enhancements
+    * Improve output consistency
+        * All JSON findings contain `type`, `file`, and `line` keys
+        * "Line" output now refers directly to the vulnerable line
+        * Default output headers have been normalized
+    
+    **Note:** If you depend on the structure of the output, this 
+    may be a breaking change. More information can be found at 
+    [https://sobelow.io](https://sobelow.io).
+
 ## v0.7.8
   * Enhancements
     * Add `--threshold` flag
