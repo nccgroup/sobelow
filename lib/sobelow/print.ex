@@ -8,8 +8,12 @@ defmodule Sobelow.Print do
     add_finding(line_no, filename, fun, fun_name, var, severity, finding, type)
   end
 
+  def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type)
+      when is_list(fun) do
+    add_finding(line_no, filename, List.first(fun), fun_name, var, severity, finding, type)
+  end
+
   def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
-    fun = if is_list(fun), do: List.first(fun), else: fun
     vuln_line_no = Parse.get_fun_line(finding)
 
     case Sobelow.format() do
