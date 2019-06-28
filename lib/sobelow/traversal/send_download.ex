@@ -23,7 +23,7 @@ defmodule Sobelow.Traversal.SendDownload do
 
   ## send_download(conn, {:file, path})
   def parse_def(fun) do
-    {findings, params, {fun_name, [{_, line_no}]}} =
+    {findings, params, {fun_name, line_no}} =
       Parse.get_fun_vars_and_meta(fun, 1, :send_download)
 
     findings =

@@ -7,7 +7,7 @@ defmodule Sobelow.RCE.CodeModule do
     severity = if meta_file.is_controller?, do: false, else: :low
 
     Enum.each(@code_funs, fn code_fun ->
-      {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun, code_fun)
+      {findings, params, {fun_name, line_no}} = parse_def(fun, code_fun)
 
       Enum.each(findings, fn {finding, var} ->
         Print.add_finding(

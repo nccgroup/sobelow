@@ -31,7 +31,7 @@ defmodule Sobelow.Misc.FilePath do
   use Sobelow.Finding
 
   def run(fun, meta_file) do
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
+    {vars, params, {fun_name, line_no}} = parse_def(fun)
 
     Enum.each(vars, fn var ->
       add_finding(line_no, meta_file.filename, fun_name, fun, var, Print.get_sev(params, var))

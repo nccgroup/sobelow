@@ -16,7 +16,7 @@ defmodule Sobelow.Misc.BinToTerm do
   @finding_type "Misc.BinToTerm: Unsafe `binary_to_term`"
 
   def run(fun, meta_file) do
-    {vars, _params, {fun_name, [{_, line_no}]}} = parse_def(fun)
+    {vars, _params, {fun_name, line_no}} = parse_def(fun)
 
     Enum.each(vars, fn {finding, var} ->
       Print.add_finding(

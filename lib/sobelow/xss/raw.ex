@@ -6,7 +6,7 @@ defmodule Sobelow.XSS.Raw do
   def run(fun, meta_file, _, nil) do
     severity = if meta_file.is_controller?, do: false, else: :low
 
-    {vars, params, {fun_name, [{_, line_no}]}} = parse_raw_def(fun)
+    {vars, params, {fun_name, line_no}} = parse_raw_def(fun)
 
     Enum.each(vars, fn {finding, var} ->
       Print.add_finding(
@@ -23,7 +23,7 @@ defmodule Sobelow.XSS.Raw do
   end
 
   def run(fun, meta_file, web_root, controller) do
-    {vars, _, {fun_name, [{_, line_no}]}} = parse_render_def(fun)
+    {vars, _, {fun_name, line_no}} = parse_render_def(fun)
     filename = meta_file.filename
     templates = Sobelow.MetaLog.get_templates()
 

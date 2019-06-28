@@ -503,13 +503,13 @@ defmodule Sobelow.Parse do
       end
 
     params = get_params(declaration)
-    {fun_name, line_no, _} = declaration
+    {fun_name, _, _} = declaration
 
-    {params, {fun_name, line_no}}
+    {params, {fun_name, get_fun_line(declaration)}}
   end
 
   def get_fun_declaration(_) do
-    {[], {"", [{"", ""}]}}
+    {[], {"", ""}}
   end
 
   ## Get function parameters.

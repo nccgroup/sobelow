@@ -18,7 +18,7 @@ defmodule Sobelow.RCE.EEx do
     severity = if meta_file.is_controller?, do: false, else: :low
 
     Enum.each(@eex_funs, fn eex_fun ->
-      {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun, eex_fun)
+      {findings, params, {fun_name, line_no}} = parse_def(fun, eex_fun)
 
       Enum.each(findings, fn {finding, var} ->
         Print.add_finding(

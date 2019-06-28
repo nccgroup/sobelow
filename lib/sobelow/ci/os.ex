@@ -5,7 +5,7 @@ defmodule Sobelow.CI.OS do
 
   def run(fun, meta_file) do
     severity = if meta_file.is_controller?, do: false, else: :low
-    {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun)
+    {findings, params, {fun_name, line_no}} = parse_def(fun)
 
     Enum.each(findings, fn {finding, var} ->
       Print.add_finding(

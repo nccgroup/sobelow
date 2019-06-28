@@ -27,7 +27,7 @@ defmodule Sobelow.Traversal.FileModule do
     severity = if meta_file.is_controller?, do: false, else: :low
 
     Enum.each(@file_funcs ++ @double_file_funcs, fn file_func ->
-      {findings, params, {fun_name, [{_, line_no}]}} = parse_def(fun, file_func)
+      {findings, params, {fun_name, line_no}} = parse_def(fun, file_func)
 
       Enum.each(findings, fn {finding, var} ->
         Print.add_finding(
@@ -44,7 +44,7 @@ defmodule Sobelow.Traversal.FileModule do
     end)
 
     Enum.each(@double_file_funcs, fn file_func ->
-      {findings, params, {fun_name, [{_, line_no}]}} = parse_second_def(fun, file_func)
+      {findings, params, {fun_name, line_no}} = parse_second_def(fun, file_func)
 
       Enum.each(findings, fn {finding, var} ->
         Print.add_finding(

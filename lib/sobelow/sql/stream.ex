@@ -4,7 +4,7 @@ defmodule Sobelow.SQL.Stream do
   @finding_type "SQL.Stream: SQL injection"
 
   def run(fun, meta_file) do
-    {findings, params, {fun_name, [{_, line_no}]}} = parse_sql_def(fun)
+    {findings, params, {fun_name, line_no}} = parse_sql_def(fun)
     severity = if meta_file.is_controller?, do: false, else: :low
 
     Enum.each(findings, fn {finding, var} ->
