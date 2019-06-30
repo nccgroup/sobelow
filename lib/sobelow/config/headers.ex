@@ -15,7 +15,7 @@ defmodule Sobelow.Config.Headers do
 
       $ mix sobelow -i Config.Headers
   """
-  alias Sobelow.{Config, Parse, Print, Utils}
+  alias Sobelow.Config
   use Sobelow.Finding
   @finding_type "Config.Headers: Missing Secure Browser Headers"
 

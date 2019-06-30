@@ -14,7 +14,7 @@ defmodule Sobelow.Config.Secrets do
 
       $ mix sobelow -i Config.Secrets
   """
-  alias Sobelow.{Config, Parse, Print, Utils}
+  alias Sobelow.Config
   use Sobelow.Finding
   @finding_type "Config.Secrets: Hardcoded Secret"
 

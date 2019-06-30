@@ -21,7 +21,7 @@ defmodule Sobelow.Config.CSP do
 
       $ mix sobelow -i Config.CSP
   """
-  alias Sobelow.{Config, Parse, Print, Utils}
+  alias Sobelow.Config
   use Sobelow.Finding
   @finding_type "Config.CSP: Missing Content-Security-Policy"
 
@@ -30,8 +30,12 @@ defmodule Sobelow.Config.CSP do
 
     Config.get_pipelines(router)
     |> Enum.map(&check_vuln_pipeline(&1, meta_file))
-    |> Enum.each(fn {vuln?, conf, plug, pipeline} ->
-      if vuln?, do: add_finding(plug, pipeline, conf, router)
+    |> Enum.each(fn
+      {true, conf, plug, pipeline} ->
+        add_finding(plug, pipeline, conf, router)
+
+      _ ->
+        nil
     end)
   end
 

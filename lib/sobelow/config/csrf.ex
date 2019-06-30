@@ -17,7 +17,7 @@ defmodule Sobelow.Config.CSRF do
 
       $ mix sobelow -i Config.CSRF
   """
-  alias Sobelow.{Config, Parse, Print, Utils}
+  alias Sobelow.Config
   use Sobelow.Finding
   @finding_type "Config.CSRF: Missing CSRF Protections"
 

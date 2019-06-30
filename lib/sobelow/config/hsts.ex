@@ -11,7 +11,6 @@ defmodule Sobelow.Config.HSTS do
       $ mix sobelow -i Config.HSTS
   """
   alias Sobelow.Config
-  alias Sobelow.{Config, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.HSTS: HSTS Not Enabled"
 

@@ -13,7 +13,6 @@ defmodule Sobelow.Config.HTTPS do
       $ mix sobelow -i Config.HTTPS
   """
   alias Sobelow.Config
-  alias Sobelow.{Config, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.HTTPS: HTTPS Not Enabled"
 

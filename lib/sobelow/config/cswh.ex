@@ -13,7 +13,6 @@ defmodule Sobelow.Config.CSWH do
 
       $ mix sobelow -i Config.CSWH
   """
-  alias Sobelow.{Parse, Print, Utils}
   use Sobelow.Finding
   @finding_type "Config.CSWH: Cross-Site Websocket Hijacking"
 

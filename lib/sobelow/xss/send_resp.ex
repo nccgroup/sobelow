@@ -1,52 +1,64 @@
 defmodule Sobelow.XSS.SendResp do
-  alias Sobelow.{Parse, Print}
   use Sobelow.Finding
+  @finding_type "XSS.SendResp: XSS in `send_resp`"
 
   def run(fun, meta_file) do
-    {ref_vars, is_html, params, {fun_name, line_no}} = parse_def(fun)
-    filename = meta_file.filename
-
-    Enum.each(ref_vars, fn var ->
-      if is_list(var) do
-        Enum.each(var, fn {finding, v} ->
-          if (Enum.member?(params, v) || v === "conn.params") && is_html do
-            print_resp_finding(line_no, filename, fun_name, fun, v, :high, finding)
-          end
-
-          if is_html && !Enum.member?(params, v) do
-            print_resp_finding(line_no, filename, fun_name, fun, v, :medium, finding)
-          end
-        end)
-      end
-    end)
+    Finding.init(@finding_type, meta_file.filename, nil)
+    |> Finding.multi_from_def(fun, parse_def(fun))
+    |> Stream.map(&set_confidence/1)
+    |> Stream.reject(&nil_confidence?/1)
+    |> Enum.each(&Print.add_finding(&1))
   end
 
   def parse_def(fun) do
     {vars, params, {fun_name, line_no}} = Parse.get_fun_vars_and_meta(fun, 2, :send_resp)
     {aliased_vars, _, _} = Parse.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
 
-    is_html =
-      Parse.get_funs_of_type(fun, :put_resp_content_type)
-      |> Kernel.++(Parse.get_aliased_funs_of_type(fun, :put_resp_content_type, :Conn))
-      |> Enum.any?(&Parse.is_content_type_html/1)
-
-    {vars ++ aliased_vars, is_html, params, {fun_name, line_no}}
+    {vars ++ aliased_vars, params, {fun_name, line_no}}
   end
 
   def details() do
     Sobelow.XSS.details()
   end
 
-  defp print_resp_finding(line_no, filename, fun_name, fun, var, severity, finding) do
-    Print.add_finding(
-      line_no,
-      filename,
-      fun,
-      fun_name,
-      var,
-      severity,
-      finding,
-      "XSS.SendResp: XSS in `send_resp`"
-    )
+  defp get_content_type({:put_resp_content_type, _, opts}), do: hd(opts)
+  defp get_content_type({{_, _, [_, :put_resp_content_type]}, _, opts}), do: hd(opts)
+
+  defp set_confidence(%Sobelow.Finding{} = finding) do
+    content_types =
+      finding.fun_source
+      |> Parse.get_funs_of_type(:put_resp_content_type)
+      |> Kernel.++(Parse.get_aliased_funs_of_type(finding.fun_source, :put_resp_content_type, :Conn))
+      |> Enum.map(&get_content_type/1)
+
+    %{finding | confidence: get_confidence(finding, content_types)}
   end
+
+  defp get_confidence(finding, content_types) do
+    cond do
+      length(content_types) == 0 ->
+        finding.confidence
+
+      Enum.any?(content_types, &(!is_binary(&1))) ->
+        :low
+
+      Enum.all?(content_types, &contains_html?/1) ->
+        finding.confidence
+
+      Enum.any?(content_types, &contains_html?/1) ->
+        :low
+
+      true ->
+        nil
+    end
+  end
+
+  defp contains_html?(content_type) do
+    content_type
+    |> String.downcase()
+    |> String.contains?("html")
+  end
+
+  defp nil_confidence?(%Sobelow.Finding{confidence: nil}), do: true
+  defp nil_confidence?(_), do: false
 end

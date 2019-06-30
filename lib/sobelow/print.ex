@@ -2,90 +2,36 @@ defmodule Sobelow.Print do
   @moduledoc false
   alias Sobelow.Parse
 
-  def add_finding(line_no, filename, fun, fun_name, vars, severity, finding, type)
-      when is_list(vars) do
-    var = if length(vars) > 1, do: Enum.join(vars, " and "), else: hd(vars)
-    add_finding(line_no, filename, fun, fun_name, var, severity, finding, type)
-  end
-
-  def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type)
-      when is_list(fun) do
-    add_finding(line_no, filename, List.first(fun), fun_name, var, severity, finding, type)
-  end
-
-  def add_finding(line_no, filename, fun, fun_name, var, severity, finding, type) do
-    vuln_line_no = Parse.get_fun_line(finding)
-
+  def add_finding(%Sobelow.Finding{} = finding) do
     case Sobelow.format() do
       "json" ->
-        log_json_finding(vuln_line_no, filename, var, severity, type)
+        log_json_finding(finding)
 
       "txt" ->
-        Sobelow.log_finding(type, severity)
-
-        print_finding_metadata(
-          vuln_line_no,
-          line_no,
-          filename,
-          fun,
-          fun_name,
-          var,
-          severity,
-          type,
-          finding
-        )
+        Sobelow.log_finding(finding.type, finding.confidence)
+        print_finding_metadata(finding)
 
       "compact" ->
-        log_compact_finding(vuln_line_no, type, filename, severity)
+        log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(type, severity)
+        Sobelow.log_finding(finding.type, finding.confidence)
     end
   end
 
-  def print_finding_metadata(
-        vuln_line_no,
-        fun_line_no,
-        filename,
-        fun,
-        fun_name,
-        var,
-        severity,
-        type,
-        finding
-      ) do
-    if Sobelow.meets_threshold?(severity) do
-      do_print_finding_metadata(
-        vuln_line_no,
-        fun_line_no,
-        filename,
-        fun,
-        fun_name,
-        var,
-        severity,
-        type,
-        finding
-      )
+  def print_finding_metadata(%Sobelow.Finding{} = finding) do
+    if Sobelow.meets_threshold?(finding.confidence) do
+      do_print_finding_metadata(finding)
     end
   end
 
-  def do_print_finding_metadata(
-        vuln_line_no,
-        fun_line_no,
-        filename,
-        fun,
-        fun_name,
-        var,
-        severity,
-        type,
-        finding
-      ) do
-    IO.puts(finding_header(type, severity))
-    IO.puts(finding_file_name(filename))
-    IO.puts(finding_line(vuln_line_no))
-    maybe_print_finding_fun_metadata(fun_name, fun_line_no)
-    IO.puts(finding_variable(var))
-    maybe_print_code(fun, finding)
+  def do_print_finding_metadata(%Sobelow.Finding{} = finding) do
+    IO.puts(finding_header(finding.type, finding.confidence))
+    IO.puts(finding_file_name(finding.filename))
+    IO.puts(finding_line(finding.vuln_line_no))
+    maybe_print_finding_fun_metadata(finding.fun_name, finding.fun_line_no)
+    IO.puts(finding_variable(finding.vuln_variable))
+    maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
   end
 
@@ -104,6 +50,12 @@ defmodule Sobelow.Print do
 
     maybe_print_code(fun, finding)
     IO.puts(finding_break())
+  end
+
+  def log_compact_finding(%Sobelow.Finding{} = finding) do
+    details = "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
+    Sobelow.log_finding(details, finding.confidence)
+    print_compact_finding(details, finding.confidence)
   end
 
   def log_compact_finding(line_no, type, filename, severity) do
@@ -133,6 +85,17 @@ defmodule Sobelow.Print do
       end
 
     IO.puts("#{sev}[+]#{IO.ANSI.reset()} #{details}")
+  end
+
+  def log_json_finding(%Sobelow.Finding{} = finding) do
+    json_finding = [
+      type: finding.type,
+      file: finding.filename,
+      line: finding.vuln_line_no,
+      variable: finding.vuln_variable
+    ]
+
+    Sobelow.log_finding(json_finding, finding.confidence)
   end
 
   def log_json_finding(vuln_line_no, filename, var, severity, type) do
@@ -214,6 +177,10 @@ defmodule Sobelow.Print do
   end
 
   def get_sev(params, var, false) do
+    do_get_sev(params, var, :high, :medium)
+  end
+
+  def get_sev(params, var, nil) do
     do_get_sev(params, var, :high, :medium)
   end
 
