@@ -61,37 +61,44 @@ defmodule Sobelow.Config.Secrets do
 
   defp add_finding(file, line_no, fun, key, val) do
     vuln_line_no = get_vuln_line(file, line_no, val)
+    finding = %Finding{
+      type: @finding_type,
+      filename: Utils.normalize_path(file),
+      fun_source: fun,
+      vuln_source: :highlight_all,
+      vuln_line_no: vuln_line_no,
+      confidence: :high
+    }
 
-    file_path = Utils.normalize_path(file)
-    file_header = "File: #{file_path}"
-    line_header = "Line: #{vuln_line_no}"
+    file_header = "File: #{finding.filename}"
+    line_header = "Line: #{finding.vuln_line_no}"
     key_header = "Key: #{key}"
 
     case Sobelow.get_env(:format) do
       "json" ->
-        finding = [
-          type: @finding_type,
-          file: file_path,
-          line: vuln_line_no,
+        json_finding = [
+          type: finding.type,
+          file: finding.filename,
+          line: finding.vuln_line_no,
           key: key
         ]
 
-        Sobelow.log_finding(finding, :high)
+        Sobelow.log_finding(json_finding, finding.confidence)
 
       "txt" ->
-        Sobelow.log_finding(@finding_type, :high)
+        Sobelow.log_finding(finding.type, finding.confidence)
 
-        Print.print_custom_finding_metadata(fun, :highlight_all, :high, @finding_type, [
+        Print.print_custom_finding_metadata(finding, [
           file_header,
           line_header,
           key_header
         ])
 
       "compact" ->
-        Print.log_compact_finding(vuln_line_no, @finding_type, file_path, :high)
+        Print.log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(@finding_type, :high)
+        Sobelow.log_finding(finding.type, finding.confidence)
     end
   end
 

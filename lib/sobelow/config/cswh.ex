@@ -49,37 +49,41 @@ defmodule Sobelow.Config.CSWH do
   defp add_finding({false, _}, _, _), do: nil
 
   defp add_finding({true, confidence}, socket, endpoint) do
-    line_no = Parse.get_fun_line(socket)
-    endpoint_path = Utils.normalize_path(endpoint)
-    file_header = "File: #{endpoint_path}"
-    line_header = "Line: #{line_no}"
+    finding = Finding.init(@finding_type, Utils.normalize_path(endpoint), confidence)
+
+    finding = %{
+      finding
+      | vuln_source: :highlight_all,
+        vuln_line_no: Parse.get_fun_line(socket),
+        fun_source: socket
+    }
+
+    file_header = "File: #{finding.filename}"
+    line_header = "Line: #{finding.vuln_line_no}"
 
     case Sobelow.format() do
       "json" ->
-        finding = [
-          type: @finding_type,
-          file: endpoint_path,
-          line: line_no
+        json_finding = [
+          type: finding.type,
+          file: finding.filename,
+          line: finding.vuln_line_no
         ]
 
-        Sobelow.log_finding(finding, confidence)
+        Sobelow.log_finding(json_finding, finding.confidence)
 
       "txt" ->
-        Sobelow.log_finding(@finding_type, confidence)
+        Sobelow.log_finding(finding.type, finding.confidence)
 
         Print.print_custom_finding_metadata(
-          socket,
-          :highlight_all,
-          confidence,
-          @finding_type,
+          finding,
           [file_header, line_header]
         )
 
       "compact" ->
-        Print.log_compact_finding(@finding_type, confidence)
+        Print.log_compact_finding(finding.type, finding.confidence)
 
       _ ->
-        Sobelow.log_finding(@finding_type, confidence)
+        Sobelow.log_finding(finding.type, finding.confidence)
     end
   end
 end

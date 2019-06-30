@@ -22,52 +22,58 @@ defmodule Sobelow.Config.CSRF do
   @finding_type "Config.CSRF: Missing CSRF Protections"
 
   def run(router, _) do
+    finding = Finding.init(@finding_type, Utils.normalize_path(router))
+
     Config.get_pipelines(router)
-    |> Enum.each(fn pipeline ->
-      if is_vuln_pipeline?(pipeline) do
-        add_finding(pipeline, router)
-      end
-    end)
+    |> Stream.filter(&is_vuln_pipeline?/1)
+    |> Enum.each(&add_finding(&1, finding))
   end
 
   defp is_vuln_pipeline?(pipeline) do
     Config.is_vuln_pipeline?(pipeline, :csrf)
   end
 
-  defp add_finding({:pipeline, _, [pipeline_name, _]} = pipeline, router) do
-    line_no = Parse.get_fun_line(pipeline)
-    router_path = Utils.normalize_path(router)
-    file_header = "File: #{router_path}"
-    pipeline_header = "Pipeline: #{pipeline_name}"
-    line_header = "Line: #{line_no}"
+  defp add_finding({:pipeline, _, [pipeline_name, _]} = pipeline, finding) do
+    %{
+      finding
+      | vuln_source: pipeline_name,
+        vuln_line_no: Parse.get_fun_line(pipeline),
+        fun_source: pipeline,
+        fun_name: pipeline_name,
+        confidence: :high
+    }
+    |> add_finding()
+  end
+
+  defp add_finding(%Finding{} = finding) do
+    file_header = "File: #{finding.filename}"
+    pipeline_header = "Pipeline: #{finding.fun_name}"
+    line_header = "Line: #{finding.vuln_line_no}"
 
     case Sobelow.format() do
       "json" ->
-        finding = [
-          type: @finding_type,
-          file: router_path,
-          pipeline: pipeline_name,
-          line: line_no
+        json_finding = [
+          type: finding.type,
+          file: finding.filename,
+          pipeline: finding.fun_name,
+          line: finding.vuln_line_no
         ]
 
-        Sobelow.log_finding(finding, :high)
+        Sobelow.log_finding(json_finding, :high)
 
       "txt" ->
-        Sobelow.log_finding(@finding_type, :high)
+        Sobelow.log_finding(finding.type, :high)
 
         Print.print_custom_finding_metadata(
-          pipeline,
-          pipeline_name,
-          :high,
-          @finding_type,
+          finding,
           [file_header, pipeline_header, line_header]
         )
 
       "compact" ->
-        Print.log_compact_finding(@finding_type, :high)
+        Print.log_compact_finding(finding.type, :high)
 
       _ ->
-        Sobelow.log_finding(@finding_type, :high)
+        Sobelow.log_finding(finding.type, :high)
     end
   end
 end

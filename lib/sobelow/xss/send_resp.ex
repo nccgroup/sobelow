@@ -30,7 +30,9 @@ defmodule Sobelow.XSS.SendResp do
     content_types =
       finding.fun_source
       |> Parse.get_funs_of_type(:put_resp_content_type)
-      |> Kernel.++(Parse.get_aliased_funs_of_type(finding.fun_source, :put_resp_content_type, :Conn))
+      |> Kernel.++(
+        Parse.get_aliased_funs_of_type(finding.fun_source, :put_resp_content_type, :Conn)
+      )
       |> Enum.map(&get_content_type/1)
 
     %{finding | confidence: get_confidence(finding, content_types)}

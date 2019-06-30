@@ -28,7 +28,15 @@ defmodule SobelowTest.LogTest do
     """
 
     FindingLog.start_link()
-    Print.log_json_finding(1, "file.ex", "var", :high, "N/A")
+
+    finding = [
+      type: "N/A",
+      file: "file.ex",
+      line: 1,
+      variable: "var"
+    ]
+
+    Sobelow.log_finding(finding, :high)
 
     assert FindingLog.json("1.0.0") <> "\n" == output
   end

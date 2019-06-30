@@ -27,16 +27,11 @@ defmodule Sobelow.Config.CSP do
 
   def run(router, _) do
     meta_file = Parse.ast(router) |> Parse.get_meta_funs()
+    finding = Finding.init(@finding_type, Utils.normalize_path(router))
 
     Config.get_pipelines(router)
     |> Enum.map(&check_vuln_pipeline(&1, meta_file))
-    |> Enum.each(fn
-      {true, conf, plug, pipeline} ->
-        add_finding(plug, pipeline, conf, router)
-
-      _ ->
-        nil
-    end)
+    |> Enum.each(&maybe_add_finding(&1, finding))
   end
 
   def check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline, meta_file) do
@@ -91,45 +86,49 @@ defmodule Sobelow.Config.CSP do
     end)
   end
 
-  defp add_finding(
-         fun,
-         {:pipeline, _, [pipeline_name, _]} = pipeline,
-         conf,
-         router
-       ) do
-    line_no = Parse.get_fun_line(fun)
-    router_path = Utils.normalize_path(router)
-    file_header = "File: #{router_path}"
-    pipeline_header = "Pipeline: #{pipeline_name}"
-    line_header = "Line: #{line_no}"
+  defp maybe_add_finding({true, confidence, plug, {:pipeline, _, [pipeline_name, _]} = pipeline}, finding) do
+    %{
+      finding
+      | vuln_source: :put_secure_browser_headers,
+        vuln_line_no: Parse.get_fun_line(plug),
+        fun_source: pipeline,
+        fun_name: pipeline_name,
+        confidence: confidence
+    }
+    |> add_finding()
+  end
+
+  defp maybe_add_finding(_, _), do: nil
+
+  defp add_finding(%Finding{} = finding) do
+    file_header = "File: #{finding.filename}"
+    pipeline_header = "Pipeline: #{finding.fun_name}"
+    line_header = "Line: #{finding.vuln_line_no}"
 
     case Sobelow.format() do
       "json" ->
-        finding = [
-          type: @finding_type,
-          file: router_path,
-          pipeline: pipeline_name,
-          line: line_no
+        json_finding = [
+          type: finding.type,
+          file: finding.filename,
+          pipeline: finding.fun_name,
+          line: finding.vuln_line_no
         ]
 
-        Sobelow.log_finding(finding, conf)
+        Sobelow.log_finding(json_finding, finding.confidence)
 
       "txt" ->
-        Sobelow.log_finding(@finding_type, conf)
+        Sobelow.log_finding(finding.type, finding.confidence)
 
         Print.print_custom_finding_metadata(
-          pipeline,
-          :put_secure_browser_headers,
-          conf,
-          @finding_type,
+          finding,
           [file_header, pipeline_header, line_header]
         )
 
       "compact" ->
-        Print.log_compact_finding(@finding_type, conf)
+        Print.log_compact_finding(finding.type, finding.confidence)
 
       _ ->
-        Sobelow.log_finding(@finding_type, conf)
+        Sobelow.log_finding(finding.type, finding.confidence)
     end
   end
 end

@@ -34,29 +34,37 @@ defmodule Sobelow.Config.HTTPS do
   end
 
   defp add_finding(file) do
-    filename = Utils.normalize_path(file)
     reason = "HTTPS configuration details could not be found in `prod.exs`."
+
+    finding = %Finding{
+      type: @finding_type,
+      filename: Utils.normalize_path(file),
+      fun_source: nil,
+      vuln_source: reason,
+      vuln_line_no: 0,
+      confidence: :high
+    }
 
     case Sobelow.format() do
       "json" ->
-        finding = [
-          type: @finding_type,
-          file: filename,
-          line: 0
+        json_finding = [
+          type: finding.type,
+          file: finding.filename,
+          line: finding.vuln_line_no
         ]
 
-        Sobelow.log_finding(finding, :high)
+        Sobelow.log_finding(json_finding, finding.confidence)
 
       "txt" ->
-        Sobelow.log_finding(@finding_type, :high)
+        Sobelow.log_finding(finding.type, finding.confidence)
 
-        Print.print_custom_finding_metadata(nil, reason, :high, @finding_type, [])
+        Print.print_custom_finding_metadata(finding, [])
 
       "compact" ->
-        Print.log_compact_finding(@finding_type, :high)
+        Print.log_compact_finding(finding.type, finding.confidence)
 
       _ ->
-        Sobelow.log_finding(@finding_type, :high)
+        Sobelow.log_finding(finding.type, finding.confidence)
     end
   end
 end

@@ -35,20 +35,20 @@ defmodule Sobelow.Print do
     IO.puts(finding_break())
   end
 
-  def print_custom_finding_metadata(fun, finding, severity, type, headers) do
-    if Sobelow.meets_threshold?(severity) do
-      do_print_custom_finding_metadata(fun, finding, severity, type, headers)
+  def print_custom_finding_metadata(%Finding{} = finding, headers) do
+    if Sobelow.meets_threshold?(finding.confidence) do
+      do_print_custom_finding_metadata(finding, headers)
     end
   end
 
-  def do_print_custom_finding_metadata(fun, finding, severity, type, headers) do
-    IO.puts(finding_header(type, severity))
+  def do_print_custom_finding_metadata(%Finding{} = finding, headers) do
+    IO.puts(finding_header(finding.type, finding.confidence))
 
     Enum.each(headers, fn header ->
       IO.puts(header)
     end)
 
-    maybe_print_code(fun, finding)
+    maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
   end
 
@@ -56,13 +56,6 @@ defmodule Sobelow.Print do
     details = "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
     Sobelow.log_finding(details, finding.confidence)
     print_compact_finding(details, finding.confidence)
-  end
-
-  def log_compact_finding(line_no, type, filename, severity) do
-    details = "#{type} - #{filename}:#{line_no}"
-    Sobelow.log_finding(details, severity)
-
-    print_compact_finding(details, severity)
   end
 
   def log_compact_finding(type, severity) do
@@ -96,17 +89,6 @@ defmodule Sobelow.Print do
     ]
 
     Sobelow.log_finding(json_finding, finding.confidence)
-  end
-
-  def log_json_finding(vuln_line_no, filename, var, severity, type) do
-    finding = [
-      type: type,
-      file: filename,
-      line: vuln_line_no,
-      variable: var
-    ]
-
-    Sobelow.log_finding(finding, severity)
   end
 
   def finding_header(type, severity) do

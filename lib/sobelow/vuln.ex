@@ -18,7 +18,7 @@ defmodule Sobelow.Vuln do
     Sobelow.Vuln.Ecto
   ]
 
-  alias Sobelow.{Utils, Print}
+  alias Sobelow.{Finding, Utils, Print}
   use Sobelow.FindingType
 
   def get_vulns(root) do
@@ -30,35 +30,43 @@ defmodule Sobelow.Vuln do
   end
 
   def print_finding(file, vsn, package, detail, cve \\ "TBA", mod) do
-    filename = Utils.normalize_path(file)
     type = "Vuln.#{mod}: Known Vulnerable Dependency - #{package} v#{vsn}"
+
+    finding = %Finding{
+      type: type,
+      filename: Utils.normalize_path(file),
+      fun_source: nil,
+      vuln_source: nil,
+      vuln_line_no: 0,
+      confidence: :high
+    }
 
     case Sobelow.format() do
       "json" ->
-        finding = [
-          type: type,
+        json_finding = [
+          type: finding.type,
           details: detail,
-          file: filename,
+          file: finding.filename,
           cve: cve,
           line: 0
         ]
 
-        Sobelow.log_finding(finding, :high)
+        Sobelow.log_finding(json_finding, finding.confidence)
 
       "txt" ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(finding.type, finding.confidence)
 
-        Print.print_custom_finding_metadata(nil, nil, :high, type, [
+        Print.print_custom_finding_metadata(finding, [
           "Details: #{detail}",
-          "File: #{filename}",
+          "File: #{finding.filename}",
           "CVE: #{cve}"
         ])
 
       "compact" ->
-        Sobelow.Print.log_compact_finding(type, :high)
+        Sobelow.Print.log_compact_finding(finding.type, finding.confidence)
 
       _ ->
-        Sobelow.log_finding(type, :high)
+        Sobelow.log_finding(finding.type, finding.confidence)
     end
   end
 

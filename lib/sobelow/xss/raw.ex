@@ -97,32 +97,42 @@ defmodule Sobelow.XSS.Raw do
   end
 
   defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity, finding) do
+    finding = %Finding{
+      type: @finding_type,
+      filename: filename,
+      fun_source: fun,
+      vuln_source: finding,
+      vuln_variable: var,
+      vuln_line_no: Parse.get_fun_line(finding),
+      confidence: severity
+    }
+
     case Sobelow.format() do
       "json" ->
-        finding = [
-          type: @finding_type,
-          file: filename,
-          variable: "#{var}",
+        json_finding = [
+          type: finding.type,
+          file: finding.filename,
+          variable: "#{finding.vuln_variable}",
           template: "#{t_name}"
         ]
 
-        Sobelow.log_finding(finding, severity)
+        Sobelow.log_finding(json_finding, finding.confidence)
 
       "txt" ->
-        Sobelow.log_finding(@finding_type, severity)
+        Sobelow.log_finding(finding.type, finding.confidence)
 
-        Print.print_custom_finding_metadata(fun, finding, severity, @finding_type, [
+        Print.print_custom_finding_metadata(finding, [
           Print.finding_file_name(filename),
-          Print.finding_line(finding),
+          Print.finding_line(finding.vuln_source),
           Print.finding_fun_metadata(fun_name, line_no),
           "Template: #{t_name} - #{var}"
         ])
 
       "compact" ->
-        Print.log_compact_finding(line_no, @finding_type, filename, severity)
+        Print.log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(@finding_type, severity)
+        Sobelow.log_finding(finding.type, finding.confidence)
     end
   end
 end
