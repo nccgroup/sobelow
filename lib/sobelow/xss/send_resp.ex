@@ -24,7 +24,7 @@ defmodule Sobelow.XSS.SendResp do
   defp get_content_type({:put_resp_content_type, _, opts}), do: hd(opts)
   defp get_content_type({{_, _, [_, :put_resp_content_type]}, _, opts}), do: hd(opts)
 
-  defp set_confidence(%Sobelow.Finding{} = finding) do
+  defp set_confidence(%Finding{} = finding) do
     content_types =
       finding.fun_source
       |> Parse.get_funs_of_type(:put_resp_content_type)
@@ -59,6 +59,6 @@ defmodule Sobelow.XSS.SendResp do
     |> String.contains?("html")
   end
 
-  defp nil_confidence?(%Sobelow.Finding{confidence: nil}), do: true
+  defp nil_confidence?(%Finding{confidence: nil}), do: true
   defp nil_confidence?(_), do: false
 end

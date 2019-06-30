@@ -1,8 +1,8 @@
 defmodule Sobelow.Print do
   @moduledoc false
-  alias Sobelow.Parse
+  alias Sobelow.{Finding, Parse}
 
-  def add_finding(%Sobelow.Finding{} = finding) do
+  def add_finding(%Finding{} = finding) do
     case Sobelow.format() do
       "json" ->
         log_json_finding(finding)
@@ -19,13 +19,13 @@ defmodule Sobelow.Print do
     end
   end
 
-  def print_finding_metadata(%Sobelow.Finding{} = finding) do
+  def print_finding_metadata(%Finding{} = finding) do
     if Sobelow.meets_threshold?(finding.confidence) do
       do_print_finding_metadata(finding)
     end
   end
 
-  def do_print_finding_metadata(%Sobelow.Finding{} = finding) do
+  def do_print_finding_metadata(%Finding{} = finding) do
     IO.puts(finding_header(finding.type, finding.confidence))
     IO.puts(finding_file_name(finding.filename))
     IO.puts(finding_line(finding.vuln_line_no))
@@ -52,7 +52,7 @@ defmodule Sobelow.Print do
     IO.puts(finding_break())
   end
 
-  def log_compact_finding(%Sobelow.Finding{} = finding) do
+  def log_compact_finding(%Finding{} = finding) do
     details = "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
     Sobelow.log_finding(details, finding.confidence)
     print_compact_finding(details, finding.confidence)
@@ -87,7 +87,7 @@ defmodule Sobelow.Print do
     IO.puts("#{sev}[+]#{IO.ANSI.reset()} #{details}")
   end
 
-  def log_json_finding(%Sobelow.Finding{} = finding) do
+  def log_json_finding(%Finding{} = finding) do
     json_finding = [
       type: finding.type,
       file: finding.filename,
