@@ -83,6 +83,8 @@ defmodule Sobelow.Utils do
     |> binarize_app_name(ast)
   end
 
+  defp binarize_app_name(app_name, _), do: app_name
+
   defp extract_project_block({:def, _, [{:project, _, _}, [do: block]]} = ast, _) do
     {ast, block}
   end

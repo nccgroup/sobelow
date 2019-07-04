@@ -416,7 +416,11 @@ defmodule Sobelow do
   end
 
   defp file_error() do
-    MixIO.error("This does not appear to be a Phoenix application.")
+    message = """
+    This does not appear to be a Phoenix application. If this is an Umbrella application,
+    each application should be scanned separately.
+    """
+    MixIO.error(message)
     System.halt(0)
   end
 
