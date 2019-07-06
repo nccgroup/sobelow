@@ -86,7 +86,10 @@ defmodule Sobelow.Config.CSP do
     end)
   end
 
-  defp maybe_add_finding({true, confidence, plug, {:pipeline, _, [pipeline_name, _]} = pipeline}, finding) do
+  defp maybe_add_finding(
+         {true, confidence, plug, {:pipeline, _, [pipeline_name, _]} = pipeline},
+         finding
+       ) do
     %{
       finding
       | vuln_source: :put_secure_browser_headers,

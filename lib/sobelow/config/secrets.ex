@@ -61,6 +61,7 @@ defmodule Sobelow.Config.Secrets do
 
   defp add_finding(file, line_no, fun, key, val) do
     vuln_line_no = get_vuln_line(file, line_no, val)
+
     finding = %Finding{
       type: @finding_type,
       filename: Utils.normalize_path(file),

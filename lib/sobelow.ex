@@ -420,6 +420,7 @@ defmodule Sobelow do
     This does not appear to be a Phoenix application. If this is an Umbrella application,
     each application should be scanned separately.
     """
+
     MixIO.error(message)
     System.halt(0)
   end
@@ -505,6 +506,7 @@ defmodule Sobelow do
       "RCE.CodeModule" -> Sobelow.RCE.CodeModule
       "Config" -> Sobelow.Config
       "Config.CSRF" -> Sobelow.Config.CSRF
+      "Config.CSRFRoute" -> Sobelow.Config.CSRFRoute
       "Config.Headers" -> Sobelow.Config.Headers
       "Config.CSP" -> Sobelow.Config.CSP
       "Config.Secrets" -> Sobelow.Config.Secrets

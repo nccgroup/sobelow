@@ -362,6 +362,24 @@ defmodule Sobelow.Parse do
     end
   end
 
+  def get_top_level_funs_of_type(ast, type) do
+    {_, acc} = Macro.prewalk(ast, [], &get_top_level_funs_of_type(&1, &2, type))
+    acc
+  end
+
+  def get_top_level_funs_of_type({:&, _, [{:/, _, [{fun, meta, _}, idx]}]}, acc, type) do
+    fun_cap = create_fun_cap(fun, meta, idx)
+    get_top_level_funs_of_type(fun_cap, acc, type)
+  end
+
+  def get_top_level_funs_of_type({type, _, _} = ast, acc, type) do
+    {[], [ast | acc]}
+  end
+
+  def get_top_level_funs_of_type(ast, acc, _type) do
+    {ast, acc}
+  end
+
   def get_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_funs_of_type(&1, &2, type))
     acc

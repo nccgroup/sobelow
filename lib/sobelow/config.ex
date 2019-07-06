@@ -1,12 +1,14 @@
 defmodule Sobelow.Config do
   alias Sobelow.Parse
   alias Sobelow.Config.CSRF
+  alias Sobelow.Config.CSRFRoute
   alias Sobelow.Config.CSP
   alias Sobelow.Config.Headers
   alias Sobelow.Config.CSWH
 
   @submodules [
     Sobelow.Config.CSRF,
+    Sobelow.Config.CSRFRoute,
     Sobelow.Config.Headers,
     Sobelow.Config.CSP,
     Sobelow.Config.Secrets,
@@ -31,7 +33,7 @@ defmodule Sobelow.Config do
 
       Enum.each(allowed, fn mod ->
         cond do
-          mod in [CSRF, Headers, CSP] ->
+          mod in [CSRF, CSRFRoute, Headers, CSP] ->
             Enum.each(router, fn path ->
               apply(mod, :run, [relative_path(path, root), configs])
             end)
