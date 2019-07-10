@@ -124,8 +124,7 @@ defmodule Sobelow.Config.CSRFRoute do
     opts[:alias]
   end
 
-  defp get_alias(a), do: IO.inspect(a)
-  nil
+  defp get_alias(_), do: nil
 
   defp get_and_state_changing?({_, meta}) do
     has_method?(meta, :get) && Enum.any?(@state_changing_methods, &has_method?(meta, &1))
