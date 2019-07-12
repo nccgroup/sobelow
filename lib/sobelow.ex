@@ -26,7 +26,7 @@ defmodule Sobelow do
 
   def run() do
     project_root = get_env(:root) <> "/"
-    if !get_env(:private), do: version_check(project_root)
+    version_check(project_root)
 
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     if !is_binary(app_name), do: file_error()
@@ -469,19 +469,21 @@ defmodule Sobelow do
   defp maybe_prompt_update(time, cfile) do
     installed_vsn = Version.parse!(@v)
 
-    cmp =
-      get_sobelow_version()
-      |> Version.compare(installed_vsn)
+    unless get_env(:private) do
+      cmp =
+        get_sobelow_version()
+        |> Version.compare(installed_vsn)
 
-    case cmp do
-      :gt ->
-        MixIO.error("""
-        A new version of Sobelow is available:
-        mix archive.install hex sobelow
-        """)
+      case cmp do
+        :gt ->
+          MixIO.error("""
+          A new version of Sobelow is available:
+          mix archive.install hex sobelow
+          """)
 
-      _ ->
-        nil
+        _ ->
+          nil
+      end
     end
 
     timestamp = "sobelow-" <> to_string(time)
