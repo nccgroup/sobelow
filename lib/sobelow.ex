@@ -411,7 +411,7 @@ defmodule Sobelow do
     Application.put_env(
       :sobelow,
       :ignored,
-      ignored ++ ["Config.CSRF", "Config.Headers", "Config.CSP"]
+      ignored ++ ["Config.CSRF", "Config.CSRFRoute", "Config.Headers", "Config.CSP"]
     )
   end
 
