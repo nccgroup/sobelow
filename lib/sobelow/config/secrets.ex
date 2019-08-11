@@ -62,14 +62,16 @@ defmodule Sobelow.Config.Secrets do
   defp add_finding(file, line_no, fun, key, val) do
     vuln_line_no = get_vuln_line(file, line_no, val)
 
-    finding = %Finding{
-      type: @finding_type,
-      filename: Utils.normalize_path(file),
-      fun_source: fun,
-      vuln_source: :highlight_all,
-      vuln_line_no: vuln_line_no,
-      confidence: :high
-    }
+    finding =
+      %Finding{
+        type: @finding_type,
+        filename: Utils.normalize_path(file),
+        fun_source: fun,
+        vuln_source: :highlight_all,
+        vuln_line_no: vuln_line_no,
+        confidence: :high
+      }
+      |> Finding.fetch_fingerprint()
 
     file_header = "File: #{finding.filename}"
     line_header = "Line: #{finding.vuln_line_no}"
@@ -80,14 +82,15 @@ defmodule Sobelow.Config.Secrets do
         json_finding = [
           type: finding.type,
           file: finding.filename,
+          fingerprint: finding.fingerprint,
           line: finding.vuln_line_no,
           key: key
         ]
 
-        Sobelow.log_finding(json_finding, finding.confidence)
+        Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
 
         Print.print_custom_finding_metadata(finding, [
           file_header,
@@ -99,7 +102,7 @@ defmodule Sobelow.Config.Secrets do
         Print.log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
     end
   end
 

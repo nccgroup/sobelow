@@ -20,8 +20,10 @@ defmodule Sobelow do
   alias Sobelow.Config
   alias Sobelow.Parse
   alias Sobelow.Vuln
+  alias Sobelow.Finding
   alias Sobelow.FindingLog
   alias Sobelow.MetaLog
+  alias Sobelow.Fingerprint
   alias Mix.Shell.IO, as: MixIO
 
   def run() do
@@ -66,10 +68,9 @@ defmodule Sobelow do
 
     if Enum.empty?(routers), do: no_router()
 
-    FindingLog.start_link()
-    MetaLog.start_link()
+    init_state(project_root, template_meta_files)
 
-    MetaLog.add_templates(template_meta_files)
+    if get_env(:clear_skip), do: clear_skip(project_root)
 
     # This is where the core testing-pipeline starts.
     #
@@ -98,8 +99,6 @@ defmodule Sobelow do
       |> Enum.each(&get_fun_vulns(&1, meta_file, "", allowed))
     end)
 
-    template_meta_files = MetaLog.get_templates()
-
     Enum.each(template_meta_files, fn {_, meta_file} ->
       if Sobelow.XSS in allowed, do: Sobelow.XSS.get_template_vulns(meta_file)
     end)
@@ -114,7 +113,17 @@ defmodule Sobelow do
       IO.puts(:stderr, "... SCAN COMPLETE ...\n")
     end
 
+    if get_env(:mark_skip_all), do: mark_skip_all(project_root)
+
     exit_with_status()
+  end
+
+  defp init_state(project_root, template_meta_files) do
+    FindingLog.start_link()
+    MetaLog.start_link()
+    Fingerprint.start_link()
+    load_ignored_fingerprints(project_root)
+    MetaLog.add_templates(template_meta_files)
   end
 
   defp print_output() do
@@ -183,10 +192,20 @@ defmodule Sobelow do
     end
   end
 
-  def log_finding(finding, severity) do
-    if Sobelow.meets_threshold?(severity) do
-      FindingLog.add(finding, severity)
+  def log_finding(%Finding{} = finding) do
+    log_finding(finding.type, finding)
+  end
+
+  def log_finding(details, %Finding{} = finding) do
+    if loggable?(finding.fingerprint, finding.confidence) do
+      Fingerprint.put(finding.fingerprint)
+      FindingLog.add(details, finding.confidence)
     end
+  end
+
+  def loggable?(fingerprint, severity) do
+    !(get_env(:skip) && Fingerprint.member?(fingerprint)) &&
+      meets_threshold?(severity)
   end
 
   def all_details() do
@@ -425,16 +444,67 @@ defmodule Sobelow do
     System.halt(0)
   end
 
+  defp clear_skip(project_root) do
+    cfile = project_root <> ".sobelow"
+
+    if File.exists?(cfile) do
+      {:ok, iofile} = :file.open(cfile, [:read, :write])
+      {:ok, timestamp} = :file.read_line(iofile)
+      :file.close(iofile)
+
+      :file.write_file(cfile, timestamp)
+    end
+
+    System.halt(0)
+  end
+
+  defp mark_skip_all(project_root) do
+    cfile = project_root <> ".sobelow"
+
+    if File.exists?(cfile) do
+      {:ok, iofile} = :file.open(cfile, [:append])
+      fingerprints = Fingerprint.new_skips() |> Enum.join("\n")
+      :file.write(iofile, ["\n", fingerprints])
+      :file.close(iofile)
+    end
+  end
+
+  defp load_ignored_fingerprints(project_root) do
+    cfile = project_root <> ".sobelow"
+
+    if File.exists?(cfile) do
+      {:ok, iofile} = :file.open(cfile, [:read])
+
+      # Skip timestamp
+      :file.read_line(iofile)
+
+      :file.read_line(iofile) |> load_ignored_fingerprints(iofile)
+      :file.close(iofile)
+    end
+  end
+
+  defp load_ignored_fingerprints({:ok, fingerprint}, iofile) do
+    to_string(fingerprint) |> String.trim() |> Fingerprint.put_ignore()
+    :file.read_line(iofile) |> load_ignored_fingerprints(iofile)
+  end
+
+  defp load_ignored_fingerprints(:eof, _), do: nil
+  defp load_ignored_fingerprints(_, _), do: nil
+
   defp version_check(project_root) do
     cfile = project_root <> ".sobelow"
     time = DateTime.utc_now() |> DateTime.to_unix()
 
     if File.exists?(cfile) do
+      {:ok, iofile} = :file.open(cfile, [:read])
+
       {timestamp, _} =
-        case File.read!(cfile) do
-          "sobelow-" <> timestamp -> Integer.parse(timestamp)
+        case :file.read_line(iofile) do
+          {:ok, 'sobelow-' ++ timestamp} -> to_string(timestamp) |> Integer.parse()
           _ -> file_error()
         end
+
+      :file.close(iofile)
 
       if time - 12 * 60 * 60 > timestamp do
         maybe_prompt_update(time, cfile)
@@ -487,7 +557,9 @@ defmodule Sobelow do
     end
 
     timestamp = "sobelow-" <> to_string(time)
-    File.write(cfile, timestamp)
+    {:ok, iofile} = :file.open(cfile, [:write, :read])
+    :ok = :file.pwrite(iofile, 0, timestamp)
+    :ok = :file.close(iofile)
   end
 
   def get_mod(mod_string) do

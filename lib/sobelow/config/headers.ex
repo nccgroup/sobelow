@@ -44,6 +44,7 @@ defmodule Sobelow.Config.Headers do
   end
 
   defp add_finding(%Finding{} = finding) do
+    finding = Finding.fetch_fingerprint(finding)
     file_header = "File: #{finding.filename}"
     pipeline_header = "Pipeline: #{finding.fun_name}"
     line_header = "Line: #{finding.vuln_line_no}"
@@ -53,14 +54,15 @@ defmodule Sobelow.Config.Headers do
         json_finding = [
           type: finding.type,
           file: finding.filename,
+          fingerprint: finding.fingerprint,
           pipeline: finding.fun_name,
           line: finding.vuln_line_no
         ]
 
-        Sobelow.log_finding(json_finding, :high)
+        Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding.type, :high)
+        Sobelow.log_finding(finding)
 
         Print.print_custom_finding_metadata(
           finding,
@@ -68,10 +70,10 @@ defmodule Sobelow.Config.Headers do
         )
 
       "compact" ->
-        Print.log_compact_finding(finding.type, :high)
+        Print.log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(finding.type, :high)
+        Sobelow.log_finding(finding)
     end
   end
 end

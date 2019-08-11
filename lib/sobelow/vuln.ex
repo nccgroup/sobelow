@@ -32,14 +32,16 @@ defmodule Sobelow.Vuln do
   def print_finding(file, vsn, package, detail, cve \\ "TBA", mod) do
     type = "Vuln.#{mod}: Known Vulnerable Dependency - #{package} v#{vsn}"
 
-    finding = %Finding{
-      type: type,
-      filename: Utils.normalize_path(file),
-      fun_source: nil,
-      vuln_source: nil,
-      vuln_line_no: 0,
-      confidence: :high
-    }
+    finding =
+      %Finding{
+        type: type,
+        filename: Utils.normalize_path(file),
+        fun_source: nil,
+        vuln_source: nil,
+        vuln_line_no: 0,
+        confidence: :high
+      }
+      |> Finding.fetch_fingerprint()
 
     case Sobelow.format() do
       "json" ->
@@ -47,14 +49,15 @@ defmodule Sobelow.Vuln do
           type: finding.type,
           details: detail,
           file: finding.filename,
+          fingerprint: finding.fingerprint,
           cve: cve,
           line: 0
         ]
 
-        Sobelow.log_finding(json_finding, finding.confidence)
+        Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
 
         Print.print_custom_finding_metadata(finding, [
           "Details: #{detail}",
@@ -63,10 +66,10 @@ defmodule Sobelow.Vuln do
         ])
 
       "compact" ->
-        Sobelow.Print.log_compact_finding(finding.type, finding.confidence)
+        Print.log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
     end
   end
 

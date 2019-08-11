@@ -37,6 +37,8 @@ defmodule Sobelow.Config.CSRFRoute do
     |> Parse.get_top_level_funs_of_type(:scope)
     |> combine_scopes()
     |> Stream.flat_map(&route_findings(&1, finding))
+    # Sort for deterministic txt-format output
+    |> Enum.sort()
     |> Enum.each(&add_finding/1)
   end
 
@@ -73,6 +75,7 @@ defmodule Sobelow.Config.CSRFRoute do
   defp put_finding_details(_, acc, _), do: acc
 
   defp add_finding(%Finding{} = finding) do
+    finding = Finding.fetch_fingerprint(finding)
     file_header = "File: #{finding.filename}"
     action_header = "Action: #{finding.fun_name}"
     line_header = "Line: #{finding.vuln_line_no}"
@@ -82,14 +85,15 @@ defmodule Sobelow.Config.CSRFRoute do
         json_finding = [
           type: finding.type,
           file: finding.filename,
+          fingerprint: finding.fingerprint,
           route: finding.fun_name,
           line: finding.vuln_line_no
         ]
 
-        Sobelow.log_finding(json_finding, finding.confidence)
+        Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
 
         Print.print_custom_finding_metadata(
           finding,
@@ -97,10 +101,10 @@ defmodule Sobelow.Config.CSRFRoute do
         )
 
       "compact" ->
-        Print.log_compact_finding(finding.type, finding.confidence)
+        Print.log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
     end
   end
 

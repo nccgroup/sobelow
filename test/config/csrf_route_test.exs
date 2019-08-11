@@ -1,7 +1,7 @@
 defmodule SobelowTest.Config.CSRFRouteTest do
   use ExUnit.Case
   alias Sobelow.Config.CSRFRoute
-  alias Sobelow.{Finding,Parse}
+  alias Sobelow.{Finding, Parse}
 
   test "flags vulnerable routes in standard case" do
     code = """

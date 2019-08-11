@@ -3,24 +3,26 @@ defmodule Sobelow.Print do
   alias Sobelow.{Finding, Parse}
 
   def add_finding(%Finding{} = finding) do
+    finding = Finding.fetch_fingerprint(finding)
+
     case Sobelow.format() do
       "json" ->
         log_json_finding(finding)
 
       "txt" ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
         print_finding_metadata(finding)
 
       "compact" ->
         log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
     end
   end
 
   def print_finding_metadata(%Finding{} = finding) do
-    if Sobelow.meets_threshold?(finding.confidence) do
+    if Sobelow.loggable?(finding.fingerprint, finding.confidence) do
       do_print_finding_metadata(finding)
     end
   end
@@ -31,12 +33,13 @@ defmodule Sobelow.Print do
     IO.puts(finding_line(finding.vuln_line_no))
     maybe_print_finding_fun_metadata(finding.fun_name, finding.fun_line_no)
     IO.puts(finding_variable(finding.vuln_variable))
+    IO.puts(finding_fingerprint(finding.fingerprint))
     maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
   end
 
   def print_custom_finding_metadata(%Finding{} = finding, headers) do
-    if Sobelow.meets_threshold?(finding.confidence) do
+    if Sobelow.loggable?(finding.fingerprint, finding.confidence) do
       do_print_custom_finding_metadata(finding, headers)
     end
   end
@@ -48,24 +51,22 @@ defmodule Sobelow.Print do
       IO.puts(header)
     end)
 
+    IO.puts(finding_fingerprint(finding.fingerprint))
+
     maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
   end
 
   def log_compact_finding(%Finding{} = finding) do
     details = "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
-    Sobelow.log_finding(details, finding.confidence)
-    print_compact_finding(details, finding.confidence)
+
+    Sobelow.log_finding(%{finding | type: details})
+    print_compact_finding(finding, details)
   end
 
-  def log_compact_finding(type, severity) do
-    Sobelow.log_finding(type, severity)
-    print_compact_finding(type, severity)
-  end
-
-  defp print_compact_finding(details, severity) do
-    if Sobelow.meets_threshold?(severity) do
-      do_print_compact_finding(details, severity)
+  defp print_compact_finding(finding, details) do
+    if Sobelow.loggable?(finding.fingerprint, finding.confidence) do
+      do_print_compact_finding(details, finding.confidence)
     end
   end
 
@@ -83,12 +84,13 @@ defmodule Sobelow.Print do
   def log_json_finding(%Finding{} = finding) do
     json_finding = [
       type: finding.type,
+      fingerprint: finding.fingerprint,
       file: finding.filename,
       line: finding.vuln_line_no,
       variable: finding.vuln_variable
     ]
 
-    Sobelow.log_finding(json_finding, finding.confidence)
+    Sobelow.log_finding(json_finding, finding)
   end
 
   def finding_header(type, severity) do
@@ -106,6 +108,10 @@ defmodule Sobelow.Print do
 
   def finding_line(finding) do
     "Line: #{Parse.get_fun_line(finding)}"
+  end
+
+  def finding_fingerprint(fingerprint) do
+    "Fingerprint: #{fingerprint}"
   end
 
   def maybe_print_finding_fun_metadata("", _), do: nil

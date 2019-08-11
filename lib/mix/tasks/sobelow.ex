@@ -90,6 +90,8 @@ defmodule Mix.Tasks.Sobelow do
     private: :boolean,
     diff: :string,
     skip: :boolean,
+    mark_skip_all: :boolean,
+    clear_skip: :boolean,
     router: :string,
     exit: :string,
     format: :string,
@@ -126,8 +128,8 @@ defmodule Mix.Tasks.Sobelow do
         opts
       end
 
-    {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
-     all_details, out, threshold} = get_opts(opts, root, conf_file?)
+    {verbose, diff, details, private, skip, mark_skip_all, clear_skip, router, exit_on, format,
+     ignored, ignored_files, all_details, out, threshold} = get_opts(opts, root, conf_file?)
 
     set_env(:verbose, verbose)
 
@@ -140,6 +142,8 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:details, details)
     set_env(:private, private)
     set_env(:skip, skip)
+    set_env(:mark_skip_all, mark_skip_all)
+    set_env(:clear_skip, clear_skip)
     set_env(:router, router)
     set_env(:exit_on, exit_on)
     set_env(:format, format)
@@ -191,6 +195,8 @@ defmodule Mix.Tasks.Sobelow do
     private = Keyword.get(opts, :private, false)
     diff = Keyword.get(opts, :diff, false)
     skip = Keyword.get(opts, :skip, false)
+    mark_skip_all = Keyword.get(opts, :mark_skip_all, false)
+    clear_skip = Keyword.get(opts, :clear_skip, false)
     router = Keyword.get(opts, :router)
     out = Keyword.get(opts, :out)
 
@@ -236,8 +242,8 @@ defmodule Mix.Tasks.Sobelow do
         _ -> :low
       end
 
-    {verbose, diff, details, private, skip, router, exit_on, format, ignored, ignored_files,
-     all_details, out, threshold}
+    {verbose, diff, details, private, skip, mark_skip_all, clear_skip, router, exit_on, format,
+     ignored, ignored_files, all_details, out, threshold}
   end
 
   # Future updates will include format hinting based on the outfile name. Additional output

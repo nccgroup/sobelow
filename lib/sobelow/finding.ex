@@ -8,8 +8,11 @@ defmodule Sobelow.Finding do
     :vuln_source,
     :fun_name,
     :fun_line_no,
-    :fun_source
+    :fun_source,
+    :fingerprint
   ]
+
+  alias Sobelow.Utils
 
   def init(type, filename, confidence \\ nil) do
     %Sobelow.Finding{
@@ -32,6 +35,23 @@ defmodule Sobelow.Finding do
       }
       |> normalize()
     end)
+  end
+
+  def fetch_fingerprint(%Sobelow.Finding{} = finding) do
+    %{finding | fingerprint: fingerprint(finding)}
+  end
+
+  def fingerprint(%Sobelow.Finding{} = finding) do
+    filename =
+      Utils.get_root()
+      |> Utils.normalize_path()
+      |> (&String.replace_prefix(finding.filename, &1, "")).()
+      |> Utils.normalize_path()
+
+    [finding.type, finding.vuln_source, filename, finding.vuln_line_no]
+    |> :erlang.term_to_binary()
+    |> :erlang.md5()
+    |> Base.encode16()
   end
 
   defp normalize(%Sobelow.Finding{vuln_variable: vars} = finding) when is_list(vars) do

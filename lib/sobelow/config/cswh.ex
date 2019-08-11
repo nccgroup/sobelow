@@ -51,12 +51,14 @@ defmodule Sobelow.Config.CSWH do
   defp add_finding({true, confidence}, socket, endpoint) do
     finding = Finding.init(@finding_type, Utils.normalize_path(endpoint), confidence)
 
-    finding = %{
-      finding
-      | vuln_source: :highlight_all,
-        vuln_line_no: Parse.get_fun_line(socket),
-        fun_source: socket
-    }
+    finding =
+      %{
+        finding
+        | vuln_source: :highlight_all,
+          vuln_line_no: Parse.get_fun_line(socket),
+          fun_source: socket
+      }
+      |> Finding.fetch_fingerprint()
 
     file_header = "File: #{finding.filename}"
     line_header = "Line: #{finding.vuln_line_no}"
@@ -66,13 +68,14 @@ defmodule Sobelow.Config.CSWH do
         json_finding = [
           type: finding.type,
           file: finding.filename,
+          fingerprint: finding.fingerprint,
           line: finding.vuln_line_no
         ]
 
-        Sobelow.log_finding(json_finding, finding.confidence)
+        Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
 
         Print.print_custom_finding_metadata(
           finding,
@@ -80,10 +83,10 @@ defmodule Sobelow.Config.CSWH do
         )
 
       "compact" ->
-        Print.log_compact_finding(finding.type, finding.confidence)
+        Print.log_compact_finding(finding)
 
       _ ->
-        Sobelow.log_finding(finding.type, finding.confidence)
+        Sobelow.log_finding(finding)
     end
   end
 end
