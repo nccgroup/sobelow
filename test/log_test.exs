@@ -1,6 +1,6 @@
 defmodule SobelowTest.LogTest do
   use ExUnit.Case
-  alias Sobelow.{FindingLog}
+  alias Sobelow.{FindingLog, Fingerprint}
 
   # log_json_finding(line_no, filename, fun_name, var, severity, type)
   test "Log JSON finding with function as function name" do
@@ -28,6 +28,7 @@ defmodule SobelowTest.LogTest do
     """
 
     FindingLog.start_link()
+    Fingerprint.start_link()
 
     finding = [
       type: "N/A",

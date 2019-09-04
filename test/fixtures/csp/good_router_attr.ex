@@ -1,5 +1,5 @@
 defmodule GoodRouter do
-  @csp %{"Content-Security-Policy" => "default-src 'self'"}
+  @csp %{"content-security-policy" => "default-src 'self'"}
 
   pipeline :browser do
     plug(:accepts, ["html"])
