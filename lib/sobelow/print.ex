@@ -33,7 +33,6 @@ defmodule Sobelow.Print do
     IO.puts(finding_line(finding.vuln_line_no))
     maybe_print_finding_fun_metadata(finding.fun_name, finding.fun_line_no)
     IO.puts(finding_variable(finding.vuln_variable))
-    IO.puts(finding_fingerprint(finding.fingerprint))
     maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
   end
@@ -50,8 +49,6 @@ defmodule Sobelow.Print do
     Enum.each(headers, fn header ->
       IO.puts(header)
     end)
-
-    IO.puts(finding_fingerprint(finding.fingerprint))
 
     maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
@@ -84,7 +81,6 @@ defmodule Sobelow.Print do
   def log_json_finding(%Finding{} = finding) do
     json_finding = [
       type: finding.type,
-      fingerprint: finding.fingerprint,
       file: finding.filename,
       line: finding.vuln_line_no,
       variable: finding.vuln_variable
@@ -108,10 +104,6 @@ defmodule Sobelow.Print do
 
   def finding_line(finding) do
     "Line: #{Parse.get_fun_line(finding)}"
-  end
-
-  def finding_fingerprint(fingerprint) do
-    "Fingerprint: #{fingerprint}"
   end
 
   def maybe_print_finding_fun_metadata("", _), do: nil
