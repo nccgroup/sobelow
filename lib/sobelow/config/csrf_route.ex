@@ -85,7 +85,6 @@ defmodule Sobelow.Config.CSRFRoute do
         json_finding = [
           type: finding.type,
           file: finding.filename,
-          fingerprint: finding.fingerprint,
           route: finding.fun_name,
           line: finding.vuln_line_no
         ]

@@ -54,7 +54,6 @@ defmodule Sobelow.Config.Headers do
         json_finding = [
           type: finding.type,
           file: finding.filename,
-          fingerprint: finding.fingerprint,
           pipeline: finding.fun_name,
           line: finding.vuln_line_no
         ]

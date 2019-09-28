@@ -50,7 +50,6 @@ defmodule Sobelow.Config.HSTS do
         json_finding = [
           type: finding.type,
           file: finding.filename,
-          fingerprint: finding.fingerprint,
           line: finding.vuln_line_no
         ]
 

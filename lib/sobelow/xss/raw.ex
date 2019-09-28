@@ -114,7 +114,6 @@ defmodule Sobelow.XSS.Raw do
         json_finding = [
           type: finding.type,
           file: finding.filename,
-          fingerprint: finding.fingerprint,
           variable: "#{finding.vuln_variable}",
           template: "#{t_name}"
         ]

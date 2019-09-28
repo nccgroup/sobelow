@@ -49,7 +49,6 @@ defmodule Sobelow.Vuln do
           type: finding.type,
           details: detail,
           file: finding.filename,
-          fingerprint: finding.fingerprint,
           cve: cve,
           line: 0
         ]
