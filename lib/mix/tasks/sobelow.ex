@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.Sobelow do
   use Mix.Task
 
+  @recursive true
+
   @moduledoc """
   Sobelow is a static analysis tool for discovering
   vulnerabilities in Phoenix applications.
