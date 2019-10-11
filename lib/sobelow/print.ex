@@ -123,6 +123,10 @@ defmodule Sobelow.Print do
     "Function: #{fun_name}:#{line_no}"
   end
 
+  def finding_variable({_, _, _} = var) do
+    {var, [], []} |> Macro.to_string() |> finding_variable()
+  end
+
   def finding_variable(var) do
     "Variable: #{var}"
   end
