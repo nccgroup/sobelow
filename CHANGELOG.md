@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.9.0
+  * Enhancements
+    * Add `--mark-skip-all` and `--clear-skip` flags
+    * New CSRF via action reuse checks
+    * Sobelow can now be run in umbrella apps
+     
+  * Bug Fixes
+    * Fix an error when printing some kinds of variables
+
 ## v0.8.0
   * Enhancements
     * Improve output consistency

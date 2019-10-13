@@ -115,9 +115,13 @@ relative to the application root.
   * `--config` - Run Sobelow with configuration file. See [Configuration Files](#configuration-files) 
   for more information.
   
-  * `--skip` - Ignore findings in a specified function. See [False Positives](#false-positives) 
+  * `--mark-skip-all` - Mark all displayed findings as skippable. 
+  
+  * `--clear-skip` - Clear configuration created by `--mark-skip-all`.
+  
+  * `--skip` - Ignore findings that have been marked for skipping. See [False Positives](#false-positives) 
   for more information.
-    
+  
 ## Configuration Files
 Sobelow allows users to save frequently used options in a 
 configuration file. For example, if you find yourself constantly 
@@ -161,12 +165,19 @@ def vuln_func(...) do
 end
 ```
 
-Then, run the scan with the `--skip` flag.
+When integrating Sobelow into a new project, there can be a 
+large number of false positives. To mark all printed findings 
+as false positives, run sobelow with the `--mark-skip-all` flag. 
+
+Once you have tagged the appropriate findings, run 
+Sobelow with the `--skip` flag.
 
     $ mix sobelow --skip
 
-Config and Vulnerable Dependency findings cannot be skipped in 
-this way. For these, use the standard `ignore` option.
+While `# sobelow_skip` comments can only mark function-level 
+findings (and so cannot be used to skip configuration issues), 
+the `--mark-skip-all` flag can be used to skip any finding 
+type.
 
 ## Modules
 Findings categories are broken up into modules. These modules 

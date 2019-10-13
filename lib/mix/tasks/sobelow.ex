@@ -21,7 +21,9 @@ defmodule Mix.Tasks.Sobelow do
   * `--details -d` - Get module details
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
-  * `--skip` - Skip functions flagged with `#sobelow_skip`
+  * `--mark-skip-all` - Mark all printed findings as skippable
+  * `--clear-skip` - Clear configuration added by `--mark-skip-all`
+  * `--skip` - Skip functions flagged with `#sobelow_skip` or tagged with `--mark-skip-all`
   * `--router` - Specify router location
   * `--exit` - Return non-zero exit status
   * `--threshold` - Only return findings at or above a given confidence level
