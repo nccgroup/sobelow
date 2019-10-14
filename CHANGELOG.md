@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.9.1
+  * Bug Fixes
+    * Revert umbrella app recursion
+
 ## v0.9.0
   * Enhancements
     * Add `--mark-skip-all` and `--clear-skip` flags
