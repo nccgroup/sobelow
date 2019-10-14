@@ -557,9 +557,15 @@ defmodule Sobelow do
     end
 
     timestamp = "sobelow-" <> to_string(time)
-    {:ok, iofile} = :file.open(cfile, [:write, :read])
-    :ok = :file.pwrite(iofile, 0, timestamp)
-    :ok = :file.close(iofile)
+
+
+    case :file.open(cfile, [:write, :read]) do
+      {:ok, iofile} ->
+        :ok = :file.pwrite(iofile, 0, timestamp)
+        :ok = :file.close(iofile)
+      _ ->
+        File.write(cfile, timestamp)
+    end
   end
 
   def get_mod(mod_string) do
