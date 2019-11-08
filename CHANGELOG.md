@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.9.2 (wip)
+  * Bug Fixes
+    * Fix error that resulted from redefining imported functions
+
 ## v0.9.1
   * Bug Fixes
     * Revert umbrella app recursion

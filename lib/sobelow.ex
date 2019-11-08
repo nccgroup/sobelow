@@ -558,11 +558,11 @@ defmodule Sobelow do
 
     timestamp = "sobelow-" <> to_string(time)
 
-
     case :file.open(cfile, [:write, :read]) do
       {:ok, iofile} ->
         :ok = :file.pwrite(iofile, 0, timestamp)
         :ok = :file.close(iofile)
+
       _ ->
         File.write(cfile, timestamp)
     end

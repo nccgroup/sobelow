@@ -385,6 +385,17 @@ defmodule Sobelow.Parse do
     acc
   end
 
+  # This should not effect piped, aliased, etc get_funs* functions.
+  def get_funs_of_type({name, _, opts} = ast, acc, type) when name in [:def, :defp, :defmacro] do
+    case Macro.prewalk(opts, [], &get_do_block/2) do
+      {_, [[{:do, block}]]} ->
+        get_funs_of_type(block, acc, type)
+
+      _ ->
+        {[], acc}
+    end
+  end
+
   def get_funs_of_type({type, _, _} = ast, acc, types) when is_list(types) do
     if Enum.member?(types, type) do
       {ast, [ast | acc]}
