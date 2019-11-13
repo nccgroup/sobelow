@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.9.2 (wip)
+## v0.9.2
   * Bug Fixes
     * Fix error that resulted from redefining imported functions
 
