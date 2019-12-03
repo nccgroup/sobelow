@@ -115,7 +115,8 @@ defmodule Sobelow.XSS.Raw do
           type: finding.type,
           file: finding.filename,
           variable: "#{finding.vuln_variable}",
-          template: "#{t_name}"
+          template: "#{t_name}",
+          line: finding.vuln_line_no
         ]
 
         Sobelow.log_finding(json_finding, finding)
