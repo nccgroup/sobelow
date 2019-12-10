@@ -37,5 +37,16 @@ defmodule SobelowTest.Traversal.SendDownload do
     {_, ast} = Code.string_to_quoted(func)
 
     refute SendDownload.parse_def(ast) |> is_vuln?
+
+    func = """
+    def index(conn, %{"test" => test}) do
+      conn
+      |> send_download({:binary, test}, filename: "test")
+    end
+    """
+
+    {_, ast} = Code.string_to_quoted(func)
+
+    refute SendDownload.parse_def(ast) |> is_vuln?
   end
 end
