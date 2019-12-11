@@ -11,10 +11,7 @@ defmodule Sobelow.XSS.SendResp do
   end
 
   def parse_def(fun) do
-    {vars, params, {fun_name, line_no}} = Parse.get_fun_vars_and_meta(fun, 2, :send_resp)
-    {aliased_vars, _, _} = Parse.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
-
-    {vars ++ aliased_vars, params, {fun_name, line_no}}
+    Parse.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
   end
 
   def details() do

@@ -86,10 +86,7 @@ defmodule Sobelow.XSS.Raw do
   end
 
   def parse_raw_def(fun) do
-    {vars, params, {fun_name, line_no}} = Parse.get_fun_vars_and_meta(fun, 0, :raw)
-    {aliased, _, _} = Parse.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
-
-    {vars ++ aliased, params, {fun_name, line_no}}
+    Parse.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
   end
 
   def details() do

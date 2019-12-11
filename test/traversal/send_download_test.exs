@@ -49,4 +49,16 @@ defmodule SobelowTest.Traversal.SendDownload do
 
     refute SendDownload.parse_def(ast) |> is_vuln?
   end
+
+  test "vulnerable Phoenix.Controller.send_download" do
+    func = """
+    def index(conn, %{"test" => test}) do
+      Phoenix.Controller.send_download(conn, {:file, test})
+    end
+    """
+
+    {_, ast} = Code.string_to_quoted(func)
+
+    assert SendDownload.parse_def(ast) |> is_vuln?
+  end
 end

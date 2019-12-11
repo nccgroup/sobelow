@@ -119,7 +119,7 @@ defmodule Sobelow.Parse do
 
   def get_meta_template_fun(ast, acc), do: {ast, acc}
 
-  def get_fun_vars_and_meta(fun, idx, type, module \\ nil) do
+  def get_fun_vars_and_meta(fun, idx, type, module) do
     {params, {fun_name, line_no}} = get_fun_declaration(fun)
 
     pipefuns = get_funs_from_pipe(fun, type, module)
@@ -149,8 +149,16 @@ defmodule Sobelow.Parse do
     get_funs_of_type(fun, type)
   end
 
-  defp get_funs(fun, type, module) do
+  defp get_funs(fun, type, module) when is_list(module) do
     get_aliased_funs_of_type(fun, type, module)
+  end
+
+  defp get_funs(fun, type, {:required, module}) do
+    get_aliased_funs_of_type(fun, type, module)
+  end
+
+  defp get_funs(fun, type, module) do
+    get_funs(fun, type, {:required, module}) ++ get_funs_of_type(fun, type)
   end
 
   defp get_funs_from_pipe(fun, type, nil) do
@@ -160,11 +168,22 @@ defmodule Sobelow.Parse do
     |> Enum.uniq()
   end
 
-  defp get_funs_from_pipe(fun, type, module) do
+  defp get_funs_from_pipe(fun, type, module) when is_list(module) do
     get_pipe_funs(fun)
     |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
     |> Enum.flat_map(&get_piped_aliased_funs_of_type(&1, type, module))
     |> Enum.uniq()
+  end
+
+  defp get_funs_from_pipe(fun, type, {:required, module}) do
+    get_pipe_funs(fun)
+    |> Enum.map(fn {_, _, opts} -> Enum.at(opts, 1) end)
+    |> Enum.flat_map(&get_piped_aliased_funs_of_type(&1, type, module))
+    |> Enum.uniq()
+  end
+
+  defp get_funs_from_pipe(fun, type, module) do
+    get_funs_from_pipe(fun, type, {:required, module}) ++ get_funs_from_pipe(fun, type, nil)
   end
 
   def get_erlang_funs_from_pipe(fun, type, module) do
@@ -622,10 +641,9 @@ defmodule Sobelow.Parse do
 
   def get_template_vars(raw_funs) do
     Enum.flat_map(raw_funs, fn ast ->
-      {vars, _, _} = get_fun_vars_and_meta([ast], 0, :raw)
-      {aliased, _, _} = get_fun_vars_and_meta([ast], 0, :raw, :HTML)
+      {vars, _, _} = get_fun_vars_and_meta([ast], 0, :raw, :HTML)
 
-      Enum.flat_map(vars ++ aliased, fn {_, var} ->
+      Enum.flat_map(vars, fn {_, var} ->
         var
       end)
     end)

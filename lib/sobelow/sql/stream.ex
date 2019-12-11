@@ -12,7 +12,7 @@ defmodule Sobelow.SQL.Stream do
 
   ## stream(repo, sql, params \\ [], opts \\ [])
   def parse_sql_def(fun) do
-    Parse.get_fun_vars_and_meta(fun, 1, :stream, :SQL)
+    Parse.get_fun_vars_and_meta(fun, 1, :stream, {:required, :SQL})
   end
 
   def details() do
