@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.9.3
+  * Enhancements
+    * Improved checks for all aliased functions
+    
+  * Bug Fixes
+    * JSON output for Raw findings is now properly normalized
+    * `send_download` correctly flags aliased function calls
+    * `send_download` now correctly flags piped functions
+
 ## v0.9.2
   * Bug Fixes
     * Fix error that resulted from redefining imported functions
