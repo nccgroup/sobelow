@@ -268,7 +268,7 @@ defmodule Sobelow do
     """
     ##############################################
     #                                            #
-    #          Running Sobelow - v#{@v}          #
+    #          Running Sobelow - v#{@v}         #
     #  Created by Griffin Byatt - @griffinbyatt  #
     #     NCC Group - https://nccgroup.trust     #
     #                                            #
