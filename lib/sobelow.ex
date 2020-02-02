@@ -4,6 +4,9 @@ defmodule Sobelow do
   vulnerabilities in Phoenix applications.
   """
   @v Mix.Project.config()[:version]
+  @home "~/.sobelow"
+  @vsncheck "sobelow-vsn-check"
+  @skips ".sobelow"
   @submodules [
     Sobelow.XSS,
     Sobelow.SQL,
@@ -28,7 +31,7 @@ defmodule Sobelow do
 
   def run() do
     project_root = get_env(:root) <> "/"
-    version_check(project_root)
+    version_check()
 
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     if !is_binary(app_name), do: file_error()
@@ -445,38 +448,35 @@ defmodule Sobelow do
   end
 
   defp clear_skip(project_root) do
-    cfile = project_root <> ".sobelow"
+    cfile = project_root <> @skips
 
     if File.exists?(cfile) do
-      {:ok, iofile} = :file.open(cfile, [:read, :write])
-      {:ok, timestamp} = :file.read_line(iofile)
-      :file.close(iofile)
-
-      :file.write_file(cfile, timestamp)
+      File.rm!(cfile)
     end
 
     System.halt(0)
   end
 
   defp mark_skip_all(project_root) do
-    cfile = project_root <> ".sobelow"
+    cfile = project_root <> @skips
 
-    if File.exists?(cfile) do
-      {:ok, iofile} = :file.open(cfile, [:append])
-      fingerprints = Fingerprint.new_skips() |> Enum.join("\n")
-      :file.write(iofile, ["\n", fingerprints])
-      :file.close(iofile)
+    case Fingerprint.new_skips() do
+      [] ->
+        nil
+
+      fingerprints ->
+        {:ok, iofile} = :file.open(cfile, [:append])
+        fingerprints = Enum.join(fingerprints, "\n")
+        :file.write(iofile, ["\n", fingerprints])
+        :file.close(iofile)
     end
   end
 
   defp load_ignored_fingerprints(project_root) do
-    cfile = project_root <> ".sobelow"
+    cfile = project_root <> @skips
 
     if File.exists?(cfile) do
       {:ok, iofile} = :file.open(cfile, [:read])
-
-      # Skip timestamp
-      :file.read_line(iofile)
 
       :file.read_line(iofile) |> load_ignored_fingerprints(iofile)
       :file.close(iofile)
@@ -491,12 +491,28 @@ defmodule Sobelow do
   defp load_ignored_fingerprints(:eof, _), do: nil
   defp load_ignored_fingerprints(_, _), do: nil
 
-  defp version_check(project_root) do
-    cfile = project_root <> ".sobelow"
+  defp version_check() do
+    config =
+      System.get_env("SOBELOW_HOME") ||
+        @home
+        |> Path.expand()
+        |> Path.join(@vsncheck)
+
+    home = Path.dirname(config)
+
+    if File.exists?(home) do
+      version_check(config)
+    else
+      File.mkdir_p!(home)
+      version_check(config)
+    end
+  end
+
+  defp version_check(config) do
     time = DateTime.utc_now() |> DateTime.to_unix()
 
-    if File.exists?(cfile) do
-      {:ok, iofile} = :file.open(cfile, [:read])
+    if File.exists?(config) do
+      {:ok, iofile} = :file.open(config, [:read])
 
       {timestamp, _} =
         case :file.read_line(iofile) do
@@ -507,10 +523,10 @@ defmodule Sobelow do
       :file.close(iofile)
 
       if time - 12 * 60 * 60 > timestamp do
-        maybe_prompt_update(time, cfile)
+        maybe_prompt_update(time, config)
       end
     else
-      maybe_prompt_update(time, cfile)
+      maybe_prompt_update(time, config)
     end
   end
 

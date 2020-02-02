@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.0
+  * Enhancements
+    * Sobelow now uses "~/.sobelow/sobelow-vsn-check" for update checks
+    * The ".sobelow" file in your project root is for `--mark-skip-all` only
+
 ## v0.9.3
   * Enhancements
     * Improved checks for all aliased functions

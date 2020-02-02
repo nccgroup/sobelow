@@ -4,7 +4,7 @@ defmodule Sobelow.Mixfile do
   def project do
     [
       app: :sobelow,
-      version: "0.9.3",
+      version: "0.10.0",
       elixir: "~> 1.4",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
