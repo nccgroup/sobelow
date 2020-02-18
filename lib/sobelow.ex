@@ -6,7 +6,7 @@ defmodule Sobelow do
   @v Mix.Project.config()[:version]
   @home "~/.sobelow"
   @vsncheck "sobelow-vsn-check"
-  @skips ".sobelow"
+  @skips ".sobelow-skips"
   @submodules [
     Sobelow.XSS,
     Sobelow.SQL,

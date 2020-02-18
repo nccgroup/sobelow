@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.10.1
+  * Bug fixes
+    * Sobelow will use ".sobelow-skips" instead of ".sobelow" in your root directory for `--mark-skip-all`
+
 ## v0.10.0
   * Enhancements
     * Sobelow now uses "~/.sobelow/sobelow-vsn-check" for update checks
