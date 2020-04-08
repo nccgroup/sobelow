@@ -13,6 +13,12 @@ defmodule Sobelow.Config.CSP do
   but does not provide a Content-Security-Policy header in the
   custom headers map.
 
+  When it comes to CSP, just about any policy is better than none.
+  If you are unsure about which policy to use, the following
+  mitigates most typical XSS vectors:
+
+  `plug :put_secure_browser_headers, %{"content-security-policy" => "default-src 'self'"}`
+
   Documentation on the `put_secure_browser_headers` plug function
   can be found here:
   https://hexdocs.pm/phoenix/Phoenix.Controller.html#put_secure_browser_headers/2
