@@ -39,11 +39,13 @@ features or security checks, please open an issue!
 
 To use Sobelow, you can add it to your application's dependencies. 
 
-    def deps do
-      [
-        {:sobelow, "~> 0.8", only: :dev}
-      ]
-    end
+```elixir
+def deps do
+  [
+    {:sobelow, "~> 0.8", only: :dev}
+  ]
+end
+```
 
 You can also install Sobelow globally by executing the following 
 from the command line:
