@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.10.2
+  * Bug fixes
+    * Fix a format error in JSON output encoding
+
 ## v0.10.1
   * Bug fixes
     * Sobelow will use ".sobelow-skips" instead of ".sobelow" in your root directory for `--mark-skip-all`
