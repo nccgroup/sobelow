@@ -10,19 +10,20 @@ defmodule Sobelow.XSS.Raw do
     |> Enum.each(&Print.add_finding(&1))
   end
 
-  def run(fun, meta_file, web_root, controller) do
+  def run(fun, meta_file, _web_root, controller) do
     {vars, _, {fun_name, line_no}} = parse_render_def(fun)
     filename = meta_file.filename
     templates = Sobelow.MetaLog.get_templates()
 
-    root =
-      if String.ends_with?(web_root, "/lib/") do
-        app_name = Sobelow.get_env(:app_name)
-        prc = web_root <> app_name <> "_web/"
-        rc = web_root <> app_name <> "/web/"
-        Enum.find([rc, prc], "", &File.exists?/1)
-      else
-        web_root
+    tmp_template_root =
+      templates
+      |> Map.keys()
+      |> List.first()
+
+    template_root =
+      case tmp_template_root do
+        nil -> ""
+        path -> String.split(path, "/templates/") |> List.first()
       end
 
     Enum.each(vars, fn {finding, {template, ref_vars, vars}} ->
@@ -34,7 +35,7 @@ defmodule Sobelow.XSS.Raw do
         end
 
       template_path =
-        (root <> "templates/" <> controller <> "/" <> template <> ".eex")
+        (template_root <> "/templates/" <> controller <> "/" <> template <> ".eex")
         |> Utils.normalize_path()
 
       raw_funs = templates[template_path]

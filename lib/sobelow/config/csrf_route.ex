@@ -29,7 +29,7 @@ defmodule Sobelow.Config.CSRFRoute do
   @state_changing_methods [:post, :put, :patch, :delete]
   @finding_type "Config.CSRFRoute: CSRF via Action Reuse"
 
-  def run(router, _) do
+  def run(router) do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))
 
     router

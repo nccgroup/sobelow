@@ -36,13 +36,17 @@ defmodule Sobelow do
     app_name = Utils.get_app_name(project_root <> "mix.exs")
     if !is_binary(app_name), do: file_error()
 
-    {web_root, lib_root} = get_root(app_name, project_root)
+    # If web_root ends with the app_name, then it is the
+    # more recent version of Phoenix. Meaning, all files are
+    # in the lib directory, so we don't need to re-scan
+    # lib_root separately.
+    phx_post_1_2? = !File.dir?(project_root <> "web")
 
-    root =
-      if String.ends_with?(web_root, "./") do
-        web_root <> "web/"
+    lib_root =
+      if phx_post_1_2? do
+        project_root <> "lib"
       else
-        lib_root
+        project_root <> "web"
       end
 
     ignored = get_ignored()
@@ -51,20 +55,20 @@ defmodule Sobelow do
     # Pulling out function definitions before kicking
     # off the test pipeline to avoid dumping warning
     # messages into the findings output.
-    root_meta_files = get_meta_files(root)
-    template_meta_files = get_meta_templates(root)
+    root_meta_files = get_meta_files(lib_root)
+    template_meta_files = get_meta_templates(lib_root)
 
-    # If web_root ends with the app_name, then it is the
-    # more recent version of Phoenix. Meaning, all files are
-    # in the lib directory, so we don't need to re-scan
-    # lib_root separately.
-    phx_post_1_2? =
-      String.ends_with?(web_root, "/#{app_name}/") ||
-        String.ends_with?(web_root, "/#{app_name}_web/")
+    {libroot_meta_files, tmp_default_router} =
+      if !phx_post_1_2? do
+        libroot_meta_files = get_meta_files(project_root <> "lib")
+        default_router = project_root <> "/web/router.ex"
 
-    libroot_meta_files = if !phx_post_1_2?, do: get_meta_files(lib_root), else: []
+        {libroot_meta_files, default_router}
+      else
+        {[], ""}
+      end
 
-    default_router = get_router(app_name, web_root)
+    default_router = get_router(tmp_default_router, phx_post_1_2?)
 
     {routers, endpoints} =
       get_phoenix_files(root_meta_files ++ libroot_meta_files, default_router)
@@ -93,7 +97,7 @@ defmodule Sobelow do
     Enum.each(root_meta_files, fn meta_file ->
       meta_file.def_funs
       |> combine_skips()
-      |> Enum.each(&get_fun_vulns(&1, meta_file, root, allowed))
+      |> Enum.each(&get_fun_vulns(&1, meta_file, project_root, allowed))
     end)
 
     Enum.each(libroot_meta_files, fn meta_file ->
@@ -276,38 +280,20 @@ defmodule Sobelow do
     """
   end
 
-  defp get_root(app_name, project_root) do
-    lib_root = project_root <> "lib/"
-
-    cond do
-      File.dir?(project_root <> "lib/#{app_name}_web") ->
-        # New phoenix RC structure
-        {lib_root <> "#{app_name}_web/", lib_root}
-
-      File.dir?(project_root <> "lib/#{app_name}/web/") ->
-        # RC 1 phx dir structure
-        {lib_root <> "#{app_name}/", lib_root}
-
-      true ->
-        # Original dir structure
-        {project_root <> "./", lib_root}
+  defp get_router("", true) do
+    case get_env(:router) do
+      nil -> ""
+      "" -> ""
+      router -> Path.expand(router)
     end
   end
 
-  defp get_router(app_name, web_root) do
-    router_path =
-      if Path.basename(web_root) == "#{app_name}_web" do
-        "router.ex"
-      else
-        "web/router.ex"
-      end
-
+  defp get_router(tmp_default_router, _) do
     case get_env(:router) do
-      nil -> web_root <> router_path
-      "" -> web_root <> router_path
+      nil -> tmp_default_router
+      "" -> tmp_default_router
       router -> router
-    end
-    |> Path.expand()
+    end |> Path.expand()
   end
 
   defp get_phoenix_files(meta_files, router) do

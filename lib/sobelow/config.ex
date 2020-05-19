@@ -26,28 +26,29 @@ defmodule Sobelow.Config do
 
     dir_path = root <> "config/"
 
-    if File.dir?(dir_path) do
-      configs =
-        File.ls!(dir_path)
-        |> Enum.filter(&want_to_scan?(dir_path <> &1, ignored_files))
+    Enum.each(allowed, fn mod ->
+      cond do
+        mod in [CSRF, CSRFRoute, Headers, CSP] ->
+          Enum.each(router, fn path ->
+            apply(mod, :run, [relative_path(path, root)])
+          end)
 
-      Enum.each(allowed, fn mod ->
-        cond do
-          mod in [CSRF, CSRFRoute, Headers, CSP] ->
-            Enum.each(router, fn path ->
-              apply(mod, :run, [relative_path(path, root), configs])
-            end)
+        mod in [CSWH] ->
+          Enum.each(endpoints, fn path ->
+            apply(mod, :run, [relative_path(path, root)])
+          end)
 
-          mod in [CSWH] ->
-            Enum.each(endpoints, fn path ->
-              apply(mod, :run, [relative_path(path, root)])
-            end)
+        File.dir?(dir_path) ->
+          configs =
+            File.ls!(dir_path)
+            |> Enum.filter(&want_to_scan?(dir_path <> &1, ignored_files))
 
-          true ->
-            apply(mod, :run, [dir_path, configs])
-        end
-      end)
-    end
+          apply(mod, :run, [dir_path, configs])
+
+        true ->
+          nil
+      end
+    end)
   end
 
   defp want_to_scan?(conf, ignored_files) do

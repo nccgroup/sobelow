@@ -21,7 +21,7 @@ defmodule Sobelow.Config.CSRF do
   use Sobelow.Finding
   @finding_type "Config.CSRF: Missing CSRF Protections"
 
-  def run(router, _) do
+  def run(router) do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))
 
     Config.get_pipelines(router)

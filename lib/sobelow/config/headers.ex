@@ -19,7 +19,7 @@ defmodule Sobelow.Config.Headers do
   use Sobelow.Finding
   @finding_type "Config.Headers: Missing Secure Browser Headers"
 
-  def run(router, _) do
+  def run(router) do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))
 
     Config.get_pipelines(router)

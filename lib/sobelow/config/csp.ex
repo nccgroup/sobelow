@@ -31,7 +31,7 @@ defmodule Sobelow.Config.CSP do
   use Sobelow.Finding
   @finding_type "Config.CSP: Missing Content-Security-Policy"
 
-  def run(router, _) do
+  def run(router) do
     meta_file = Parse.ast(router) |> Parse.get_meta_funs()
     finding = Finding.init(@finding_type, Utils.normalize_path(router))
 
