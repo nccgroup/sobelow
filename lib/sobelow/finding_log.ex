@@ -74,6 +74,7 @@ defmodule Sobelow.FindingLog do
   def format_json(false, _), do: "false"
   def format_json(atom, _) when is_atom(atom), do: "\"#{atom}\""
   def format_json(str, _) when is_binary(str), do: "\"#{str}\""
+
   def format_json({_, _, _} = var, _) do
     details = {var, [], []} |> Macro.to_string()
     "\"#{details}\""

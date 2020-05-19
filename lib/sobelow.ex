@@ -293,7 +293,8 @@ defmodule Sobelow do
       nil -> tmp_default_router
       "" -> tmp_default_router
       router -> router
-    end |> Path.expand()
+    end
+    |> Path.expand()
   end
 
   defp get_phoenix_files(meta_files, router) do
