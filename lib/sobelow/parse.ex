@@ -444,9 +444,13 @@ defmodule Sobelow.Parse do
     end
   end
 
-  defp create_fun_cap(fun, meta, idx) do
+  defp create_fun_cap(fun, meta, idx) when is_number(idx) do
     opts = Enum.map(1..idx, fn i -> {:&, [], [i]} end)
     {fun, meta, opts}
+  end
+
+  defp create_fun_cap(fun, meta, _) do
+    {fun, meta, [{:&, [], []}]}
   end
 
   def get_pipe_funs(ast) do
