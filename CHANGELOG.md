@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.3
+  * Bug fixes
+    * Fix directory structure issue in umbrella applications
+    * Handle function capture edge cases
+
 ## v0.10.2
   * Bug fixes
     * Fix a format error in JSON output encoding
