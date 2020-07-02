@@ -7,7 +7,7 @@ defmodule Sobelow.Config.CSRF do
   actions on the user's behalf.
 
   Read more about CSRF here:
-  https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
+  https://owasp.org/www-community/attacks/csrf
 
   Cross-Site Request Forgery is flagged by `sobelow` when
   a pipeline fetches a session, but does not implement the
