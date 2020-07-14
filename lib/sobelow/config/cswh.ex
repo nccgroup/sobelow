@@ -38,6 +38,8 @@ defmodule Sobelow.Config.CSWH do
   defp check_socket_options([{:websocket, options} | _]) when is_list(options) do
     case options[:check_origin] do
       false -> {true, :high}
+      true -> {false, :high}
+      nil -> {false, :high}
       _ -> {true, :low}
     end
   end
