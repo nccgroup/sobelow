@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.10.4
+  * Enhancements
+    * Sobelow is now smarter about cross-site websocket hijacking
+    * Update URL for CSRF description
+
 ## v0.10.3
   * Bug fixes
     * Fix directory structure issue in umbrella applications
