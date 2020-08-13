@@ -1,7 +1,9 @@
 defmodule Sobelow.Fingerprint do
   @moduledoc false
 
-  use Agent
+  if Version.match?(System.build_info().version, ">= 1.5.0") do
+    use Agent
+  end
 
   def start_link() do
     Agent.start_link(fn -> {MapSet.new(), MapSet.new()} end, name: __MODULE__)
