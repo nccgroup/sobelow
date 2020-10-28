@@ -74,7 +74,7 @@ defmodule Sobelow.Finding do
       alias Sobelow.Utils
 
       def details() do
-        IO.ANSI.Docs.print(@moduledoc)
+        IO.ANSI.Docs.print(@moduledoc, [])
       end
 
       defoverridable details: 0

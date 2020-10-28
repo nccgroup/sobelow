@@ -49,6 +49,6 @@ defmodule Sobelow.XSS do
   end
 
   def details() do
-    IO.ANSI.Docs.print(@moduledoc)
+    IO.ANSI.Docs.print(@moduledoc, [])
   end
 end
