@@ -26,6 +26,6 @@ defmodule Sobelow.CI do
   end
 
   def details() do
-    IO.ANSI.Docs.print(@moduledoc)
+    IO.ANSI.Docs.print(@moduledoc, [])
   end
 end
