@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.10.5
+  * Misc
+    * Update code to clean up deprecation warnings
+
 ## v0.10.4
   * Enhancements
     * Sobelow is now smarter about cross-site websocket hijacking
