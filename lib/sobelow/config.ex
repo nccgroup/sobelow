@@ -129,7 +129,7 @@ defmodule Sobelow.Config do
     acc
   end
 
-  defp extract_fuzzy_configs({:config, _, opts} = ast, acc, key) do
+  defp extract_fuzzy_configs({:config, _, opts} = ast, acc, key) when is_list(opts) do
     opt = List.last(opts)
     vals = if Keyword.keyword?(opt), do: fuzzy_keyword_get(opt, key), else: nil
 
@@ -144,7 +144,7 @@ defmodule Sobelow.Config do
     {ast, acc}
   end
 
-  defp extract_configs({:config, _, opts} = ast, acc, key) do
+  defp extract_configs({:config, _, opts} = ast, acc, key) when is_list(opts) do
     opt = List.last(opts)
     val = if Keyword.keyword?(opt), do: Keyword.get(opt, key), else: nil
 
