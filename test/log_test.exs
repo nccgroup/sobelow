@@ -39,6 +39,6 @@ defmodule SobelowTest.LogTest do
 
     Sobelow.log_finding(finding, %Sobelow.Finding{confidence: :high})
 
-    assert FindingLog.json("1.0.0") <> "\n" == output
+    assert FindingLog.json("1.0.0") == String.replace(output, ~r"[ \n]", "")
   end
 end

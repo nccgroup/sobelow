@@ -19,11 +19,13 @@ defmodule Sobelow.FindingLog do
     meds = normalize(meds)
     lows = normalize(lows)
 
-    format_json(%{
-      findings: %{high_confidence: highs, medium_confidence: meds, low_confidence: lows},
-      total_findings: length(highs) + length(meds) + length(lows),
-      sobelow_version: vsn
-    })
+    Jason.encode!(
+      format_json(%{
+        findings: %{high_confidence: highs, medium_confidence: meds, low_confidence: lows},
+        total_findings: length(highs) + length(meds) + length(lows),
+        sobelow_version: vsn
+      })
+    )
   end
 
   def quiet() do
@@ -51,40 +53,20 @@ defmodule Sobelow.FindingLog do
     {:reply, findings, findings}
   end
 
-  def format_json(v, level \\ 0)
-
-  def format_json(map, level) when is_map(map) do
-    map
-    |> Enum.map(fn {k, v} -> "\"#{k}\": #{format_json(v, level + 1)}" end)
-    |> Enum.map(&indent(&1, level + 1))
-    |> Enum.join(",\n")
-    |> interpolate("{\n", "\n" <> indent("}", level))
+  def format_json(map) when is_map(map) do
+    map |> Enum.map(fn {k, v} -> {k, format_json(v)} end) |> Enum.into(%{})
   end
 
-  def format_json(l, level) when is_list(l) do
-    l
-    |> Enum.map(&format_json(&1, level + 1))
-    |> Enum.map(&indent(&1, level + 1))
-    |> Enum.join(",\n")
-    |> interpolate("[\n", "\n" <> indent("]", level))
+  def format_json(l) when is_list(l) do
+    l |> Enum.map(&format_json(&1))
   end
 
-  def format_json(true, _), do: "true"
-  def format_json(nil, _), do: "null"
-  def format_json(false, _), do: "false"
-  def format_json(atom, _) when is_atom(atom), do: "\"#{atom}\""
-  def format_json(str, _) when is_binary(str), do: "\"#{str}\""
-
-  def format_json({_, _, _} = var, _) do
+  def format_json({_, _, _} = var) do
     details = {var, [], []} |> Macro.to_string()
     "\"#{details}\""
   end
 
-  def format_json(v, _), do: to_string(v)
+  def format_json(n), do: n
 
   defp normalize(l), do: l |> Enum.map(&Map.new/1)
-
-  defp indent(str, level), do: String.duplicate("   ", level) <> str
-
-  defp interpolate(val, f, l), do: f <> val <> l
 end
