@@ -24,8 +24,7 @@ defmodule Sobelow.FindingLog do
         findings: %{high_confidence: highs, medium_confidence: meds, low_confidence: lows},
         total_findings: length(highs) + length(meds) + length(lows),
         sobelow_version: vsn
-      })
-    )
+      }), pretty: true)
   end
 
   def quiet() do

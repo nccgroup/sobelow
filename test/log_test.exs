@@ -6,24 +6,20 @@ defmodule SobelowTest.LogTest do
   test "Log JSON finding with function as function name" do
     output = """
     {
-       "findings": {
-          "high_confidence": [
-             {
-                "file": "file.ex",
-                "line": 1,
-                "type": "N/A",
-                "variable": "var"
-             }
-          ],
-          "low_confidence": [
-
-          ],
-          "medium_confidence": [
-
-          ]
-       },
-       "sobelow_version": "1.0.0",
-       "total_findings": 1
+      "findings": {
+        "high_confidence": [
+          {
+            "file": "file.ex",
+            "line": 1,
+            "type": "N/A",
+            "variable": "var"
+          }
+        ],
+        "low_confidence": [],
+        "medium_confidence": []
+      },
+      "sobelow_version": "1.0.0",
+      "total_findings": 1
     }
     """
 
@@ -39,6 +35,6 @@ defmodule SobelowTest.LogTest do
 
     Sobelow.log_finding(finding, %Sobelow.Finding{confidence: :high})
 
-    assert FindingLog.json("1.0.0") == String.replace(output, ~r"[ \n]", "")
+    assert FindingLog.json("1.0.0") <> "\n" == output
   end
 end
