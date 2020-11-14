@@ -24,7 +24,32 @@ defmodule Sobelow.FindingLog do
         findings: %{high_confidence: highs, medium_confidence: meds, low_confidence: lows},
         total_findings: length(highs) + length(meds) + length(lows),
         sobelow_version: vsn
-      }), pretty: true)
+      }),
+      pretty: true
+    )
+  end
+
+  def sarif(vsn) do
+    Jason.encode!(
+      %{
+        version: "2.1.0",
+        "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+        runs: [
+          %{
+            tool: %{
+              driver: %{
+                name: "Sobelow",
+                informationUri: "https://sobelow.io",
+                semanticVersion: vsn,
+                rules: []
+              }
+            },
+            results: []
+          }
+        ]
+      },
+      pretty: true
+    )
   end
 
   def quiet() do

@@ -135,12 +135,15 @@ defmodule Sobelow do
 
   defp print_output() do
     details =
-      case format() do
+      case output_format() do
         "json" ->
           FindingLog.json(@v)
 
         "quiet" ->
           FindingLog.quiet()
+
+        "sarif" ->
+          FindingLog.sarif(@v)
 
         _ ->
           nil
@@ -261,6 +264,13 @@ defmodule Sobelow do
   end
 
   def format() do
+    case get_env(:format) do
+      "sarif" -> "json"
+      format -> format
+    end
+  end
+
+  def output_format() do
     get_env(:format)
   end
 
