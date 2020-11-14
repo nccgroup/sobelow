@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.10.6
+  * Bug fixes
+    * Handle nil `config` case
+
 ## v0.10.5
   * Misc
     * Update code to clean up deprecation warnings
