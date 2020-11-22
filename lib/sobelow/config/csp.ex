@@ -28,8 +28,11 @@ defmodule Sobelow.Config.CSP do
       $ mix sobelow -i Config.CSP
   """
   alias Sobelow.Config
-  use Sobelow.Finding
+
+  @uid 3
   @finding_type "Config.CSP: Missing Content-Security-Policy"
+
+  use Sobelow.Finding
 
   def run(router) do
     meta_file = Parse.ast(router) |> Parse.get_meta_funs()

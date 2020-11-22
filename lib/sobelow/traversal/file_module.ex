@@ -1,4 +1,7 @@
 defmodule Sobelow.Traversal.FileModule do
+  @uid 19
+  @finding_type "Traversal.FileModule: Directory Traversal in `File` function"
+
   use Sobelow.Finding
 
   @file_funcs [

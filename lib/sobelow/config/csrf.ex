@@ -18,8 +18,11 @@ defmodule Sobelow.Config.CSRF do
       $ mix sobelow -i Config.CSRF
   """
   alias Sobelow.Config
-  use Sobelow.Finding
+
+  @uid 5
   @finding_type "Config.CSRF: Missing CSRF Protections"
+
+  use Sobelow.Finding
 
   def run(router) do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))

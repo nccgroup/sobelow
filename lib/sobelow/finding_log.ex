@@ -41,7 +41,7 @@ defmodule Sobelow.FindingLog do
                 name: "Sobelow",
                 informationUri: "https://sobelow.io",
                 semanticVersion: vsn,
-                rules: []
+                rules: Sobelow.rules()
               }
             },
             results: []

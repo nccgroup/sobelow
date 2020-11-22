@@ -1,6 +1,8 @@
 defmodule Sobelow.Traversal.SendDownload do
-  use Sobelow.Finding
+  @uid 20
   @finding_type "Traversal.SendDownload: Directory Traversal in `send_download`"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low

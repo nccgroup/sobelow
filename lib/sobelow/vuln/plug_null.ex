@@ -1,6 +1,10 @@
 defmodule Sobelow.Vuln.PlugNull do
   alias Sobelow.Config
   alias Sobelow.Vuln
+
+  @uid 26
+  @finding_type "Vuln.PlugNull: Known Vulnerable Dependency - Update Plug"
+
   use Sobelow.Finding
 
   @vuln_vsn ~w(1.3.1 1.3.0 1.2.2 1.2.1 1.2.0 1.1.6 1.1.5 1.1.4 1.1.3 1.1.2 1.1.1 1.1.0 1.0.3 1.0.2 1.0.1 1.0.0)

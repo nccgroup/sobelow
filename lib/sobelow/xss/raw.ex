@@ -1,6 +1,8 @@
 defmodule Sobelow.XSS.Raw do
-  use Sobelow.Finding
+  @uid 30
   @finding_type "XSS.Raw: XSS"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file, _, nil) do
     confidence = if !meta_file.is_controller?, do: :low

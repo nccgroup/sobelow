@@ -13,8 +13,10 @@ defmodule Sobelow.Config.CSWH do
 
       $ mix sobelow -i Config.CSWH
   """
-  use Sobelow.Finding
+  @uid 6
   @finding_type "Config.CSWH: Cross-Site Websocket Hijacking"
+
+  use Sobelow.Finding
 
   def run(endpoint) do
     Parse.ast(endpoint)

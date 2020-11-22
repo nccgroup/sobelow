@@ -24,10 +24,13 @@ defmodule Sobelow.Config.CSRFRoute do
   """
 
   alias Sobelow.Parse
+
+  @uid 4
+  @finding_type "Config.CSRFRoute: CSRF via Action Reuse"
+
   use Sobelow.Finding
 
   @state_changing_methods [:post, :put, :patch, :delete]
-  @finding_type "Config.CSRFRoute: CSRF via Action Reuse"
 
   def run(router) do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))

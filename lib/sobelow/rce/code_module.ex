@@ -1,4 +1,7 @@
 defmodule Sobelow.RCE.CodeModule do
+  @uid 15
+  @finding_type "RCE.CodeModule: Code execution in eval function"
+
   use Sobelow.Finding
   @code_funs [:eval_string, :eval_file, :eval_quoted]
 

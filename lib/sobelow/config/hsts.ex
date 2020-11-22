@@ -11,8 +11,11 @@ defmodule Sobelow.Config.HSTS do
       $ mix sobelow -i Config.HSTS
   """
   alias Sobelow.Config
-  use Sobelow.Finding
+
+  @uid 8
   @finding_type "Config.HSTS: HSTS Not Enabled"
+
+  use Sobelow.Finding
 
   def run(dir_path, configs) do
     Enum.each(configs, fn conf ->

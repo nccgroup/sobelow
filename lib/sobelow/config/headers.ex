@@ -16,8 +16,11 @@ defmodule Sobelow.Config.Headers do
       $ mix sobelow -i Config.Headers
   """
   alias Sobelow.Config
-  use Sobelow.Finding
+
+  @uid 7
   @finding_type "Config.Headers: Missing Secure Browser Headers"
+
+  use Sobelow.Finding
 
   def run(router) do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))

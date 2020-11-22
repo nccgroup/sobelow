@@ -77,6 +77,22 @@ defmodule Sobelow.Finding do
         IO.ANSI.Docs.print(@moduledoc, [])
       end
 
+      def rule() do
+        [name, description] = String.split(@finding_type, ":", parts: 2)
+        description = String.trim(description)
+
+        %{
+          id: @uid,
+          name: name,
+          shortDescription: %{ text: description },
+          fullDescription: %{ text: description },
+          help: %{
+            text: @moduledoc,
+            markdown: @moduledoc
+          }
+        }
+      end
+
       defoverridable details: 0
     end
   end
@@ -88,6 +104,12 @@ defmodule Sobelow.FindingType do
       def details() do
         Enum.each(@submodules, fn sub ->
           apply(sub, :details, [])
+        end)
+      end
+
+      def rules() do
+        Enum.map(@submodules, fn sub ->
+          apply(sub, :rule, [])
         end)
       end
 

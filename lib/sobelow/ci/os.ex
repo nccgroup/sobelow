@@ -1,6 +1,8 @@
 defmodule Sobelow.CI.OS do
+  @uid 1
+  @finding_type "CI.OS: Command Injection in `:os.cmd`"
+
   use Sobelow.Finding
-  @finding_type "Command Injection in `:os.cmd`"
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low

@@ -223,6 +223,11 @@ defmodule Sobelow do
     |> Enum.each(&apply(&1, :details, []))
   end
 
+  def rules() do
+    @submodules
+    |> Enum.flat_map(&apply(&1, :rules, []))
+  end
+
   def save_config(conf_file) do
     conf = """
     [

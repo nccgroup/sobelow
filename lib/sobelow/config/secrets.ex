@@ -15,8 +15,11 @@ defmodule Sobelow.Config.Secrets do
       $ mix sobelow -i Config.Secrets
   """
   alias Sobelow.Config
-  use Sobelow.Finding
+
+  @uid 10
   @finding_type "Config.Secrets: Hardcoded Secret"
+
+  use Sobelow.Finding
 
   def run(dir_path, configs) do
     Enum.each(configs, fn conf ->

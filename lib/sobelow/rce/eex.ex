@@ -10,6 +10,9 @@ defmodule Sobelow.RCE.EEx do
 
       $ mix sobelow -i RCE.EEx
   """
+  @uid 16
+  @finding_type "RCE.EEx: Code Execution in EEx template eval"
+
   use Sobelow.Finding
   @eex_funs [:eval_string, :eval_file]
 

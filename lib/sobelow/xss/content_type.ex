@@ -21,8 +21,10 @@ defmodule Sobelow.XSS.ContentType do
 
       $ mix sobelow -i XSS.ContentType
   """
+  @uid 28
+  @finding_type "Vuln.Plug: Known Vulnerable Dependency - Update Plug"
+
   use Sobelow.Finding
-  @finding_type "XSS.ContentType: XSS in `put_resp_content_type`"
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low

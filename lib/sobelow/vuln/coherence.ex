@@ -1,6 +1,10 @@
 defmodule Sobelow.Vuln.Coherence do
   alias Sobelow.Config
   alias Sobelow.Vuln
+
+  @uid 22
+  @finding_type "Vuln.Coherence: Known Vulnerable Dependency - Update Coherence"
+
   use Sobelow.Finding
 
   @vuln_vsn ["<=0.5.1"]

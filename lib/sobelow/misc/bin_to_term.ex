@@ -11,8 +11,10 @@ defmodule Sobelow.Misc.BinToTerm do
 
       $ mix sobelow -i Misc.BinToTerm
   """
-  use Sobelow.Finding
+  @uid 14
   @finding_type "Misc.BinToTerm: Unsafe `binary_to_term`"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     Finding.init(@finding_type, meta_file.filename, :high)

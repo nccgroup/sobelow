@@ -11,8 +11,10 @@ defmodule Sobelow.DOS.StringToAtom do
 
       $ mix sobelow -i DOS.StringToAtom
   """
-  use Sobelow.Finding
+  @uid 13
   @finding_type "DOS.StringToAtom: Unsafe `String.to_atom`"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low
