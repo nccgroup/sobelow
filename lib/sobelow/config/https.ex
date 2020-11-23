@@ -46,6 +46,7 @@ defmodule Sobelow.Config.HTTPS do
         fun_source: nil,
         vuln_source: reason,
         vuln_line_no: 0,
+        vuln_col_no: 0,
         confidence: :high
       }
       |> Finding.fetch_fingerprint()

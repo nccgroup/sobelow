@@ -44,6 +44,7 @@ defmodule Sobelow.Config.HSTS do
         fun_source: nil,
         vuln_source: reason,
         vuln_line_no: 0,
+        vuln_col_no: 0,
         confidence: :medium
       }
       |> Finding.fetch_fingerprint()

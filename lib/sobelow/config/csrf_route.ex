@@ -68,6 +68,7 @@ defmodule Sobelow.Config.CSRFRoute do
       finding
       | vuln_source: fun,
         vuln_line_no: Parse.get_fun_line(fun),
+        vuln_col_no: Parse.get_fun_column(fun),
         fun_name: get_action(fun),
         confidence: :high
     }

@@ -103,6 +103,7 @@ defmodule Sobelow.Config.CSP do
       finding
       | vuln_source: :put_secure_browser_headers,
         vuln_line_no: Parse.get_fun_line(plug),
+        vuln_col_no: Parse.get_fun_column(plug),
         fun_source: pipeline,
         fun_name: pipeline_name,
         confidence: confidence

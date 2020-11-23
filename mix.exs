@@ -16,18 +16,19 @@ defmodule Sobelow.Mixfile do
       description: "Security-focused static analysis for the Phoenix framework",
       name: "Sobelow",
       homepage_url: "https://sobelow.io",
-      docs: docs()
+      docs: docs(),
+      escript: [main_module: Mix.Tasks.Sobelow]
     ]
   end
 
   def application do
-    [extra_applications: [:logger, :eex, :inets]]
+    [ extra_applications: [:logger, :eex, :inets]]
   end
 
   defp deps do
     [
       {:ex_doc, "~> 0.20", only: :dev},
-      {:jason, "~> 1.2"}
+      {:jason, "~> 1.0"}
     ]
   end
 

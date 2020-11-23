@@ -198,7 +198,7 @@ defmodule Sobelow do
     if is_nil(mod) do
       MixIO.error("A valid module was not selected.")
     else
-      apply(mod, :details, [])
+      apply(mod, :details, []) |> Enum.each(&IO.ANSI.Docs.print(&1, []))
     end
   end
 
@@ -209,7 +209,7 @@ defmodule Sobelow do
   def log_finding(details, %Finding{} = finding) do
     if loggable?(finding.fingerprint, finding.confidence) do
       Fingerprint.put(finding.fingerprint)
-      FindingLog.add(details, finding.confidence)
+      FindingLog.add({details, finding}, finding.confidence)
     end
   end
 

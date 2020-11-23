@@ -63,7 +63,7 @@ defmodule Sobelow.Config.Secrets do
   def is_env_var?(_), do: false
 
   defp add_finding(file, line_no, fun, key, val) do
-    vuln_line_no = get_vuln_line(file, line_no, val)
+    {vuln_line_no, vuln_line_col} = get_vuln_line(file, line_no, val)
 
     finding =
       %Finding{
@@ -72,6 +72,7 @@ defmodule Sobelow.Config.Secrets do
         fun_source: fun,
         vuln_source: :highlight_all,
         vuln_line_no: vuln_line_no,
+        vuln_col_no: vuln_line_col,
         confidence: :high
       }
       |> Finding.fetch_fingerprint()
@@ -120,7 +121,8 @@ defmodule Sobelow.Config.Secrets do
 
   defp get_vuln_line({:@, _, [{:sobelow_secret, _, _}]} = ast, acc) do
     line_no = Parse.get_fun_line(ast)
-    {ast, [line_no | acc]}
+    line_col = Parse.get_fun_column(ast)
+    {ast, [{line_no, line_col} | acc]}
   end
 
   defp get_vuln_line(ast, acc), do: {ast, acc}

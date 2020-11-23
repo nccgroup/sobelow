@@ -39,6 +39,7 @@ defmodule Sobelow.Config.Headers do
       finding
       | vuln_source: pipeline_name,
         vuln_line_no: Parse.get_fun_line(pipeline),
+        vuln_col_no: Parse.get_fun_column(pipeline),
         fun_source: pipeline,
         fun_name: pipeline_name,
         confidence: :high
