@@ -6,4 +6,10 @@ defmodule SobelowTest.SarifTest do
 
     assert Enum.uniq(ids) |> length() == length(ids)
   end
+
+  test "All finding modules have an id" do
+    ids = Sobelow.finding_modules |> Enum.map(&apply(&1, :id, []))
+
+    assert Enum.uniq(ids) |> length() == length(ids)
+  end
 end

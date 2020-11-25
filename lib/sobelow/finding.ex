@@ -79,15 +79,18 @@ defmodule Sobelow.Finding do
         @moduledoc
       end
 
+      def id() do
+        "SBLW" <> String.pad_leading("#{@uid}", 3, "0")
+      end
+
       def rule() do
         [name, description] = String.split(@finding_type, ":", parts: 2)
 
         description = String.trim(description)
         rule_details = details()
-        uid = String.pad_leading("#{@uid}", 3, "0")
 
         %{
-          id: "SBLW" <> uid,
+          id: id(),
           name: name,
           shortDescription: %{ text: description },
           fullDescription: %{ text: description },
@@ -106,6 +109,10 @@ end
 defmodule Sobelow.FindingType do
   defmacro __using__(_) do
     quote do
+      def finding_modules() do
+        @submodules
+      end
+
       def details() do
         Enum.map(@submodules, fn sub ->
           apply(sub, :details, [])

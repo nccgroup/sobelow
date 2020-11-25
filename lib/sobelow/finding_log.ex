@@ -103,27 +103,38 @@ defmodule Sobelow.FindingLog do
   def format_json(n), do: n
 
   defp format_sarif(finding) do
+    [mod, _] = String.split(finding.type, ":", parts: 2)
+
     %{
+      ruleId: Sobelow.get_mod(mod).id,
       message: %{
         text: finding.type
       },
       locations: [%{
-        artifactLocation: %{
-          uri: finding.filename
-        },
-        region: %{
-          startLine: finding.vuln_line_no,
-          startColumn: finding.vuln_col_no,
-          endLine: finding.vuln_line_no,
-          endColumn: finding.vuln_col_no
+        physicalLocation: %{
+          artifactLocation: %{
+            uri: finding.filename
+          },
+          region: %{
+            startLine: sarif_num(finding.vuln_line_no),
+            startColumn: sarif_num(finding.vuln_col_no),
+            endLine: sarif_num(finding.vuln_line_no),
+            endColumn: sarif_num(finding.vuln_col_no)
+          }
         }
       }],
       partialFingerprints: %{
         primaryLocationLineHash: finding.fingerprint
       },
-      level: finding.confidence
+      level: to_level(finding.confidence)
     }
   end
+
+  defp to_level(:high), do: "error"
+  defp to_level(_), do: "warning"
+
+  defp sarif_num(0), do: 1
+  defp sarif_num(num), do: num
 
   defp normalize_json_log(finding), do: finding |> Stream.map(fn {d, _} -> d end) |> normalize()
   defp normalize_sarif_log(finding), do: finding |> Stream.map(fn {_, f} -> Map.from_struct(f) end) |> normalize()
