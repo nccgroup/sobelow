@@ -59,7 +59,8 @@ defmodule Sobelow.FindingLog do
     meds = normalize_sarif_log(meds)
     lows = normalize_sarif_log(lows)
 
-    Enum.map(highs, &format_sarif/1) ++ Enum.map(meds, &format_sarif/1) ++ Enum.map(lows, &format_sarif/1)
+    Enum.map(highs, &format_sarif/1) ++
+      Enum.map(meds, &format_sarif/1) ++ Enum.map(lows, &format_sarif/1)
   end
 
   def quiet() do
@@ -110,19 +111,21 @@ defmodule Sobelow.FindingLog do
       message: %{
         text: finding.type
       },
-      locations: [%{
-        physicalLocation: %{
-          artifactLocation: %{
-            uri: finding.filename
-          },
-          region: %{
-            startLine: sarif_num(finding.vuln_line_no),
-            startColumn: sarif_num(finding.vuln_col_no),
-            endLine: sarif_num(finding.vuln_line_no),
-            endColumn: sarif_num(finding.vuln_col_no)
+      locations: [
+        %{
+          physicalLocation: %{
+            artifactLocation: %{
+              uri: finding.filename
+            },
+            region: %{
+              startLine: sarif_num(finding.vuln_line_no),
+              startColumn: sarif_num(finding.vuln_col_no),
+              endLine: sarif_num(finding.vuln_line_no),
+              endColumn: sarif_num(finding.vuln_col_no)
+            }
           }
         }
-      }],
+      ],
       partialFingerprints: %{
         primaryLocationLineHash: finding.fingerprint
       },
@@ -137,6 +140,9 @@ defmodule Sobelow.FindingLog do
   defp sarif_num(num), do: num
 
   defp normalize_json_log(finding), do: finding |> Stream.map(fn {d, _} -> d end) |> normalize()
-  defp normalize_sarif_log(finding), do: finding |> Stream.map(fn {_, f} -> Map.from_struct(f) end) |> normalize()
+
+  defp normalize_sarif_log(finding),
+    do: finding |> Stream.map(fn {_, f} -> Map.from_struct(f) end) |> normalize()
+
   defp normalize(l), do: l |> Enum.map(&Map.new/1)
 end

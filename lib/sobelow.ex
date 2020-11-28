@@ -198,7 +198,7 @@ defmodule Sobelow do
     if is_nil(mod) do
       MixIO.error("A valid module was not selected.")
     else
-      apply(mod, :details, []) |> Enum.each(&IO.ANSI.Docs.print(&1, []))
+      apply(mod, :details, []) |> IO.ANSI.Docs.print([])
     end
   end
 
@@ -220,7 +220,9 @@ defmodule Sobelow do
 
   def all_details() do
     @submodules
-    |> Enum.each(&apply(&1, :details, []))
+    |> Enum.map(&apply(&1, :details, []))
+    |> List.flatten()
+    |> Enum.each(&IO.ANSI.Docs.print(&1, []))
   end
 
   def rules() do

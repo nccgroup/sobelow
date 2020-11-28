@@ -87,13 +87,18 @@ defmodule Sobelow.Finding do
         [name, description] = String.split(@finding_type, ":", parts: 2)
 
         description = String.trim(description)
-        rule_details = details()
+
+        rule_details =
+          details()
+          |> String.split("\n\n")
+          |> Enum.map(fn para -> String.replace(para, "\n", " ") end)
+          |> Enum.join("\n\n")
 
         %{
           id: id(),
           name: name,
-          shortDescription: %{ text: description },
-          fullDescription: %{ text: description },
+          shortDescription: %{text: description},
+          fullDescription: %{text: description},
           help: %{
             text: rule_details,
             markdown: rule_details

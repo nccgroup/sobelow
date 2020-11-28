@@ -22,7 +22,7 @@ defmodule Sobelow.Mixfile do
   end
 
   def application do
-    [ extra_applications: [:logger, :eex, :inets]]
+    [extra_applications: [:logger, :eex, :inets]]
   end
 
   defp deps do
