@@ -33,7 +33,8 @@ defmodule Sobelow.FindingLog do
     Jason.encode!(
       %{
         version: "2.1.0",
-        "$schema": "https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json",
+        "$schema":
+          "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
         runs: [
           %{
             tool: %{
