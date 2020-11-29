@@ -13,8 +13,11 @@ defmodule Sobelow.Config.HTTPS do
       $ mix sobelow -i Config.HTTPS
   """
   alias Sobelow.Config
-  use Sobelow.Finding
+
+  @uid 9
   @finding_type "Config.HTTPS: HTTPS Not Enabled"
+
+  use Sobelow.Finding
 
   def run(dir_path, configs) do
     path = dir_path <> "prod.exs"
@@ -43,6 +46,7 @@ defmodule Sobelow.Config.HTTPS do
         fun_source: nil,
         vuln_source: reason,
         vuln_line_no: 0,
+        vuln_col_no: 0,
         confidence: :high
       }
       |> Finding.fetch_fingerprint()

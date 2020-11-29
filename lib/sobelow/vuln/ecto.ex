@@ -1,6 +1,10 @@
 defmodule Sobelow.Vuln.Ecto do
   alias Sobelow.Config
   alias Sobelow.Vuln
+
+  @uid 24
+  @finding_type "Vuln.Ecto: Known Vulnerable Dependency - Update Ecto"
+
   use Sobelow.Finding
 
   @vuln_vsn ["2.2.0"]

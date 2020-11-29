@@ -11,9 +11,10 @@ defmodule Sobelow.DOS.BinToAtom do
 
       $ mix sobelow -i DOS.BinToAtom
   """
-  use Sobelow.Finding
-
+  @uid 11
   @finding_type "DOS.BinToAtom: Unsafe atom interpolation"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low

@@ -1,6 +1,8 @@
 defmodule Sobelow.XSS.SendResp do
-  use Sobelow.Finding
+  @uid 31
   @finding_type "XSS.SendResp: XSS in `send_resp`"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     Finding.init(@finding_type, meta_file.filename, nil)

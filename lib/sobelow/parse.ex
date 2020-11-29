@@ -38,7 +38,7 @@ defmodule Sobelow.Parse do
   ]
 
   def ast(filepath) do
-    {:ok, ast} = Code.string_to_quoted(read_file(filepath))
+    {:ok, ast} = Code.string_to_quoted(read_file(filepath), columns: true)
     ast
   end
 
@@ -639,6 +639,10 @@ defmodule Sobelow.Parse do
 
   def get_fun_line({_, meta, _}) when is_list(meta) do
     Keyword.get(meta, :line, 0)
+  end
+
+  def get_fun_column({_, meta, _}) when is_list(meta) do
+    Keyword.get(meta, :column, 0)
   end
 
   # XSS Utils

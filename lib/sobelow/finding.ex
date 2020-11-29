@@ -4,6 +4,7 @@ defmodule Sobelow.Finding do
     :confidence,
     :filename,
     :vuln_line_no,
+    :vuln_col_no,
     :vuln_variable,
     :vuln_source,
     :fun_name,
@@ -31,6 +32,7 @@ defmodule Sobelow.Finding do
         | vuln_variable: var,
           vuln_source: vuln,
           vuln_line_no: Sobelow.Parse.get_fun_line(vuln),
+          vuln_col_no: Sobelow.Parse.get_fun_column(vuln),
           confidence: Sobelow.Print.get_sev(params, var, finding.confidence)
       }
       |> normalize()
@@ -74,7 +76,34 @@ defmodule Sobelow.Finding do
       alias Sobelow.Utils
 
       def details() do
-        IO.ANSI.Docs.print(@moduledoc, [])
+        @moduledoc
+      end
+
+      def id() do
+        "SBLW" <> String.pad_leading("#{@uid}", 3, "0")
+      end
+
+      def rule() do
+        [name, description] = String.split(@finding_type, ":", parts: 2)
+
+        description = String.trim(description)
+
+        rule_details =
+          details()
+          |> String.split("\n\n")
+          |> Enum.map(fn para -> String.replace(para, "\n", " ") end)
+          |> Enum.join("\n\n")
+
+        %{
+          id: id(),
+          name: name,
+          shortDescription: %{text: description},
+          fullDescription: %{text: description},
+          help: %{
+            text: rule_details,
+            markdown: rule_details
+          }
+        }
       end
 
       defoverridable details: 0
@@ -85,9 +114,19 @@ end
 defmodule Sobelow.FindingType do
   defmacro __using__(_) do
     quote do
+      def finding_modules() do
+        @submodules
+      end
+
       def details() do
-        Enum.each(@submodules, fn sub ->
+        Enum.map(@submodules, fn sub ->
           apply(sub, :details, [])
+        end)
+      end
+
+      def rules() do
+        Enum.map(@submodules, fn sub ->
+          apply(sub, :rule, [])
         end)
       end
 

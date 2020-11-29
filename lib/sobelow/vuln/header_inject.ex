@@ -1,6 +1,10 @@
 defmodule Sobelow.Vuln.HeaderInject do
   alias Sobelow.Config
   alias Sobelow.Vuln
+
+  @uid 25
+  @finding_type "Vuln.HeaderInject: Known Vulnerable Dependency - Update Plug"
+
   use Sobelow.Finding
 
   @vuln_vsn ["<=1.3.4 and >=1.3.0", "<=1.2.4 and >=1.2.0", "<=1.1.8 and >=1.1.0", "<=1.0.5"]

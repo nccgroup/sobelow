@@ -23,6 +23,6 @@ defmodule Sobelow.RCE do
   end
 
   def details() do
-    IO.ANSI.Docs.print(@moduledoc, [])
+    @moduledoc
   end
 end

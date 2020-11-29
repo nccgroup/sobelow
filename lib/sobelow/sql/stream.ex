@@ -1,6 +1,8 @@
 defmodule Sobelow.SQL.Stream do
-  use Sobelow.Finding
+  @uid 18
   @finding_type "SQL.Stream: SQL injection"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low

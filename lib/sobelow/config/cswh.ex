@@ -13,8 +13,10 @@ defmodule Sobelow.Config.CSWH do
 
       $ mix sobelow -i Config.CSWH
   """
-  use Sobelow.Finding
+  @uid 6
   @finding_type "Config.CSWH: Cross-Site Websocket Hijacking"
+
+  use Sobelow.Finding
 
   def run(endpoint) do
     Parse.ast(endpoint)
@@ -58,6 +60,7 @@ defmodule Sobelow.Config.CSWH do
         finding
         | vuln_source: :highlight_all,
           vuln_line_no: Parse.get_fun_line(socket),
+          vuln_col_no: Parse.get_fun_column(socket),
           fun_source: socket
       }
       |> Finding.fetch_fingerprint()

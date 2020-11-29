@@ -39,6 +39,7 @@ defmodule Sobelow.Vuln do
         fun_source: nil,
         vuln_source: nil,
         vuln_line_no: 0,
+        vuln_col_no: 0,
         confidence: :high
       }
       |> Finding.fetch_fingerprint()
@@ -73,6 +74,6 @@ defmodule Sobelow.Vuln do
   end
 
   def details() do
-    IO.ANSI.Docs.print(@moduledoc, [])
+    @moduledoc
   end
 end

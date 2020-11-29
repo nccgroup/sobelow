@@ -135,12 +135,15 @@ defmodule Sobelow do
 
   defp print_output() do
     details =
-      case format() do
+      case output_format() do
         "json" ->
           FindingLog.json(@v)
 
         "quiet" ->
           FindingLog.quiet()
+
+        "sarif" ->
+          FindingLog.sarif(@v)
 
         _ ->
           nil
@@ -195,7 +198,7 @@ defmodule Sobelow do
     if is_nil(mod) do
       MixIO.error("A valid module was not selected.")
     else
-      apply(mod, :details, [])
+      apply(mod, :details, []) |> IO.ANSI.Docs.print([])
     end
   end
 
@@ -206,7 +209,7 @@ defmodule Sobelow do
   def log_finding(details, %Finding{} = finding) do
     if loggable?(finding.fingerprint, finding.confidence) do
       Fingerprint.put(finding.fingerprint)
-      FindingLog.add(details, finding.confidence)
+      FindingLog.add({details, finding}, finding.confidence)
     end
   end
 
@@ -217,7 +220,19 @@ defmodule Sobelow do
 
   def all_details() do
     @submodules
-    |> Enum.each(&apply(&1, :details, []))
+    |> Enum.map(&apply(&1, :details, []))
+    |> List.flatten()
+    |> Enum.each(&IO.ANSI.Docs.print(&1, []))
+  end
+
+  def rules() do
+    @submodules
+    |> Enum.flat_map(&apply(&1, :rules, []))
+  end
+
+  def finding_modules() do
+    @submodules
+    |> Enum.flat_map(&apply(&1, :finding_modules, []))
   end
 
   def save_config(conf_file) do
@@ -261,6 +276,13 @@ defmodule Sobelow do
   end
 
   def format() do
+    case get_env(:format) do
+      "sarif" -> "json"
+      format -> format
+    end
+  end
+
+  def output_format() do
     get_env(:format)
   end
 

@@ -107,6 +107,11 @@ defmodule Mix.Tasks.Sobelow do
 
   @aliases [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
 
+  # For escript entry
+  def main(argv) do
+    run(argv)
+  end
+
   def run(argv) do
     {opts, _, _} = OptionParser.parse(argv, aliases: @aliases, switches: @switches)
 

@@ -1,6 +1,8 @@
 defmodule Sobelow.XSS.Raw do
-  use Sobelow.Finding
+  @uid 30
   @finding_type "XSS.Raw: XSS"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file, _, nil) do
     confidence = if !meta_file.is_controller?, do: :low
@@ -103,6 +105,7 @@ defmodule Sobelow.XSS.Raw do
         vuln_source: finding,
         vuln_variable: var,
         vuln_line_no: Parse.get_fun_line(finding),
+        vuln_col_no: Parse.get_fun_column(finding),
         confidence: severity
       }
       |> Finding.fetch_fingerprint()

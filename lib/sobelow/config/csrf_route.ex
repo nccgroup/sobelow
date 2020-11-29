@@ -24,10 +24,13 @@ defmodule Sobelow.Config.CSRFRoute do
   """
 
   alias Sobelow.Parse
+
+  @uid 4
+  @finding_type "Config.CSRFRoute: CSRF via Action Reuse"
+
   use Sobelow.Finding
 
   @state_changing_methods [:post, :put, :patch, :delete]
-  @finding_type "Config.CSRFRoute: CSRF via Action Reuse"
 
   def run(router) do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))
@@ -65,6 +68,7 @@ defmodule Sobelow.Config.CSRFRoute do
       finding
       | vuln_source: fun,
         vuln_line_no: Parse.get_fun_line(fun),
+        vuln_col_no: Parse.get_fun_column(fun),
         fun_name: get_action(fun),
         confidence: :high
     }

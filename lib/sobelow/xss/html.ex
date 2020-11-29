@@ -1,6 +1,8 @@
 defmodule Sobelow.XSS.HTML do
-  use Sobelow.Finding
+  @uid 29
   @finding_type "XSS.HTML: XSS in `html`"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low

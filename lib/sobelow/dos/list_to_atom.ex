@@ -11,8 +11,10 @@ defmodule Sobelow.DOS.ListToAtom do
 
       $ mix sobelow -i DOS.ListToAtom
   """
-  use Sobelow.Finding
+  @uid 12
   @finding_type "DOS.ListToAtom: Unsafe `List.to_atom`"
+
+  use Sobelow.Finding
 
   def run(fun, meta_file) do
     confidence = if !meta_file.is_controller?, do: :low
