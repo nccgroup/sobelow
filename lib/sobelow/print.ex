@@ -55,7 +55,11 @@ defmodule Sobelow.Print do
   end
 
   def log_compact_finding(%Finding{} = finding) do
-    details = "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
+    details =
+      case Sobelow.get_env(:format) do
+        "flycheck" -> "#{finding.filename}:#{finding.vuln_line_no}: #{finding.type}"
+        "compact" -> "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
+      end
 
     Sobelow.log_finding(%{finding | type: details})
     print_compact_finding(finding, details)

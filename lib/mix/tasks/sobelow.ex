@@ -101,6 +101,7 @@ defmodule Mix.Tasks.Sobelow do
     save_config: :boolean,
     quiet: :boolean,
     compact: :boolean,
+    flycheck: :boolean,
     out: :string,
     threshold: :string
   ]
@@ -219,6 +220,7 @@ defmodule Mix.Tasks.Sobelow do
       cond do
         Keyword.get(opts, :quiet) -> "quiet"
         Keyword.get(opts, :compact) -> "compact"
+        Keyword.get(opts, :flycheck) -> "flycheck"
         true -> Keyword.get(opts, :format, "txt") |> String.downcase()
       end
 
