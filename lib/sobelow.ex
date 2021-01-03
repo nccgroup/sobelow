@@ -27,7 +27,7 @@ defmodule Sobelow do
   alias Sobelow.FindingLog
   alias Sobelow.MetaLog
   alias Sobelow.Fingerprint
-  alias Mix.Shell.IO, as: MixIO
+  alias Sobelow.IO, as: MixIO
 
   def run() do
     project_root = get_env(:root) <> "/"
