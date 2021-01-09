@@ -38,8 +38,10 @@ defmodule Sobelow.Parse do
   ]
 
   def ast(filepath) do
-    {:ok, ast} = Code.string_to_quoted(read_file(filepath), columns: true)
-    ast
+    case Code.string_to_quoted(read_file(filepath), columns: true) do
+      {:ok, ast} -> ast
+      {:error, _} -> {}
+    end
   end
 
   defp read_file(filepath) do
