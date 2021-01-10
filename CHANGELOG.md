@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.11.0
+  * Enhancements
+    * Sarif output for GitHub integration
+    * `--flycheck` flag, which reverses output of `--compact`
+  * Bug fixes
+    * Non-compiling files now return an empty syntax tree instead of 
+    causing Sobelow errors.
+  * Misc
+    * If you use Sobelow as a standalone utility (i.e. not as part of 
+    a Phoenix application), you now need to install as an escript with 
+    `mix escript.install hex sobelow`.
+    * Custom JSON serialization replaced with Jason.
+
 ## v0.10.6
   * Bug fixes
     * Handle nil `config` case

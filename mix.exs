@@ -2,7 +2,7 @@ defmodule Sobelow.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/nccgroup/sobelow"
-  @version "0.10.6"
+  @version "0.11.0"
 
   def project do
     [
