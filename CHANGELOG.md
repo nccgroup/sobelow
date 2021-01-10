@@ -7,6 +7,7 @@
   * Bug fixes
     * Non-compiling files now return an empty syntax tree instead of 
     causing Sobelow errors.
+    * Command Injection finding description are properly formatted
   * Misc
     * If you use Sobelow as a standalone utility (i.e. not as part of 
     a Phoenix application), you now need to install as an escript with 
