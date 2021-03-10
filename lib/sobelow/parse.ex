@@ -38,9 +38,17 @@ defmodule Sobelow.Parse do
   ]
 
   def ast(filepath) do
-    case Code.string_to_quoted(read_file(filepath), columns: true) do
-      {:ok, ast} -> ast
-      {:error, _} -> {}
+    case Code.string_to_quoted(read_file(filepath), columns: true, file: filepath) do
+      {:ok, ast} ->
+        ast
+
+      {:error, {line, err, _}} ->
+        if Application.get_env(:sobelow, :strict) do
+          IO.puts(:stderr, "#{filepath}:#{line}: #{err}")
+          System.halt(2)
+        else
+          {}
+        end
     end
   end
 
