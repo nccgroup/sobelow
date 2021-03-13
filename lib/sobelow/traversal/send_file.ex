@@ -13,7 +13,7 @@ defmodule Sobelow.Traversal.SendFile do
   end
 
   ## send_file(conn, status, file, offset \\ 0, length \\ :all)
-  defp parse_def(fun) do
+  def parse_def(fun) do
     Parse.get_fun_vars_and_meta(fun, 2, :send_file, :Conn)
   end
 
