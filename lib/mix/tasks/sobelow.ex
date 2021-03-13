@@ -19,6 +19,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--details -d` - Get module details
   * `--all-details` - Get all module details
   * `--private` - Skip update checks
+  * `--strict` - Exit when bad syntax is encountered
   * `--mark-skip-all` - Mark all printed findings as skippable
   * `--clear-skip` - Clear configuration added by `--mark-skip-all`
   * `--skip` - Skip functions flagged with `#sobelow_skip` or tagged with `--mark-skip-all`
@@ -90,6 +91,7 @@ defmodule Mix.Tasks.Sobelow do
     details: :string,
     all_details: :boolean,
     private: :boolean,
+    strict: :boolean,
     diff: :string,
     skip: :boolean,
     mark_skip_all: :boolean,
@@ -136,8 +138,9 @@ defmodule Mix.Tasks.Sobelow do
         opts
       end
 
-    {verbose, diff, details, private, skip, mark_skip_all, clear_skip, router, exit_on, format,
-     ignored, ignored_files, all_details, out, threshold} = get_opts(opts, root, conf_file?)
+    {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
+     format, ignored, ignored_files, all_details, out,
+     threshold} = get_opts(opts, root, conf_file?)
 
     set_env(:verbose, verbose)
 
@@ -149,6 +152,7 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:root, root)
     set_env(:details, details)
     set_env(:private, private)
+    set_env(:strict, strict)
     set_env(:skip, skip)
     set_env(:mark_skip_all, mark_skip_all)
     set_env(:clear_skip, clear_skip)
@@ -201,6 +205,7 @@ defmodule Mix.Tasks.Sobelow do
     details = Keyword.get(opts, :details, nil)
     all_details = Keyword.get(opts, :all_details)
     private = Keyword.get(opts, :private, false)
+    strict = Keyword.get(opts, :strict, false)
     diff = Keyword.get(opts, :diff, false)
     skip = Keyword.get(opts, :skip, false)
     mark_skip_all = Keyword.get(opts, :mark_skip_all, false)
@@ -251,8 +256,8 @@ defmodule Mix.Tasks.Sobelow do
         _ -> :low
       end
 
-    {verbose, diff, details, private, skip, mark_skip_all, clear_skip, router, exit_on, format,
-     ignored, ignored_files, all_details, out, threshold}
+    {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
+     format, ignored, ignored_files, all_details, out, threshold}
   end
 
   # Future updates will include format hinting based on the outfile name. Additional output
