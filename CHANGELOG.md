@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.11.1
+  * Enhancements
+    * Sarif output with `--out` flag
+    * `--strict` flag, which throws compilation errors instead of suppressing them.  
+
 ## v0.11.0
   * Enhancements
     * Sarif output for GitHub integration
