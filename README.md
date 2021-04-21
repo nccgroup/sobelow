@@ -99,7 +99,7 @@ relative to the application root.
   argument, e.g. `my/strange/router.ex`.
 
   * `--exit` - Return non-zero exit status at or above a confidence
-  threshold of `low` (default), `medium`, or `high`.
+  threshold of `low`, `medium`, or `high`. Defaults to `false` which returns a zero exit status
 
   * `--threshold` - Return findings at or above a confidence level
   of `low` (default), `medium`, or `high`.
