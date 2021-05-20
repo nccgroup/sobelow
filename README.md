@@ -56,12 +56,12 @@ end
 You can also install Sobelow globally by executing the following
 from the command line:
 
-    $ mix archive.install hex sobelow
+    $ mix escript.install hex sobelow
 
 To install from the master branch, rather than the latest release,
 the following command can be used:
 
-    $ mix archive.install github nccgroup/sobelow
+    $ mix escript.install github nccgroup/sobelow
 
 ## Use
 
