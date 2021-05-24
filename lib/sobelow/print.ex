@@ -2,6 +2,8 @@ defmodule Sobelow.Print do
   @moduledoc false
   alias Sobelow.{Finding, Parse}
 
+  defp puts(data), do: data |> IO.ANSI.format() |> IO.puts()
+
   def add_finding(%Finding{} = finding) do
     finding = Finding.fetch_fingerprint(finding)
 
@@ -28,13 +30,13 @@ defmodule Sobelow.Print do
   end
 
   def do_print_finding_metadata(%Finding{} = finding) do
-    IO.puts(finding_header(finding.type, finding.confidence))
-    IO.puts(finding_file_name(finding.filename))
-    IO.puts(finding_line(finding.vuln_line_no))
+    puts(finding_header(finding.type, finding.confidence))
+    puts(finding_file_name(finding.filename))
+    puts(finding_line(finding.vuln_line_no))
     maybe_print_finding_fun_metadata(finding.fun_name, finding.fun_line_no)
-    IO.puts(finding_variable(finding.vuln_variable))
+    puts(finding_variable(finding.vuln_variable))
     maybe_print_code(finding.fun_source, finding.vuln_source)
-    IO.puts(finding_break())
+    puts(finding_break())
   end
 
   def print_custom_finding_metadata(%Finding{} = finding, headers) do
@@ -44,14 +46,14 @@ defmodule Sobelow.Print do
   end
 
   def do_print_custom_finding_metadata(%Finding{} = finding, headers) do
-    IO.puts(finding_header(finding.type, finding.confidence))
+    puts(finding_header(finding.type, finding.confidence))
 
     Enum.each(headers, fn header ->
-      IO.puts(header)
+      puts(header)
     end)
 
     maybe_print_code(finding.fun_source, finding.vuln_source)
-    IO.puts(finding_break())
+    puts(finding_break())
   end
 
   def log_compact_finding(%Finding{} = finding) do
@@ -74,12 +76,12 @@ defmodule Sobelow.Print do
   defp do_print_compact_finding(details, severity) do
     sev =
       case severity do
-        :high -> IO.ANSI.red()
-        :medium -> IO.ANSI.yellow()
-        :low -> IO.ANSI.green()
+        :high -> :red
+        :medium -> :yellow
+        :low -> :green
       end
 
-    IO.puts("#{sev}[+]#{IO.ANSI.reset()} #{details}")
+    puts([sev, "[+]", :reset, " ", details])
   end
 
   def log_json_finding(%Finding{} = finding) do
@@ -95,7 +97,7 @@ defmodule Sobelow.Print do
 
   def finding_header(type, severity) do
     {color, confidence} = finding_confidence(severity)
-    color <> type <> " - #{confidence} Confidence" <> IO.ANSI.reset()
+    [color, type, " - ", confidence, " Confidence"]
   end
 
   def finding_file_name(filename) do
@@ -120,7 +122,7 @@ defmodule Sobelow.Print do
   end
 
   def print_finding_fun_metadata(fun_name, line_no) do
-    finding_fun_metadata(fun_name, line_no) |> IO.puts()
+    finding_fun_metadata(fun_name, line_no) |> puts()
   end
 
   def finding_fun_metadata(fun_name, line_no) do
@@ -137,9 +139,9 @@ defmodule Sobelow.Print do
 
   def finding_confidence(severity) do
     case severity do
-      :high -> {IO.ANSI.red(), "High"}
-      :medium -> {IO.ANSI.yellow(), "Medium"}
-      :low -> {IO.ANSI.green(), "Low"}
+      :high -> {:red, "High"}
+      :medium -> {:yellow, "Medium"}
+      :low -> {:green, "Low"}
     end
   end
 
@@ -196,13 +198,13 @@ defmodule Sobelow.Print do
   def print_code(nil, nil), do: nil
 
   def print_code(nil, out) when is_binary(out) do
-    IO.puts("\n")
-    IO.puts(out)
+    puts("\n")
+    puts(out)
   end
 
   def print_code(fun, :highlight_all) do
-    IO.puts("\n")
-    IO.puts(IO.ANSI.light_magenta() <> Macro.to_string(fun) <> IO.ANSI.reset())
+    puts("\n")
+    puts([:light_magenta, Macro.to_string(fun)])
   end
 
   def print_code(fun, find) do
@@ -215,8 +217,8 @@ defmodule Sobelow.Print do
         acc <> s
       end)
 
-    IO.puts("\n")
-    IO.puts(func_string)
+    puts("\n")
+    puts(func_string)
   end
 
   def print_file_path_code(fun, var) do
@@ -242,14 +244,16 @@ defmodule Sobelow.Print do
         acc <> s
       end)
 
-    IO.puts("\n")
-    IO.puts(func_string)
+    puts("\n")
+    puts(func_string)
   end
 
   def print_highlighted(string, ast, find) do
     case find do
       ^ast ->
-        IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+        [:light_magenta, string]
+        |> IO.ANSI.format()
+        |> List.to_string()
 
       _ ->
         if is_nil(string), do: "", else: string
@@ -258,7 +262,7 @@ defmodule Sobelow.Print do
 
   defp maybe_highlight(string, ast, var) do
     if is_fun_with_var?(ast, var) do
-      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
+      [:light_magenta, string]
     else
       string
     end
