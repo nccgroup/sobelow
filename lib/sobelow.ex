@@ -29,8 +29,8 @@ defmodule Sobelow do
   alias Sobelow.Fingerprint
   alias Sobelow.IO, as: MixIO
 
-  def run() do
-    project_root = get_env(:root) <> "/"
+  def run(opts \\ %Sobelow.Opts{}) do
+    project_root = opts.root
     version_check()
 
     app_name = Utils.get_app_name(project_root <> "mix.exs")
@@ -40,16 +40,16 @@ defmodule Sobelow do
     # more recent version of Phoenix. Meaning, all files are
     # in the lib directory, so we don't need to re-scan
     # lib_root separately.
-    phx_post_1_2? = !File.dir?(project_root <> "web")
+    phx_post_1_2? = !File.dir?(Path.join(project_root, "web"))
 
     lib_root =
       if phx_post_1_2? do
-        project_root <> "lib"
+        Path.join(project_root, "lib")
       else
-        project_root <> "web"
+        Path.join(project_root, "web")
       end
 
-    ignored = get_ignored()
+    ignored = get_ignored(opts)
     allowed = @submodules -- ignored
 
     # Pulling out function definitions before kicking
@@ -60,8 +60,8 @@ defmodule Sobelow do
 
     {libroot_meta_files, tmp_default_router} =
       if !phx_post_1_2? do
-        libroot_meta_files = get_meta_files(project_root <> "lib")
-        default_router = project_root <> "/web/router.ex"
+        libroot_meta_files = get_meta_files(Path.join(project_root, "lib"))
+        default_router = Path.join([project_root, "web", "router.ex"])
 
         {libroot_meta_files, default_router}
       else
@@ -77,7 +77,7 @@ defmodule Sobelow do
 
     init_state(project_root, template_meta_files)
 
-    if get_env(:clear_skip), do: clear_skip(project_root)
+    if opts.clear_skip, do: clear_skip(project_root)
 
     # This is where the core testing-pipeline starts.
     #
@@ -122,7 +122,7 @@ defmodule Sobelow do
       IO.puts(:stderr, "... SCAN COMPLETE ...\n")
     end
 
-    if get_env(:mark_skip_all), do: mark_skip_all(project_root)
+    if opts.mark_skip_all, do: mark_skip_all(project_root)
 
     exit_with_status()
   end
@@ -458,7 +458,7 @@ defmodule Sobelow do
   end
 
   defp clear_skip(project_root) do
-    cfile = project_root <> @skips
+    cfile = Path.join(project_root, @skips)
 
     if File.exists?(cfile) do
       File.rm!(cfile)
@@ -468,7 +468,7 @@ defmodule Sobelow do
   end
 
   defp mark_skip_all(project_root) do
-    cfile = project_root <> @skips
+    cfile = Path.join(project_root, @skips)
 
     case Fingerprint.new_skips() do
       [] ->
@@ -483,7 +483,7 @@ defmodule Sobelow do
   end
 
   defp load_ignored_fingerprints(project_root) do
-    cfile = project_root <> @skips
+    cfile = Path.join(project_root, @skips)
 
     if File.exists?(cfile) do
       {:ok, iofile} = :file.open(cfile, [:read])
@@ -641,20 +641,16 @@ defmodule Sobelow do
     end
   end
 
-  def get_ignored() do
+  def get_ignored do
     get_env(:ignored)
     |> Enum.map(&get_mod/1)
   end
 
-  def is_vuln?({vars, _, _}) do
-    cond do
-      length(vars) == 0 ->
-        false
-
-      true ->
-        true
-    end
+  def get_ignored(%{ignored: ignored}) do
+    Enum.map(ignored, &get_mod/1)
   end
+
+  def is_vuln?({vars, _, _}), do: vars != []
 
   defp is_ignored_file(filename, ignored_files) do
     Enum.any?(ignored_files, fn ignored_file ->

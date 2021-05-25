@@ -120,7 +120,7 @@ defmodule Mix.Tasks.Sobelow do
 
     root = Keyword.get(opts, :root, ".")
     config = Keyword.get(opts, :config, false)
-    conf_file = root <> "/.sobelow-conf"
+    conf_file = Path.join(root, ".sobelow-conf")
     conf_file? = config && File.exists?(conf_file)
 
     opts =
@@ -138,49 +138,32 @@ defmodule Mix.Tasks.Sobelow do
         opts
       end
 
-    {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
-     format, ignored, ignored_files, all_details, out,
-     threshold} = get_opts(opts, root, conf_file?)
+    config = get_opts(opts, root, conf_file?)
 
-    set_env(:verbose, verbose)
+    Application.put_all_env(sobelow: Map.to_list(config))
 
     if with_code = Keyword.get(opts, :with_code) do
       Mix.Shell.IO.info("WARNING: --with-code is deprecated, please use --verbose instead.\n")
       set_env(:verbose, with_code)
     end
 
-    set_env(:root, root)
-    set_env(:details, details)
-    set_env(:private, private)
-    set_env(:strict, strict)
-    set_env(:skip, skip)
-    set_env(:mark_skip_all, mark_skip_all)
-    set_env(:clear_skip, clear_skip)
-    set_env(:router, router)
-    set_env(:exit_on, exit_on)
-    set_env(:format, format)
-    set_env(:ignored, ignored)
-    set_env(:ignored_files, ignored_files)
-    set_env(:out, out)
-    set_env(:threshold, threshold)
-
     save_config = Keyword.get(opts, :save_config)
 
     cond do
-      diff ->
+      config.diff ->
         run_diff(argv)
 
       !is_nil(save_config) ->
         Sobelow.save_config(conf_file)
 
-      !is_nil(all_details) ->
+      !is_nil(config.all_details) ->
         Sobelow.all_details()
 
-      !is_nil(details) ->
+      !is_nil(config.details) ->
         Sobelow.details()
 
       true ->
-        Sobelow.run()
+        Sobelow.run(config)
     end
   end
 
@@ -242,8 +225,7 @@ defmodule Mix.Tasks.Sobelow do
 
         ignored_files =
           Keyword.get(opts, :ignore_files, "")
-          |> String.split(",")
-          |> Enum.reject(fn file -> file == "" end)
+          |> String.split(",", trim: true)
           |> Enum.map(&Path.expand(&1, root))
 
         {ignored, ignored_files}
@@ -256,8 +238,25 @@ defmodule Mix.Tasks.Sobelow do
         _ -> :low
       end
 
-    {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
-     format, ignored, ignored_files, all_details, out, threshold}
+    %Sobelow.Opts{
+      root: root,
+      verbose: verbose,
+      diff: diff,
+      details: details,
+      private: private,
+      strict: strict,
+      skip: skip,
+      mark_skip_all: mark_skip_all,
+      clear_skip: clear_skip,
+      router: router,
+      exit_on: exit_on,
+      format: format,
+      ignored: ignored,
+      ignored_files: ignored_files,
+      all_details: all_details,
+      out: out,
+      threshold: threshold
+    }
   end
 
   # Future updates will include format hinting based on the outfile name. Additional output
