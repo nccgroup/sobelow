@@ -238,20 +238,18 @@ defmodule Sobelow do
   end
 
   def save_config(conf_file) do
-    conf = """
-    [
-      verbose: #{get_env(:verbose)},
-      private: #{get_env(:private)},
-      skip: #{get_env(:skip)},
-      router: "#{get_env(:router)}",
-      exit: "#{get_env(:exit_on)}",
-      format: "#{get_env(:format)}",
-      out: "#{get_env(:out)}",
-      threshold: "#{get_env(:threshold)}",
-      ignore: ["#{Enum.join(get_env(:ignored), "\", \"")}"],
-      ignore_files: ["#{Enum.join(get_env(:ignored_files), "\", \"")}"]
+    conf = [
+      verbose: get_env(:verbose),
+      private: get_env(:private),
+      skip: get_env(:skip),
+      router: get_env(:router),
+      exit: get_env(:exit_on),
+      format: get_env(:format),
+      out: get_env(:out),
+      threshold: get_env(:threshold),
+      ignore: get_env(:ignored),
+      ignore_files: get_env(:ignored_files)
     ]
-    """
 
     yes? =
       if File.exists?(conf_file) do
@@ -261,7 +259,7 @@ defmodule Sobelow do
       end
 
     if yes? do
-      File.write!(conf_file, conf)
+      File.write!(conf_file, inspect(conf))
       MixIO.info("Updated .sobelow-conf")
     end
   end
