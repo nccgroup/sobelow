@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.11.2
+  * Enhancements
+    * Simplify `--flycheck` output to align with expected format
+
 ## v0.11.1
   * Enhancements
     * Sarif output with `--out` flag

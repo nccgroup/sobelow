@@ -278,7 +278,6 @@ defmodule Sobelow do
   def format() do
     case get_env(:format) do
       "sarif" -> "json"
-      "flycheck" -> "compact"
       format -> format
     end
   end

@@ -114,7 +114,11 @@ relative to the application root.
   * `--quiet` - Return a single line indicating number of findings.
   Otherwise, return no output if there are no findings.
 
-  * `--compact` - Minimal, single-line findings.
+  * `--compact` - Minimal, single-line findings with output colorised
+    according to confidence.
+
+  * `--flycheck` - Minimal, single-line findings that are compatible
+    with flycheck-based tooling.
 
   * `--save-config` - Generates a configuration file based on command
   line options. See [Configuration Files](#configuration-files) for more

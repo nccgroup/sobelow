@@ -4,7 +4,6 @@ defmodule Sobelow.Print do
 
   def add_finding(%Finding{} = finding) do
     finding = Finding.fetch_fingerprint(finding)
-
     case Sobelow.format() do
       "json" ->
         log_json_finding(finding)
@@ -15,6 +14,9 @@ defmodule Sobelow.Print do
 
       "compact" ->
         log_compact_finding(finding)
+
+      "flycheck" ->
+        log_flycheck_finding(finding)
 
       _ ->
         Sobelow.log_finding(finding)
@@ -55,11 +57,7 @@ defmodule Sobelow.Print do
   end
 
   def log_compact_finding(%Finding{} = finding) do
-    details =
-      case Sobelow.get_env(:format) do
-        "flycheck" -> "#{finding.filename}:#{finding.vuln_line_no}: #{finding.type}"
-        "compact" -> "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
-      end
+    details = "#{finding.type} - #{finding.filename}:#{finding.vuln_line_no}"
 
     Sobelow.log_finding(%{finding | type: details})
     print_compact_finding(finding, details)
@@ -80,6 +78,23 @@ defmodule Sobelow.Print do
       end
 
     IO.puts("#{sev}[+]#{IO.ANSI.reset()} #{details}")
+  end
+
+  def log_flycheck_finding(%Finding{} = finding) do
+    details = "#{finding.filename}:#{finding.vuln_line_no}: #{finding.type}"
+
+    Sobelow.log_finding(%{finding | type: details})
+    print_flycheck_finding(finding, details)
+  end
+
+  defp print_flycheck_finding(finding, details) do
+    if Sobelow.loggable?(finding.fingerprint, finding.confidence) do
+      do_print_flycheck_finding(details, finding.confidence)
+    end
+  end
+
+  defp do_print_flycheck_finding(details, _confidence) do
+    IO.puts(details)
   end
 
   def log_json_finding(%Finding{} = finding) do
