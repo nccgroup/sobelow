@@ -4,6 +4,7 @@ defmodule Sobelow.Print do
 
   def add_finding(%Finding{} = finding) do
     finding = Finding.fetch_fingerprint(finding)
+
     case Sobelow.format() do
       "json" ->
         log_json_finding(finding)
