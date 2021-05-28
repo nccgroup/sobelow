@@ -104,6 +104,9 @@ defmodule Sobelow.Config.Secrets do
       "compact" ->
         Print.log_compact_finding(finding)
 
+      "flycheck" ->
+        Print.log_flycheck_finding(finding)
+
       _ ->
         Sobelow.log_finding(finding)
     end
