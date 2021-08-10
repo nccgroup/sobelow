@@ -250,7 +250,10 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     threshold =
-      case String.downcase(Keyword.get(opts, :threshold, "low")) do
+      Keyword.get(opts, :threshold, "low")
+      |> to_string()
+      |> String.downcase()
+      |> case do
         "high" -> :high
         "medium" -> :medium
         _ -> :low
