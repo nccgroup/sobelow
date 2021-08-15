@@ -214,7 +214,10 @@ defmodule Mix.Tasks.Sobelow do
     out = Keyword.get(opts, :out)
 
     exit_on =
-      case String.downcase(Keyword.get(opts, :exit, "None")) do
+      Keyword.get(opts, :exit, "None")
+      |> to_string()
+      |> String.downcase()
+      |> case do
         "high" -> :high
         "medium" -> :medium
         "low" -> :low
@@ -250,7 +253,10 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     threshold =
-      case String.downcase(Keyword.get(opts, :threshold, "low")) do
+      Keyword.get(opts, :threshold, "low")
+      |> to_string()
+      |> String.downcase()
+      |> case do
         "high" -> :high
         "medium" -> :medium
         _ -> :low
