@@ -34,7 +34,7 @@ defmodule Sobelow.Mixfile do
 
   defp package() do
     [
-      licenses: ["Apache 2"],
+      licenses: ["Apache-2.0"],
       maintainers: ["Griffin Byatt"],
       links: %{
         "Changelog" => "#{@source_url}/blob/master/CHANGELOG.md",
