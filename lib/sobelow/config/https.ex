@@ -2,7 +2,7 @@ defmodule Sobelow.Config.HTTPS do
   @moduledoc """
   # HTTPS
 
-  Without HTTPS, attackers in a priveleged network position can
+  Without HTTPS, attackers in a privileged network position can
   intercept and modify traffic.
 
   Sobelow detects missing HTTPS by checking the prod
