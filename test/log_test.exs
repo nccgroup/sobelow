@@ -35,6 +35,6 @@ defmodule SobelowTest.LogTest do
 
     Sobelow.log_finding(finding, %Sobelow.Finding{confidence: :high})
 
-    assert FindingLog.json("1.0.0") <> "\n" == output
+    assert FindingLog.formatted_output("json" ,"1.0.0") <> "\n" == output
   end
 end

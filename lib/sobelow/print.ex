@@ -4,7 +4,6 @@ defmodule Sobelow.Print do
 
   def add_finding(%Finding{} = finding) do
     finding = Finding.fetch_fingerprint(finding)
-
     case Sobelow.format() do
       "json" ->
         log_json_finding(finding)
@@ -18,6 +17,9 @@ defmodule Sobelow.Print do
 
       "flycheck" ->
         log_flycheck_finding(finding)
+
+      "sonarqube" ->
+        log_sonarqube_finding(finding)
 
       _ ->
         Sobelow.log_finding(finding)
@@ -107,6 +109,10 @@ defmodule Sobelow.Print do
     ]
 
     Sobelow.log_finding(json_finding, finding)
+  end
+
+  def log_sonarqube_finding(%Finding{} = finding) do
+    Sobelow.log_finding(finding.type, finding)
   end
 
   def finding_header(type, severity) do

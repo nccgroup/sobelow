@@ -27,6 +27,6 @@ defmodule SobelowTest.FormatTest do
 
     run_test.()
 
-    assert Sobelow.FindingLog.json("1") =~ "RCE.CodeModule: Code Execution in `Code.eval_string`"
+    assert Sobelow.FindingLog.formatted_output("json", "1") =~ "RCE.CodeModule: Code Execution in `Code.eval_string`"
   end
 end

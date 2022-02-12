@@ -86,7 +86,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    if not (format() in ["quiet", "compact", "flycheck", "json"]),
+    if not (format() in ["quiet", "compact", "flycheck", "json", "sonarqube"]),
       do: IO.puts(:stderr, print_banner())
 
     Application.put_env(:sobelow, :app_name, app_name)
@@ -136,20 +136,7 @@ defmodule Sobelow do
   end
 
   defp print_output() do
-    details =
-      case output_format() do
-        "json" ->
-          FindingLog.json(@v)
-
-        "quiet" ->
-          FindingLog.quiet()
-
-        "sarif" ->
-          FindingLog.sarif(@v)
-
-        _ ->
-          nil
-      end
+    details = output_format() |> FindingLog.formatted_output(@v)
 
     if !is_nil(details) do
       print_std_or_file(details)

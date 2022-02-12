@@ -45,7 +45,7 @@ defmodule SobelowTest.SarifTest do
 
     run_test.()
 
-    output = Jason.decode!(Sobelow.FindingLog.sarif("1"))
+    output = Jason.decode!(Sobelow.FindingLog.formatted_output("sarif", "1"))
     run = List.first(output["runs"])
     results = run["results"]
 
