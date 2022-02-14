@@ -19,20 +19,20 @@ defmodule Sobelow.Formatter.Json do
     )
   end
 
-  def format_json(map) when is_map(map) do
+  defp format_json(map) when is_map(map) do
     map |> Enum.map(fn {k, v} -> {k, format_json(v)} end) |> Enum.into(%{})
   end
 
-  def format_json(l) when is_list(l) do
+  defp format_json(l) when is_list(l) do
     l |> Enum.map(&format_json(&1))
   end
 
-  def format_json({_, _, _} = var) do
+  defp format_json({_, _, _} = var) do
     details = {var, [], []} |> Macro.to_string()
     "\"#{details}\""
   end
 
-  def format_json(n), do: n
+  defp format_json(n), do: n
 
   defp normalize_json_log(finding), do: finding |> Stream.map(fn {d, _} -> d end) |> normalize()
 
