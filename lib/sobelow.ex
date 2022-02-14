@@ -235,7 +235,8 @@ defmodule Sobelow do
       out: get_env(:out),
       threshold: get_env(:threshold),
       ignore: get_env(:ignored),
-      ignore_files: get_env(:ignored_files)
+      ignore_files: get_env(:ignored_files),
+      sonarqube_base_folder: get_env(:sonarqube_base_folder)
     ]
 
     yes? =

@@ -31,6 +31,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--compact` - Minimal, single-line findings
   * `--save-config` - Generates a configuration file based on command line options
   * `--config` - Run Sobelow with configuration file
+  * `--sonarqube-base-folder` - Prefix for sonarqube files
 
   ## Ignoring modules
 
@@ -105,7 +106,8 @@ defmodule Mix.Tasks.Sobelow do
     compact: :boolean,
     flycheck: :boolean,
     out: :string,
-    threshold: :string
+    threshold: :string,
+    sonarqube_base_folder: :string
   ]
 
   @aliases [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
@@ -140,7 +142,7 @@ defmodule Mix.Tasks.Sobelow do
 
     {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
      format, ignored, ignored_files, all_details, out,
-     threshold} = get_opts(opts, root, conf_file?)
+     threshold, sonarqube_base_folder} = get_opts(opts, root, conf_file?)
 
     set_env(:verbose, verbose)
 
@@ -163,6 +165,7 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:ignored_files, ignored_files)
     set_env(:out, out)
     set_env(:threshold, threshold)
+    set_env(:sonarqube_base_folder, sonarqube_base_folder)
 
     save_config = Keyword.get(opts, :save_config)
 
@@ -212,6 +215,7 @@ defmodule Mix.Tasks.Sobelow do
     clear_skip = Keyword.get(opts, :clear_skip, false)
     router = Keyword.get(opts, :router)
     out = Keyword.get(opts, :out)
+    sonarqube_base_folder = Keyword.get(opts, :sonarqube_base_folder)
 
     exit_on =
       Keyword.get(opts, :exit, "None")
@@ -263,7 +267,7 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
-     format, ignored, ignored_files, all_details, out, threshold}
+     format, ignored, ignored_files, all_details, out, threshold, sonarqube_base_folder}
   end
 
   # Future updates will include format hinting based on the outfile name. Additional output

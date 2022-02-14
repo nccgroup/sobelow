@@ -4,26 +4,29 @@ defmodule Sobelow.Formatter.SonarQube do
   @behaviour Formatter
 
   @impl Formatter
-  def format_findings(%{high: highs, medium: meds, low: lows}, vsn) do
-    issues = Enum.map(highs, fn {_type, finding} -> format_finding(finding, vsn) end)
-             |> Enum.concat(Enum.map(meds, fn {_type, finding} -> format_finding(finding, vsn) end))
-             |> Enum.concat(Enum.map(lows, fn {_type, finding} -> format_finding(finding, vsn) end))
+  def format_findings(%{high: highs, medium: meds, low: lows} = all, vsn) do
+    prefix = Application.get_env(:sobelow, :sonarqube_base_folder, "")
+    issues = Enum.map(highs, fn {_type, finding} -> format_finding(finding, vsn, prefix) end)
+             |> Enum.concat(Enum.map(meds, fn {_type, finding} -> format_finding(finding, vsn, prefix) end))
+             |> Enum.concat(Enum.map(lows, fn {_type, finding} -> format_finding(finding, vsn, prefix) end))
     Jason.encode!(%{issues: issues}, pretty: true)
   end
 
-  defp format_finding(%Finding{} = finding, vsn) do
+  defp format_finding(%Finding{} = finding, vsn, prefix) do
+    [modId, _] = String.split(finding.type, ":", parts: 2)
+    rule = Sobelow.get_mod(modId)
     %{
+      ruleId: rule.id(),
+      severity: confidence_to_severity(finding.confidence),
+      type: "VULNERABILITY",
       engineId: "sobelow-#{vsn}",
       primaryLocation: %{
-        filePath: "./#{finding.filename}",
-        message: "#{finding.type} #{finding.vuln_variable}",
+        filePath: "#{prefix}#{finding.filename}",
+        message: "#{finding.type} #{finding.vuln_variable} \n Help: #{rule.details()}",
         textRange: %{
           startLine: finding.vuln_line_no
         }
-      },
-      ruleId: finding.type,
-      severity: confidence_to_severity(finding.confidence),
-      type: "VULNERABILITY"
+      }
     }
   end
 
