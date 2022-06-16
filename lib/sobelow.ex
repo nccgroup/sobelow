@@ -541,7 +541,7 @@ defmodule Sobelow do
 
   defp get_sobelow_version() do
     # Modeled after old Mix.Utils.read_path
-    {:ok, _} = Application.ensure_all_started(:ssl)
+    {:ok, _} = Application.ensure_all_started(:ssl, verify: :verify_peer)
     {:ok, _} = Application.ensure_all_started(:inets)
     {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
 
