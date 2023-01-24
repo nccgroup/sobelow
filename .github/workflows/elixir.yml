@@ -17,10 +17,24 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: ['1.4.5', '1.5.x', '1.6.x', '1.7.x', '1.8.x', '1.9.x']
+          - elixir: '1.4.x'
+            otp: 19.x
+          - elixir: '1.5.x'
             otp: 20.x
-          - elixir: ['1.10.x', '1.11.x', '1.12.x']
+          - elixir: '1.6.6'
+            otp: 21.x
+          - elixir: '1.7.x'
             otp: 22.x
+          - elixir: '1.8.x'
+            otp: 22.x
+          - elixir: '1.9.x'
+            otp: 22.x
+          - elixir: '1.10.x'
+            otp: 22.x
+          - elixir: '1.11.x'
+            otp: 23.x
+          - elixir: '1.12.x'
+            otp: 24.x
           - elixir: 1.13.x
             otp: 25.x
 
@@ -42,11 +56,9 @@ jobs:
 
     - name: Check Formatting
       run: mix format --check-formatted
-      if: matrix.check_formatted
 
     - name: Compiles without warnings
       run: mix compile --warnings-as-errors
-      if: matrix.warnings_as_errors
 
     - name: Run Tests
       run: mix test
