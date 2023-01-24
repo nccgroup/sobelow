@@ -12,31 +12,31 @@ env:
 jobs:
   mix_test:
     name: mix test (Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
         include:
           - elixir: '1.4.x'
-            otp: 19.x
+            otp: 19.3.6.13
           - elixir: '1.5.x'
-            otp: 20.x
+            otp: 20.3.8.26
           - elixir: '1.6.6'
-            otp: 21.x
+            otp: 21.3.8.24
           - elixir: '1.7.x'
-            otp: 22.x
+            otp: 22.3.4.26
           - elixir: '1.8.x'
-            otp: 22.x
+            otp: 22.3.4.26
           - elixir: '1.9.x'
-            otp: 22.x
+            otp: 22.3.4.26
           - elixir: '1.10.x'
-            otp: 22.x
+            otp: 22.3.4.26
           - elixir: '1.11.x'
-            otp: 23.x
+            otp: 23.3.4.18
           - elixir: '1.12.x'
-            otp: 24.x
+            otp: 24
           - elixir: 1.13.x
-            otp: 25.x
+            otp: 25.1
 
     steps:
     - name: Setup Elixir
