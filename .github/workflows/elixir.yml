@@ -16,8 +16,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        otp: ['23.3.4', '24', '25.1']
-        elixir: ['1.12.x', '1.13.x', '1.14.x']
+        include:
+          - elixir: ['1.4.5', '1.5.x', '1.6.x', '1.7.x', '1.8.x', '1.9.x']
+            otp: 20.x
+          - elixir: ['1.10.x', '1.11.x', '1.12.x']
+            otp: 22.x
+          - elixir: 1.13.x
+            otp: 25.x
 
     steps:
     - name: Setup Elixir
