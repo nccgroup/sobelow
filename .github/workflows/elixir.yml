@@ -6,6 +6,9 @@ on:
     branches:
       - master
 
+env:
+  MIX_ENV: test
+
 jobs:
   mix_test:
     name: mix test (Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}})
@@ -13,30 +16,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - elixir: 1.12.x
-            otp: 23.3.4
-          - elixir: 1.13.x
-            otp: 24
-          - elixir: 1.14.x
-            otp: 25.1
-            warnings_as_errors: true
-            check_formatted: true
-    env:
-      MIX_ENV: test
+        otp: ['23.3.4', '24', '25.1']
+        elixir: ['1.12.x', '1.13.x', '1.14.x']
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: erlef/setup-beam@v1
-        with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
-      - name: Install Dependencies
-        run: |
-          mix local.hex --force
-          mix local.rebar --force
-          mix deps.get --only test
-      - run: mix format --check-formatted
-        if: matrix.check_formatted
-      - run: mix compile --warnings-as-errors
+    - name: Setup Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{matrix.otp}}
+        elixir-version: ${{matrix.elixir}}
+
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        mix local.hex --force
+        mix local.rebar --force
+        mix deps.get --only test
+
+    - name: Check Formatting
+      run: mix format --check-formatted
+      if: matrix.check_formatted
+
+    - name: Compiles without warnings
+      run: mix compile --warnings-as-errors
         if: matrix.warnings_as_errors
-      - run: mix test
+
+    - name: Run Tests
+      run: mix test
