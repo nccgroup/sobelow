@@ -41,7 +41,7 @@ jobs:
 
     - name: Compiles without warnings
       run: mix compile --warnings-as-errors
-        if: matrix.warnings_as_errors
+      if: matrix.warnings_as_errors
 
     - name: Run Tests
       run: mix test
