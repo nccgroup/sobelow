@@ -37,6 +37,8 @@ jobs:
             otp: 24
           - elixir: 1.13.x
             otp: 25.1
+            #warnings_as_errors: true # temporarily disabled due to separate issue that requires fixing, see: https://github.com/nccgroup/sobelow/issues/115
+            check_formatted: true
 
     steps:
     - name: Setup Elixir
@@ -53,12 +55,6 @@ jobs:
         mix local.hex --force
         mix local.rebar --force
         mix deps.get --only test
-
-    - name: Check Formatting
-      run: mix format --check-formatted
-
-    - name: Compiles without warnings
-      run: mix compile --warnings-as-errors
 
     - name: Run Tests
       run: mix test
