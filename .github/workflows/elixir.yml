@@ -17,8 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: '1.4.x'
-            otp: 19.3.6.13
           - elixir: '1.5.x'
             otp: 20.3.8.26
           - elixir: '1.6.6'
@@ -35,7 +33,9 @@ jobs:
             otp: 23.3.4.18
           - elixir: '1.12.x'
             otp: 24
-          - elixir: 1.13.x
+          - elixir: '1.13.x'
+            otp: 25.1
+          - elixir: '1.14.x'
             otp: 25.1
             #warnings_as_errors: true # temporarily disabled due to separate issue that requires fixing, see: https://github.com/nccgroup/sobelow/issues/115
             check_formatted: true
