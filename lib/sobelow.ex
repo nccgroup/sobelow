@@ -663,4 +663,9 @@ defmodule Sobelow do
       String.ends_with?(ignored_file, filename)
     end)
   end
+
+  def version() do
+    @v
+    |> IO.puts()
+  end
 end
