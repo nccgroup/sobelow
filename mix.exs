@@ -28,7 +28,8 @@ defmodule Sobelow.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.20", only: :dev},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:castore, "~> 1.0.0"}
     ]
   end
 

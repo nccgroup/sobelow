@@ -541,7 +541,7 @@ defmodule Sobelow do
 
   defp get_sobelow_version() do
     # Modeled after old Mix.Utils.read_path
-    {:ok, _} = Application.ensure_all_started(:ssl, verify: :verify_peer)
+    {:ok, _} = Application.ensure_all_started(:ssl, verify: :verify_peer, cacertfile: CAStore.file_path()) # uses CAStore since we cannot use exclusively use OTP 25+ yet
     {:ok, _} = Application.ensure_all_started(:inets)
     {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
 
