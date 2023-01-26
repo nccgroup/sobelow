@@ -7,7 +7,7 @@ defmodule Sobelow.Parse do
     :!,
     :^,
     :not,
-    :~~~,
+    :"~~~",
     :*,
     :/,
     :++,
