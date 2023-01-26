@@ -201,6 +201,20 @@ This list, and other helpful information, can be found on the
 command line:
 
     $ mix help sobelow
+    
+## Umbrella Apps
+
+In order to run Sobelow against all child apps within an umbrella app with a single command, you can add an alias for sobelow in your root `mix.exs` file:
+
+```elixir
+defp aliases do
+  [
+    sobelow: ["cmd mix sobelow"]
+  ]
+end
+```
+
+If you wish to use configuration files in an umbrella app, create a `.sobelow-conf` in each child application and use the `--config` flag.
 
 ## Updates
 When scanning a project, Sobelow will occasionally check for
