@@ -48,7 +48,7 @@ To use Sobelow, you can add it to your application's dependencies.
 ```elixir
 def deps do
   [
-    {:sobelow, "~> 0.8", only: :dev}
+    {:sobelow, "~> 0.11", only: [:dev, :test], runtime: false}
   ]
 end
 ```
