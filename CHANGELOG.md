@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.12
+## v0.12.0
   * Enhancements
     * Adds support for HEEx to XSS.Raw
     * Adds `--version` CLI flag
