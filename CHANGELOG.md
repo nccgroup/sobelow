@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.12
+  * Enhancements
+    * Adds support for HEEx to XSS.Raw
+    * Adds `--version` CLI flag
+    * README Improvements
+      * Umbrella App usage
+      * Clearer installation process
+      * Layout changes
+    * Updated dependencies
+  * Bug fixes
+    * Adds to_string() to exit_on
+    * Sets SSL opt verify_peer in version check
+    * Reworks `-v, --verbose` printing to not use the now deprecated `Macro.to_string/2`
+  * Misc
+    * Allows atom values for threshold in config file
+    * Uses SPDX ID for licenses in mixfile
+    * Fixed typo
+
 ## v0.11.2
   * Enhancements
     * Simplify `--flycheck` output to align with expected format

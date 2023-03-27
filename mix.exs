@@ -2,7 +2,7 @@ defmodule Sobelow.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/nccgroup/sobelow"
-  @version "0.11.2"
+  @version "0.12"
 
   def project do
     [
@@ -13,7 +13,7 @@ defmodule Sobelow.Mixfile do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      description: "Security-focused static analysis for the Phoenix framework",
+      description: "Security-focused static analysis for Elixir & the Phoenix framework",
       name: "Sobelow",
       homepage_url: "https://sobelow.io",
       docs: docs(),
@@ -36,7 +36,7 @@ defmodule Sobelow.Mixfile do
   defp package() do
     [
       licenses: ["Apache-2.0"],
-      maintainers: ["Griffin Byatt"],
+      maintainers: ["Griffin Byatt", "Holden Oullette"],
       links: %{
         "Changelog" => "#{@source_url}/blob/master/CHANGELOG.md",
         "GitHub" => @source_url
