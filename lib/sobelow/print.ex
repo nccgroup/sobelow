@@ -167,10 +167,6 @@ defmodule Sobelow.Print do
     if Sobelow.get_env(:verbose), do: print_code(fun, finding)
   end
 
-  def maybe_print_file_path_code(fun, var) do
-    if Sobelow.get_env(:verbose), do: print_file_path_code(fun, var)
-  end
-
   def get_sev(params, var) do
     do_get_sev(params, var, :medium, :low)
   end
@@ -261,60 +257,4 @@ defmodule Sobelow.Print do
   defp make_highlight_key(acc) do
     "__sobelow_highlight_#{map_size(acc)}__"
   end
-
-  def print_file_path_code(fun, var) do
-    acc = ""
-
-    func_string =
-      Macro.to_string(fun, fn ast, string ->
-        s =
-          case ast do
-            {:=, _, [{^var, _, nil} | _]} ->
-              maybe_highlight(string, ast, var)
-
-            {{:., _, [{:__aliases__, _, [:Path]}, _]}, _, _} ->
-              maybe_highlight(string, ast, var)
-
-            {{:., _, [{:__aliases__, _, [:File]}, _]}, _, _} ->
-              maybe_highlight(string, ast, var)
-
-            _ ->
-              if is_nil(string), do: "", else: string
-          end
-
-        acc <> s
-      end)
-
-    IO.puts("\n")
-    IO.puts(func_string)
-  end
-
-  defp maybe_highlight(string, ast, var) do
-    if is_fun_with_var?(ast, var) do
-      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-    else
-      string
-    end
-  end
-
-  def is_fun_with_var?(fun, var) do
-    {_, acc} = Macro.prewalk(fun, [], &is_fun_var/2)
-    if Enum.member?(acc, var), do: true, else: false
-  end
-
-  defp is_fun_var({:__aliases__, _, aliases} = ast, acc) do
-    {ast, [Module.concat(aliases) | acc]}
-  end
-
-  defp is_fun_var({:render, _, [_, _, keylist]} = ast, acc) do
-    {ast, Keyword.keys(keylist) ++ acc}
-  end
-
-  defp is_fun_var({:render, _, [_, keylist]} = ast, acc) when is_list(keylist) do
-    {ast, Keyword.keys(keylist) ++ acc}
-  end
-
-  defp is_fun_var({:&, _, [idx]} = ast, acc), do: {ast, ["&#{idx}" | acc]}
-  defp is_fun_var({var, _, _} = ast, acc), do: {ast, [var | acc]}
-  defp is_fun_var(ast, acc), do: {ast, acc}
 end
