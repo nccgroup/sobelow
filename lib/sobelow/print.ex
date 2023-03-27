@@ -222,17 +222,44 @@ defmodule Sobelow.Print do
   end
 
   def print_code(fun, find) do
-    acc = ""
-
-    func_string =
-      Macro.to_string(fun, fn ast, string ->
-        string = normalize_template_var(ast, string)
-        s = print_highlighted(string, ast, find)
-        acc <> s
-      end)
+    {ast, highlights} = highlight_variables(fun, find)
+    code_string = Macro.to_string(ast)
+    highlighted_code = add_highlights(code_string, highlights)
 
     IO.puts("\n")
-    IO.puts(func_string)
+    IO.puts(highlighted_code)
+  end
+
+  defp highlight_variables(fun, find) do
+    {new_ast, highlights} =
+      Macro.prewalk(fun, %{}, fn ast, acc ->
+        case ast do
+          ^find ->
+            highlight_key = make_highlight_key(acc)
+            updated_acc = Map.put(acc, highlight_key, ast)
+            {String.to_atom(highlight_key), updated_acc}
+
+          # normalizes template variables
+          {{_, _, [{_, _, [:EEx, :Engine]}, _]}, _, [{:var!, _, [{:assigns, _, _}]}, key]} ->
+            {"@#{key}", acc}
+
+          _ ->
+            {ast, acc}
+        end
+      end)
+
+    {new_ast, highlights}
+  end
+
+  defp add_highlights(code_string, highlights) do
+    Enum.reduce(highlights, code_string, fn {highlight_key, ast}, acc ->
+      highlighted = IO.ANSI.light_magenta() <> Macro.to_string(ast) <> IO.ANSI.reset()
+      String.replace(acc, ":" <> highlight_key, highlighted)
+    end)
+  end
+
+  defp make_highlight_key(acc) do
+    "__sobelow_highlight_#{map_size(acc)}__"
   end
 
   def print_file_path_code(fun, var) do
@@ -279,15 +306,6 @@ defmodule Sobelow.Print do
       string
     end
   end
-
-  defp normalize_template_var(
-         {{_, _, [{_, _, [:EEx, :Engine]}, _]}, _, [{:var!, _, [{:assigns, _, _}]}, key]},
-         _
-       ) do
-    "@#{key}"
-  end
-
-  defp normalize_template_var(_, string), do: string
 
   def is_fun_with_var?(fun, var) do
     {_, acc} = Macro.prewalk(fun, [], &is_fun_var/2)
