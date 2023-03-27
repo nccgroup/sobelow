@@ -167,10 +167,6 @@ defmodule Sobelow.Print do
     if Sobelow.get_env(:verbose), do: print_code(fun, finding)
   end
 
-  def maybe_print_file_path_code(fun, var) do
-    if Sobelow.get_env(:verbose), do: print_file_path_code(fun, var)
-  end
-
   def get_sev(params, var) do
     do_get_sev(params, var, :medium, :low)
   end
@@ -222,91 +218,43 @@ defmodule Sobelow.Print do
   end
 
   def print_code(fun, find) do
-    acc = ""
-
-    func_string =
-      Macro.to_string(fun, fn ast, string ->
-        string = normalize_template_var(ast, string)
-        s = print_highlighted(string, ast, find)
-        acc <> s
-      end)
+    {ast, highlights} = highlight_variables(fun, find)
+    code_string = Macro.to_string(ast)
+    highlighted_code = add_highlights(code_string, highlights)
 
     IO.puts("\n")
-    IO.puts(func_string)
+    IO.puts(highlighted_code)
   end
 
-  def print_file_path_code(fun, var) do
-    acc = ""
+  defp highlight_variables(fun, find) do
+    {new_ast, highlights} =
+      Macro.prewalk(fun, %{}, fn ast, acc ->
+        case ast do
+          ^find ->
+            highlight_key = make_highlight_key(acc)
+            updated_acc = Map.put(acc, highlight_key, ast)
+            {String.to_atom(highlight_key), updated_acc}
 
-    func_string =
-      Macro.to_string(fun, fn ast, string ->
-        s =
-          case ast do
-            {:=, _, [{^var, _, nil} | _]} ->
-              maybe_highlight(string, ast, var)
+          # normalizes template variables
+          {{_, _, [{_, _, [:EEx, :Engine]}, _]}, _, [{:var!, _, [{:assigns, _, _}]}, key]} ->
+            {"@#{key}", acc}
 
-            {{:., _, [{:__aliases__, _, [:Path]}, _]}, _, _} ->
-              maybe_highlight(string, ast, var)
-
-            {{:., _, [{:__aliases__, _, [:File]}, _]}, _, _} ->
-              maybe_highlight(string, ast, var)
-
-            _ ->
-              if is_nil(string), do: "", else: string
-          end
-
-        acc <> s
+          _ ->
+            {ast, acc}
+        end
       end)
 
-    IO.puts("\n")
-    IO.puts(func_string)
+    {new_ast, highlights}
   end
 
-  def print_highlighted(string, ast, find) do
-    case find do
-      ^ast ->
-        IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-
-      _ ->
-        if is_nil(string), do: "", else: string
-    end
+  defp add_highlights(code_string, highlights) do
+    Enum.reduce(highlights, code_string, fn {highlight_key, ast}, acc ->
+      highlighted = IO.ANSI.light_magenta() <> Macro.to_string(ast) <> IO.ANSI.reset()
+      String.replace(acc, ":" <> highlight_key, highlighted)
+    end)
   end
 
-  defp maybe_highlight(string, ast, var) do
-    if is_fun_with_var?(ast, var) do
-      IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-    else
-      string
-    end
+  defp make_highlight_key(acc) do
+    "__sobelow_highlight_#{map_size(acc)}__"
   end
-
-  defp normalize_template_var(
-         {{_, _, [{_, _, [:EEx, :Engine]}, _]}, _, [{:var!, _, [{:assigns, _, _}]}, key]},
-         _
-       ) do
-    "@#{key}"
-  end
-
-  defp normalize_template_var(_, string), do: string
-
-  def is_fun_with_var?(fun, var) do
-    {_, acc} = Macro.prewalk(fun, [], &is_fun_var/2)
-    if Enum.member?(acc, var), do: true, else: false
-  end
-
-  defp is_fun_var({:__aliases__, _, aliases} = ast, acc) do
-    {ast, [Module.concat(aliases) | acc]}
-  end
-
-  defp is_fun_var({:render, _, [_, _, keylist]} = ast, acc) do
-    {ast, Keyword.keys(keylist) ++ acc}
-  end
-
-  defp is_fun_var({:render, _, [_, keylist]} = ast, acc) when is_list(keylist) do
-    {ast, Keyword.keys(keylist) ++ acc}
-  end
-
-  defp is_fun_var({:&, _, [idx]} = ast, acc), do: {ast, ["&#{idx}" | acc]}
-  defp is_fun_var({var, _, _} = ast, acc), do: {ast, [var | acc]}
-  defp is_fun_var(ast, acc), do: {ast, acc}
 end
