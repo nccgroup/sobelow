@@ -36,11 +36,11 @@ defmodule Sobelow.XSS.Raw do
           true -> ""
         end
 
-      template_path =
+      maybe_template_path =
         (template_root <> "/templates/" <> controller <> "/" <> template <> ".eex")
         |> Utils.normalize_path()
 
-      raw_funs = templates[template_path]
+      {raw_funs, template_path} = get_rf_tp(templates, maybe_template_path)
 
       if raw_funs do
         raw_vals = Parse.get_template_vars(raw_funs.raw)
@@ -66,6 +66,15 @@ defmodule Sobelow.XSS.Raw do
         end)
       end
     end)
+  end
+
+  defp get_rf_tp(templates, template_path) do
+    if templates[template_path] do
+      {templates[template_path], template_path}
+    else
+      new_path = String.slice(template_path, 0..String.length(template_path)-4) <> "heex"
+      {templates[new_path], new_path}
+    end
   end
 
   def parse_render_def(fun) do

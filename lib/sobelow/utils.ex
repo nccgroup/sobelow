@@ -51,7 +51,7 @@ defmodule Sobelow.Utils do
 
   def template_files(filepath, _directory \\ "") do
     if File.dir?(filepath) do
-      Path.wildcard(filepath <> "/**/*.html.eex")
+      Path.wildcard(filepath <> "/**/*.html.{heex,eex}")
     else
       []
     end
