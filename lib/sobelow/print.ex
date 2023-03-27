@@ -289,16 +289,6 @@ defmodule Sobelow.Print do
     IO.puts(func_string)
   end
 
-  def print_highlighted(string, ast, find) do
-    case find do
-      ^ast ->
-        IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
-
-      _ ->
-        if is_nil(string), do: "", else: string
-    end
-  end
-
   defp maybe_highlight(string, ast, var) do
     if is_fun_with_var?(ast, var) do
       IO.ANSI.light_magenta() <> string <> IO.ANSI.reset()
