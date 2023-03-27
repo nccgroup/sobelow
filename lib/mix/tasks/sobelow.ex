@@ -182,7 +182,7 @@ defmodule Mix.Tasks.Sobelow do
       !is_nil(details) ->
         Sobelow.details()
 
-      !is_nil(version) ->
+      version ->
         Sobelow.version()
 
       true ->
