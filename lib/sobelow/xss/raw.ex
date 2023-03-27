@@ -72,7 +72,7 @@ defmodule Sobelow.XSS.Raw do
     if templates[template_path] do
       {templates[template_path], template_path}
     else
-      new_path = String.replace(template_path, "eex", "heex")
+      new_path = String.slice(template_path, 0..String.length(template_path)-4) <> "heex"
       {templates[new_path], new_path}
     end
   end
