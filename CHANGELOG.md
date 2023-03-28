@@ -1,6 +1,8 @@
 # Changelog
 
 ## v0.12.0
+  * Removed
+    * Support for minimum Elixir version 1.4 (**POTENTIALLY BREAKING** - only applies if you relied on Elixir 1.4, 1.5+ is still supported)
   * Enhancements
     * Adds support for HEEx to XSS.Raw
     * Adds `--version` CLI flag
