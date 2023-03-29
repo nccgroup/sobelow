@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/hexpm/l/sobelow.svg)](https://hex.pm/packages/sobelow)
 [![Last Updated](https://img.shields.io/github/last-commit/nccgroup/sobelow.svg)](https://github.com/nccgroup/sobelow/commits/master)
 
-Sobelow is a security-focused static analysis tool for the
+Sobelow is a security-focused static analysis tool for Elixir & the
 Phoenix framework. For security researchers, it is a useful
 tool for getting a quick view of points-of-interest. For
 project maintainers, it can be used to prevent the introduction
@@ -32,14 +32,24 @@ red, medium confidence is yellow, and low confidence is green.
 A finding is typically marked "low confidence" if it looks
 like a function could be used insecurely, but it cannot
 reliably be determined if the function accepts user-supplied
-input. That is to say, if a finding is marked green, it may be
+input. i.e. **If a finding is marked green, it *may* be
 critically insecure, but it will require greater manual
-validation.
+validation.**
 
 **Note:** This project is in constant development, and
 additional vulnerabilities will be flagged as time goes on.
 If you encounter a bug, or would like to request additional
 features or security checks, please open an issue!
+
+## Table of Contents
+- [Installation](#installation)
+  - [To Use](#to-use)
+- [Options](#options)
+- [Configuration Files](#configuration-files)
+- [False Positives](#false-positives)
+- [Modules](#modules)
+- [Umbrella Apps](#umbrella-apps)
+- [Updates](#updates)
 
 ## Installation
 
@@ -48,7 +58,7 @@ To use Sobelow, you can add it to your application's dependencies.
 ```elixir
 def deps do
   [
-    {:sobelow, "~> 0.11", only: [:dev, :test], runtime: false}
+    {:sobelow, "~> 0.12", only: [:dev, :test], runtime: false}
   ]
 end
 ```
@@ -63,9 +73,9 @@ the following command can be used:
 
     $ mix escript.install github nccgroup/sobelow
 
-## Use
+### To Use
 
-The simplest way to scan a Phoenix project is to run the
+After installation, the simplest way to scan a Phoenix project is to run the
 following from the project root:
 
     $ mix sobelow
@@ -133,6 +143,8 @@ relative to the application root.
 
   * `--skip` - Ignore findings that have been marked for skipping. See [False Positives](#false-positives)
   for more information.
+
+  * `--version` - Outputs the current version of Sobelow. This is useful for CI steps or integration with other tools like [Salus](https://github.com/coinbase/salus).
 
 ## Configuration Files
 Sobelow allows users to save frequently used options in a
