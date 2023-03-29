@@ -31,6 +31,7 @@ defmodule Mix.Tasks.Sobelow do
   * `--compact` - Minimal, single-line findings
   * `--save-config` - Generates a configuration file based on command line options
   * `--config` - Run Sobelow with configuration file
+  * `--version` - Output current version of Sobelow
 
   ## Ignoring modules
 
@@ -105,7 +106,8 @@ defmodule Mix.Tasks.Sobelow do
     compact: :boolean,
     flycheck: :boolean,
     out: :string,
-    threshold: :string
+    threshold: :string,
+    version: :boolean
   ]
 
   @aliases [v: :verbose, r: :root, i: :ignore, d: :details, f: :format]
@@ -139,8 +141,8 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
-     format, ignored, ignored_files, all_details, out,
-     threshold} = get_opts(opts, root, conf_file?)
+     format, ignored, ignored_files, all_details, out, threshold,
+     version} = get_opts(opts, root, conf_file?)
 
     set_env(:verbose, verbose)
 
@@ -163,6 +165,7 @@ defmodule Mix.Tasks.Sobelow do
     set_env(:ignored_files, ignored_files)
     set_env(:out, out)
     set_env(:threshold, threshold)
+    set_env(:version, version)
 
     save_config = Keyword.get(opts, :save_config)
 
@@ -178,6 +181,9 @@ defmodule Mix.Tasks.Sobelow do
 
       !is_nil(details) ->
         Sobelow.details()
+
+      version ->
+        Sobelow.version()
 
       true ->
         Sobelow.run()
@@ -212,9 +218,13 @@ defmodule Mix.Tasks.Sobelow do
     clear_skip = Keyword.get(opts, :clear_skip, false)
     router = Keyword.get(opts, :router)
     out = Keyword.get(opts, :out)
+    version = Keyword.get(opts, :version, false)
 
     exit_on =
-      case String.downcase(Keyword.get(opts, :exit, "None")) do
+      Keyword.get(opts, :exit, "None")
+      |> to_string()
+      |> String.downcase()
+      |> case do
         "high" -> :high
         "medium" -> :medium
         "low" -> :low
@@ -250,14 +260,17 @@ defmodule Mix.Tasks.Sobelow do
       end
 
     threshold =
-      case String.downcase(Keyword.get(opts, :threshold, "low")) do
+      Keyword.get(opts, :threshold, "low")
+      |> to_string()
+      |> String.downcase()
+      |> case do
         "high" -> :high
         "medium" -> :medium
         _ -> :low
       end
 
     {verbose, diff, details, private, strict, skip, mark_skip_all, clear_skip, router, exit_on,
-     format, ignored, ignored_files, all_details, out, threshold}
+     format, ignored, ignored_files, all_details, out, threshold, version}
   end
 
   # Future updates will include format hinting based on the outfile name. Additional output

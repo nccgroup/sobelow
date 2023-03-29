@@ -6,48 +6,55 @@ on:
     branches:
       - master
 
+env:
+  MIX_ENV: test
+
 jobs:
   mix_test:
     name: mix test (Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - elixir: 1.4.x
-            otp: 18.3.4.11
-          - elixir: 1.5.x
-            otp: 18.3.4.11
-          - elixir: 1.6.x
-            otp: 19.3.6.13
-          - elixir: 1.7.x
-            otp: 19.3.6.13
-          - elixir: 1.8.x
+          - elixir: '1.5.x'
             otp: 20.3.8.26
-          - elixir: 1.9.x
-            otp: 20.3.8.26
-            warnings_as_errors: true # 1.10 is not enough as its --warnigs-as-errors has bugs https://github.com/elixir-lang/elixir/issues/10073
-          - elixir: 1.10.x
-            otp: 21.3.8.17
-          - elixir: 1.10.x
-            otp: 23.0.3
-            warnings_as_errors: true
+          - elixir: '1.6.6'
+            otp: 21.3.8.24
+          - elixir: '1.7.x'
+            otp: 22.3.4.26
+          - elixir: '1.8.x'
+            otp: 22.3.4.26
+          - elixir: '1.9.x'
+            otp: 22.3.4.26
+          - elixir: '1.10.x'
+            otp: 22.3.4.26
+          - elixir: '1.11.x'
+            otp: 23.3.4.18
+          - elixir: '1.12.x'
+            otp: 24
+          - elixir: '1.13.x'
+            otp: 25.1
+          - elixir: '1.14.x'
+            otp: 25.1
+            #warnings_as_errors: true # temporarily disabled due to separate issue that requires fixing, see: https://github.com/nccgroup/sobelow/issues/115
             check_formatted: true
-    env:
-      MIX_ENV: test
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-elixir@v1
-        with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
-      - name: Install Dependencies
-        run: |
-          mix local.hex --force
-          mix local.rebar --force
-          mix deps.get --only test
-      - run: mix format --check-formatted
-        if: matrix.check_formatted
-      - run: mix compile --warnings-as-errors
-        if: matrix.warnings_as_errors
-      - run: mix test
+    - name: Setup Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        otp-version: ${{matrix.otp}}
+        elixir-version: ${{matrix.elixir}}
+
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: |
+        mix local.hex --force
+        mix local.rebar --force
+        mix deps.get --only test
+
+    - name: Run Tests
+      run: mix test

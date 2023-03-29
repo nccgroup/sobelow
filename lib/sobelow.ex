@@ -86,7 +86,7 @@ defmodule Sobelow do
     # - Remove config check from "allowed" modules
     # - Scan funcs from the root
     # - Scan funcs from the libroot
-    if not (format() in ["quiet", "compact", "flycheck", "json"]),
+    if format() not in ["quiet", "compact", "flycheck", "json"],
       do: IO.puts(:stderr, print_banner())
 
     Application.put_env(:sobelow, :app_name, app_name)
@@ -238,20 +238,19 @@ defmodule Sobelow do
   end
 
   def save_config(conf_file) do
-    conf = """
-    [
-      verbose: #{get_env(:verbose)},
-      private: #{get_env(:private)},
-      skip: #{get_env(:skip)},
-      router: "#{get_env(:router)}",
-      exit: "#{get_env(:exit_on)}",
-      format: "#{get_env(:format)}",
-      out: "#{get_env(:out)}",
-      threshold: "#{get_env(:threshold)}",
-      ignore: ["#{Enum.join(get_env(:ignored), "\", \"")}"],
-      ignore_files: ["#{Enum.join(get_env(:ignored_files), "\", \"")}"]
+    conf = [
+      verbose: get_env(:verbose),
+      private: get_env(:private),
+      skip: get_env(:skip),
+      router: get_env(:router),
+      exit: get_env(:exit_on),
+      format: get_env(:format),
+      out: get_env(:out),
+      threshold: get_env(:threshold),
+      ignore: get_env(:ignored),
+      ignore_files: get_env(:ignored_files),
+      version: get_env(:version)
     ]
-    """
 
     yes? =
       if File.exists?(conf_file) do
@@ -261,7 +260,7 @@ defmodule Sobelow do
       end
 
     if yes? do
-      File.write!(conf_file, conf)
+      File.write!(conf_file, inspect(conf))
       MixIO.info("Updated .sobelow-conf")
     end
   end
@@ -280,7 +279,6 @@ defmodule Sobelow do
   def format() do
     case get_env(:format) do
       "sarif" -> "json"
-      "flycheck" -> "compact"
       format -> format
     end
   end
@@ -544,7 +542,10 @@ defmodule Sobelow do
 
   defp get_sobelow_version() do
     # Modeled after old Mix.Utils.read_path
-    {:ok, _} = Application.ensure_all_started(:ssl)
+    # Uses CAStore since we cannot use exclusively use OTP 25+ yet
+    {:ok, _} =
+      Application.ensure_all_started(:ssl, verify: :verify_peer, cacertfile: CAStore.file_path())
+
     {:ok, _} = Application.ensure_all_started(:inets)
     {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
 
@@ -662,5 +663,10 @@ defmodule Sobelow do
     Enum.any?(ignored_files, fn ignored_file ->
       String.ends_with?(ignored_file, filename)
     end)
+  end
+
+  def version() do
+    @v
+    |> IO.puts()
   end
 end

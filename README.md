@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/hexpm/l/sobelow.svg)](https://hex.pm/packages/sobelow)
 [![Last Updated](https://img.shields.io/github/last-commit/nccgroup/sobelow.svg)](https://github.com/nccgroup/sobelow/commits/master)
 
-Sobelow is a security-focused static analysis tool for the
+Sobelow is a security-focused static analysis tool for Elixir & the
 Phoenix framework. For security researchers, it is a useful
 tool for getting a quick view of points-of-interest. For
 project maintainers, it can be used to prevent the introduction
@@ -32,14 +32,24 @@ red, medium confidence is yellow, and low confidence is green.
 A finding is typically marked "low confidence" if it looks
 like a function could be used insecurely, but it cannot
 reliably be determined if the function accepts user-supplied
-input. That is to say, if a finding is marked green, it may be
+input. i.e. **If a finding is marked green, it *may* be
 critically insecure, but it will require greater manual
-validation.
+validation.**
 
 **Note:** This project is in constant development, and
 additional vulnerabilities will be flagged as time goes on.
 If you encounter a bug, or would like to request additional
 features or security checks, please open an issue!
+
+## Table of Contents
+- [Installation](#installation)
+  - [To Use](#to-use)
+- [Options](#options)
+- [Configuration Files](#configuration-files)
+- [False Positives](#false-positives)
+- [Modules](#modules)
+- [Umbrella Apps](#umbrella-apps)
+- [Updates](#updates)
 
 ## Installation
 
@@ -48,7 +58,7 @@ To use Sobelow, you can add it to your application's dependencies.
 ```elixir
 def deps do
   [
-    {:sobelow, "~> 0.8", only: :dev}
+    {:sobelow, "~> 0.12", only: [:dev, :test], runtime: false}
   ]
 end
 ```
@@ -56,16 +66,16 @@ end
 You can also install Sobelow globally by executing the following
 from the command line:
 
-    $ mix archive.install hex sobelow
+    $ mix escript.install hex sobelow
 
 To install from the master branch, rather than the latest release,
 the following command can be used:
 
-    $ mix archive.install github nccgroup/sobelow
+    $ mix escript.install github nccgroup/sobelow
 
-## Use
+### To Use
 
-The simplest way to scan a Phoenix project is to run the
+After installation, the simplest way to scan a Phoenix project is to run the
 following from the project root:
 
     $ mix sobelow
@@ -99,7 +109,7 @@ relative to the application root.
   argument, e.g. `my/strange/router.ex`.
 
   * `--exit` - Return non-zero exit status at or above a confidence
-  threshold of `low` (default), `medium`, or `high`.
+  threshold of `low`, `medium`, or `high`. Defaults to `false` which returns a zero exit status
 
   * `--threshold` - Return findings at or above a confidence level
   of `low` (default), `medium`, or `high`.
@@ -114,7 +124,11 @@ relative to the application root.
   * `--quiet` - Return a single line indicating number of findings.
   Otherwise, return no output if there are no findings.
 
-  * `--compact` - Minimal, single-line findings.
+  * `--compact` - Minimal, single-line findings with output colorised
+    according to confidence.
+
+  * `--flycheck` - Minimal, single-line findings that are compatible
+    with flycheck-based tooling.
 
   * `--save-config` - Generates a configuration file based on command
   line options. See [Configuration Files](#configuration-files) for more
@@ -129,6 +143,8 @@ relative to the application root.
 
   * `--skip` - Ignore findings that have been marked for skipping. See [False Positives](#false-positives)
   for more information.
+
+  * `--version` - Outputs the current version of Sobelow. This is useful for CI steps or integration with other tools like [Salus](https://github.com/coinbase/salus).
 
 ## Configuration Files
 Sobelow allows users to save frequently used options in a
@@ -197,6 +213,20 @@ This list, and other helpful information, can be found on the
 command line:
 
     $ mix help sobelow
+    
+## Umbrella Apps
+
+In order to run Sobelow against all child apps within an umbrella app with a single command, you can add an alias for sobelow in your root `mix.exs` file:
+
+```elixir
+defp aliases do
+  [
+    sobelow: ["cmd mix sobelow"]
+  ]
+end
+```
+
+If you wish to use configuration files in an umbrella app, create a `.sobelow-conf` in each child application and use the `--config` flag.
 
 ## Updates
 When scanning a project, Sobelow will occasionally check for

@@ -2,18 +2,18 @@ defmodule Sobelow.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/nccgroup/sobelow"
-  @version "0.11.1"
+  @version "0.12.0"
 
   def project do
     [
       app: :sobelow,
       version: @version,
-      elixir: "~> 1.4",
+      elixir: "~> 1.5",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
-      description: "Security-focused static analysis for the Phoenix framework",
+      description: "Security-focused static analysis for Elixir & the Phoenix framework",
       name: "Sobelow",
       homepage_url: "https://sobelow.io",
       docs: docs(),
@@ -28,14 +28,15 @@ defmodule Sobelow.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.20", only: :dev},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:castore, "~> 1.0.0"}
     ]
   end
 
   defp package() do
     [
-      licenses: ["Apache 2"],
-      maintainers: ["Griffin Byatt"],
+      licenses: ["Apache-2.0"],
+      maintainers: ["Griffin Byatt", "Holden Oullette"],
       links: %{
         "Changelog" => "#{@source_url}/blob/master/CHANGELOG.md",
         "GitHub" => @source_url
