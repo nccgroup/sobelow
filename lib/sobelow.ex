@@ -541,19 +541,27 @@ defmodule Sobelow do
   end
 
   defp get_sobelow_version() do
-    # Modeled after old Mix.Utils.read_path
-    # Uses CAStore since we cannot use exclusively use OTP 25+ yet
-    {:ok, _} =
-      Application.ensure_all_started(:ssl, verify: :verify_peer, cacertfile: CAStore.file_path())
+    {:ok, _} = Application.ensure_all_started(:ssl)
 
     {:ok, _} = Application.ensure_all_started(:inets)
     {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
 
     url = 'https://sobelow.io/version'
 
+    # Uses CAStore since we cannot use exclusively use OTP 25+ yet
+    cacertfile = CAStore.file_path() |> String.to_charlist()
+
+    http_options = [
+      ssl: [
+        verify: :verify_peer,
+        cacertfile: cacertfile
+      ],
+      timeout: 10000
+    ]
+
     IO.puts(:stderr, "Checking Sobelow version...\n")
 
-    case :httpc.request(:get, {url, []}, [{:timeout, 10000}], []) do
+    case :httpc.request(:get, {url, []}, http_options, []) do
       {:ok, {{_, 200, _}, _, vsn}} ->
         Version.parse!(String.trim(to_string(vsn)))
 
