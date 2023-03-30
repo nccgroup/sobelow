@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.12.1
+  * Bug fixes
+    * Lowered required version of `:castore` to remove upgrade path issues
+    * Reconfigured `:verify_peer` to _actually_ use CAStore and remove warning
+
 ## v0.12.0
   * Removed
     * Support for minimum Elixir version 1.4 (**POTENTIALLY BREAKING** - only applies if you relied on Elixir 1.4, 1.5+ is still supported)
