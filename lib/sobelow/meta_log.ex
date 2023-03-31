@@ -1,4 +1,6 @@
 defmodule Sobelow.MetaLog do
+  @moduledoc false
+
   use GenServer
   alias Sobelow.Parse
 

@@ -1,4 +1,13 @@
 defmodule Sobelow.CI.OS do
+  @moduledoc """
+  # <FINDING_TITLE>
+
+  <description of vuln>
+
+  <Module> checks can be ignored with the following command:
+
+      $ mix sobelow -i <ParentModule>.<Module>
+  """
   @uid 1
   @finding_type "CI.OS: Command Injection in `:os.cmd`"
 

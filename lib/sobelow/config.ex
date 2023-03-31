@@ -1,4 +1,6 @@
 defmodule Sobelow.Config do
+  @moduledoc false
+
   alias Sobelow.Parse
   alias Sobelow.Config.CSRF
   alias Sobelow.Config.CSRFRoute

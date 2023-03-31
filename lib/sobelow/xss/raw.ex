@@ -1,4 +1,13 @@
 defmodule Sobelow.XSS.Raw do
+  @moduledoc """
+  # <FINDING_TITLE>
+
+  <description of vuln>
+
+  <Module> checks can be ignored with the following command:
+
+      $ mix sobelow -i <ParentModule>.<Module>
+  """
   @uid 30
   @finding_type "XSS.Raw: XSS"
 

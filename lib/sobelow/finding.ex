@@ -1,4 +1,6 @@
 defmodule Sobelow.Finding do
+  @moduledoc false
+
   defstruct [
     :type,
     :confidence,
@@ -112,6 +114,8 @@ defmodule Sobelow.Finding do
 end
 
 defmodule Sobelow.FindingType do
+  @moduledoc false
+
   defmacro __using__(_) do
     quote do
       def finding_modules() do

@@ -556,7 +556,7 @@ defmodule Sobelow do
         verify: :verify_peer,
         cacertfile: cacertfile
       ],
-      timeout: 10000
+      timeout: 10_000
     ]
 
     IO.puts(:stderr, "Checking Sobelow version...\n")

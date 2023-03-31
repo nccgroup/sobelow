@@ -1,4 +1,13 @@
 defmodule Sobelow.XSS.HTML do
+  @moduledoc """
+  # <FINDING_TITLE>
+
+  <description of vuln>
+
+  <Module> checks can be ignored with the following command:
+
+      $ mix sobelow -i <ParentModule>.<Module>
+  """
   @uid 29
   @finding_type "XSS.HTML: XSS in `html`"
 

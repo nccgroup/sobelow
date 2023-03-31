@@ -1,4 +1,13 @@
 defmodule Sobelow.XSS.SendResp do
+  @moduledoc """
+  # <FINDING_TITLE>
+
+  <description of vuln>
+
+  <Module> checks can be ignored with the following command:
+
+      $ mix sobelow -i <ParentModule>.<Module>
+  """
   @uid 31
   @finding_type "XSS.SendResp: XSS in `send_resp`"
 

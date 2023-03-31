@@ -1,4 +1,16 @@
 defmodule Sobelow.Misc do
+  @moduledoc """
+  # Miscellaneous
+
+  This suite of tests is to be a catch-all for
+  checks that don't fall neatly into the other
+  detection categories.
+
+  Miscellaneous checks can be ignored with the
+  following command:
+
+      $ mix sobelow -i Misc
+  """
   @submodules [Sobelow.Misc.BinToTerm]
   use Sobelow.FindingType
 

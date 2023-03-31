@@ -3,6 +3,7 @@
 ## v0.12.X
   * Enhancements
     * Fixed all `credo` warnings
+    * Implemented all `credo` "Code Readability" adjustments
   * Misc
     * Added `credo` to project
 

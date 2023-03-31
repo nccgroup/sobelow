@@ -1,4 +1,6 @@
 defmodule BadRouter do
+  @moduledoc false
+
   @csp %{"Not-Content-Security-Policy" => "default-src 'self'"}
 
   pipeline :browser do
