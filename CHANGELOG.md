@@ -4,6 +4,7 @@
   * Enhancements
     * Fixed all `credo` warnings
     * Implemented all `credo` "Code Readability" adjustments
+    * Took advantage of some `credo` refactoring opportunities
   * Misc
     * Added `credo` to project
 

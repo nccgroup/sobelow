@@ -283,9 +283,10 @@ defmodule Mix.Tasks.Sobelow do
   defp out_format("", format), do: format
 
   defp out_format(_out, format) do
-    cond do
-      format in ["json", "quiet", "sarif"] -> format
-      true -> "json"
+    if format in ["json", "quiet", "sarif"] do
+      format
+    else
+      "json"
     end
   end
 end

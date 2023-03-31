@@ -59,13 +59,13 @@ defmodule Sobelow do
     template_meta_files = get_meta_templates(lib_root)
 
     {libroot_meta_files, tmp_default_router} =
-      if !phx_post_1_2? do
+      if phx_post_1_2? do
+        {[], ""}
+      else
         libroot_meta_files = get_meta_files(project_root <> "lib")
         default_router = project_root <> "/web/router.ex"
 
         {libroot_meta_files, default_router}
-      else
-        {[], ""}
       end
 
     default_router = get_router(tmp_default_router, phx_post_1_2?)
@@ -501,7 +501,7 @@ defmodule Sobelow do
   defp load_ignored_fingerprints(:eof, _), do: nil
   defp load_ignored_fingerprints(_, _), do: nil
 
-  defp version_check() do
+  defp version_check do
     config =
       System.get_env("SOBELOW_HOME") ||
         @home
@@ -658,12 +658,10 @@ defmodule Sobelow do
   end
 
   def is_vuln?({vars, _, _}) do
-    cond do
-      Enum.empty?(vars) ->
-        false
-
-      true ->
-        true
+    if Enum.empty?(vars) do
+      false
+    else
+      true
     end
   end
 

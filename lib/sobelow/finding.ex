@@ -93,8 +93,7 @@ defmodule Sobelow.Finding do
         rule_details =
           details()
           |> String.split("\n\n")
-          |> Enum.map(fn para -> String.replace(para, "\n", " ") end)
-          |> Enum.join("\n\n")
+          |> Enum.map_join("\n\n", fn para -> String.replace(para, "\n", " ") end)
 
         %{
           id: id(),
