@@ -192,14 +192,17 @@ defmodule Mix.Tasks.Sobelow do
 
   # This diff check is strictly used for testing/debugging and
   # isn't meant for general use.
+  #
+  # Useful for comapring the output of two different runs of Sobelow
   def run_diff(argv) do
     diff_idx = Enum.find_index(argv, fn i -> i === "--diff" end)
     {_, list} = List.pop_at(argv, diff_idx)
     {diff_target, list} = List.pop_at(list, diff_idx)
-    args = Enum.join(list, " ") |> to_charlist()
-    diff_target = to_charlist(diff_target)
-    :os.cmd('mix sobelow ' ++ args ++ ' > sobelow.tempdiff')
-    IO.puts(:os.cmd('diff sobelow.tempdiff ' ++ diff_target))
+    args = Enum.join(list, " ") #|> to_charlist()
+    diff_target = to_string(diff_target)
+    System.shell("mix sobelow #{args} > sobelow.tempdiff")
+    {diff, _} = System.shell("diff sobelow.tempdiff #{diff_target}")
+    IO.puts(diff)
   end
 
   def set_env(key, value) do

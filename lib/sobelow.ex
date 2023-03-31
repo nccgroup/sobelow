@@ -659,7 +659,7 @@ defmodule Sobelow do
 
   def is_vuln?({vars, _, _}) do
     cond do
-      length(vars) == 0 ->
+      Enum.empty?(vars) ->
         false
 
       true ->

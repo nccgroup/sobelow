@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.12.X
+  * Enhancements
+    * Fixed all `credo` warnings
+  * Misc
+    * Added `credo` to project
+
 ## v0.12.1
   * Bug fixes
     * Lowered required version of `:castore` to remove upgrade path issues

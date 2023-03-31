@@ -39,7 +39,7 @@ defmodule Sobelow.XSS.SendResp do
 
   defp get_confidence(finding, content_types) do
     cond do
-      length(content_types) == 0 ->
+      Enum.empty?(content_types) ->
         finding.confidence
 
       Enum.any?(content_types, &(!is_binary(&1))) ->
