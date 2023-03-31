@@ -37,7 +37,7 @@ jobs:
             otp: 25.1
           - elixir: '1.14.x'
             otp: 25.1
-            #warnings_as_errors: true # temporarily disabled due to separate issue that requires fixing, see: https://github.com/nccgroup/sobelow/issues/115
+            warnings_as_errors: true
             check_formatted: true
 
     steps:
@@ -55,6 +55,9 @@ jobs:
         mix local.hex --force
         mix local.rebar --force
         mix deps.get --only test
+
+    - name: Credo
+      run: mix credo --all # eventually would like to move to --strict
 
     - name: Run Tests
       run: mix test
