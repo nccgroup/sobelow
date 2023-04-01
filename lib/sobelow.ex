@@ -548,7 +548,7 @@ defmodule Sobelow do
 
     url = 'https://sobelow.io/version'
 
-    # Uses CAStore since we cannot use exclusively use OTP 25+ yet
+    # Uses CAStore since we cannot exclusively use OTP 25+ yet
     cacertfile = CAStore.file_path() |> String.to_charlist()
 
     http_options = [
