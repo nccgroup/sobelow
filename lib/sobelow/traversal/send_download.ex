@@ -1,12 +1,12 @@
 defmodule Sobelow.Traversal.SendDownload do
   @moduledoc """
-  # <FINDING_TITLE>
+  # Directory Traversal in `send_download`
 
-  <description of vuln>
+  TODO: <description of vuln>
 
-  <Module> checks can be ignored with the following command:
+  Send Download checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i Traversal.SendDownload
   """
   @uid 20
   @finding_type "Traversal.SendDownload: Directory Traversal in `send_download`"

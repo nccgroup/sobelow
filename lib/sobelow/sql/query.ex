@@ -1,12 +1,12 @@
 defmodule Sobelow.SQL.Query do
   @moduledoc """
-  # <FINDING_TITLE>
+  # SQL Injection in Query
 
-  <description of vuln>
+  TODO: <description of vuln>
 
-  <Module> checks can be ignored with the following command:
+  SQLi Query checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i SQL.Query
   """
   @uid 17
   @finding_type "SQL.Query: SQL injection"

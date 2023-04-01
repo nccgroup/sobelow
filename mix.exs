@@ -27,9 +27,12 @@ defmodule Sobelow.Mixfile do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.20", only: :dev},
+      # "Prod" Dependencies
       {:jason, "~> 1.0"},
       {:castore, ">= 0.0.0"},
+
+      # Dev / Test Dependencies
+      {:ex_doc, "~> 0.20", only: :dev},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end

@@ -1,12 +1,13 @@
 defmodule Sobelow.Vuln.Ecto do
   @moduledoc """
-  # <FINDING_TITLE>
+  # Ecto Version Lacks Protection Mechanism
 
-  <description of vuln>
+  For more information visit:
+  https://github.com/advisories/GHSA-2xxx-fhc8-9qvq
 
-  <Module> checks can be ignored with the following command:
+  Ecto checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i Vuln.Ecto
   """
   alias Sobelow.Config
   alias Sobelow.Vuln
@@ -32,7 +33,7 @@ defmodule Sobelow.Vuln.Ecto do
               vsn,
               "Ecto",
               "Missing `is_nil` requirement",
-              "TBA - https://groups.google.com/forum/#!topic/elixir-ecto/0m4NPfg_MMU",
+              "CVE-2017-20166",
               "Ecto"
             )
           end

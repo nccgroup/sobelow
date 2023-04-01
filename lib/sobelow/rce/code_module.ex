@@ -1,12 +1,12 @@
 defmodule Sobelow.RCE.CodeModule do
   @moduledoc """
-  # <FINDING_TITLE>
+  # Code Execution in `eval` function
 
-  <description of vuln>
+  TODO: <description of vuln>
 
-  <Module> checks can be ignored with the following command:
+  Code Execution checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i RCE.CodeModule
   """
   @uid 15
   @finding_type "RCE.CodeModule: Code execution in eval function"

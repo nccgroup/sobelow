@@ -1,12 +1,12 @@
 defmodule Sobelow.Traversal.SendFile do
   @moduledoc """
-  # <FINDING_TITLE>
+  # Directory Traversal in `send_file`
 
-  <description of vuln>
+  TODO: <description of vuln>
 
-  <Module> checks can be ignored with the following command:
+  Send File checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i Traversal.SendFile
   """
   @uid 21
   @finding_type "Traversal.SendFile: Directory Traversal in `send_file`"

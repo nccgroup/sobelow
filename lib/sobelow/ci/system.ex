@@ -1,12 +1,12 @@
 defmodule Sobelow.CI.System do
   @moduledoc """
-  # <FINDING_TITLE>
+  # Command Injection in `System.cmd`
 
-  <description of vuln>
+  TODO: <description of vuln>
 
-  <Module> checks can be ignored with the following command:
+  `System.cmd` Injection checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i CI.System
   """
   @uid 2
   @finding_type "CI.System: Command Injection in `System.cmd`"

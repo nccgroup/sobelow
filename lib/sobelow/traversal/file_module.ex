@@ -1,12 +1,12 @@
 defmodule Sobelow.Traversal.FileModule do
   @moduledoc """
-  # <FINDING_TITLE>
+  # Directory Traversal in `File` function
 
-  <description of vuln>
+  TODO: <description of vuln>
 
-  <Module> checks can be ignored with the following command:
+  File checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i Traversal.FileModule
   """
   @uid 19
   @finding_type "Traversal.FileModule: Directory Traversal in `File` function"

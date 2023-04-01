@@ -1,12 +1,12 @@
 defmodule Sobelow.SQL.Stream do
   @moduledoc """
-  # <FINDING_TITLE>
+  # SQL Injection in Stream
 
-  <description of vuln>
+  TODO: <description of vuln>
 
-  <Module> checks can be ignored with the following command:
+  SQLi Stream checks can be ignored with the following command:
 
-      $ mix sobelow -i <ParentModule>.<Module>
+      $ mix sobelow -i SQL.Stream
   """
   @uid 18
   @finding_type "SQL.Stream: SQL injection"
