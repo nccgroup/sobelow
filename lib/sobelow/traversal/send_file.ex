@@ -26,7 +26,7 @@ defmodule Sobelow.Traversal.SendFile do
     Parse.get_fun_vars_and_meta(fun, 2, :send_file, :Conn)
   end
 
-  def details() do
+  def details do
     Sobelow.Traversal.details()
   end
 end

@@ -25,7 +25,7 @@ defmodule Sobelow.CI do
     end)
   end
 
-  def details() do
+  def details do
     @moduledoc
   end
 end

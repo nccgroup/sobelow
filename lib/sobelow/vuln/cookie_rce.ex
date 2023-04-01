@@ -37,7 +37,7 @@ defmodule Sobelow.Vuln.CookieRCE do
     end
   end
 
-  def details() do
+  def details do
     Sobelow.Vuln.details()
   end
 end

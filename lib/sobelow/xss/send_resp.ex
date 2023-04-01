@@ -25,7 +25,7 @@ defmodule Sobelow.XSS.SendResp do
     Parse.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
   end
 
-  def details() do
+  def details do
     Sobelow.XSS.details()
   end
 

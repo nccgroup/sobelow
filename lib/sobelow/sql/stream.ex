@@ -26,7 +26,7 @@ defmodule Sobelow.SQL.Stream do
     Parse.get_fun_vars_and_meta(fun, 1, :stream, {:required, :SQL})
   end
 
-  def details() do
+  def details do
     Sobelow.SQL.details()
   end
 end

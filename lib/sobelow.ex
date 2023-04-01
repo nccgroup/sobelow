@@ -19,17 +19,17 @@ defmodule Sobelow do
     Sobelow.Vuln
   ]
 
-  alias Sobelow.Utils
   alias Sobelow.Config
-  alias Sobelow.Parse
-  alias Sobelow.Vuln
   alias Sobelow.Finding
   alias Sobelow.FindingLog
-  alias Sobelow.MetaLog
   alias Sobelow.Fingerprint
   alias Sobelow.IO, as: MixIO
+  alias Sobelow.MetaLog
+  alias Sobelow.Parse
+  alias Sobelow.Utils
+  alias Sobelow.Vuln
 
-  def run() do
+  def run do
     project_root = get_env(:root) <> "/"
     version_check()
 
@@ -135,7 +135,7 @@ defmodule Sobelow do
     MetaLog.add_templates(template_meta_files)
   end
 
-  defp print_output() do
+  defp print_output do
     details =
       case output_format() do
         "json" ->
@@ -164,7 +164,7 @@ defmodule Sobelow do
     end
   end
 
-  defp exit_with_status() do
+  defp exit_with_status do
     exit_on = get_env(:exit_on)
     finding_logs = FindingLog.log()
 
@@ -192,7 +192,7 @@ defmodule Sobelow do
     end
   end
 
-  def details() do
+  def details do
     mod =
       get_env(:details)
       |> get_mod
@@ -220,19 +220,19 @@ defmodule Sobelow do
       meets_threshold?(severity)
   end
 
-  def all_details() do
+  def all_details do
     @submodules
     |> Enum.map(&apply(&1, :details, []))
     |> List.flatten()
     |> Enum.each(&IO.puts(&1))
   end
 
-  def rules() do
+  def rules do
     @submodules
     |> Enum.flat_map(&apply(&1, :rules, []))
   end
 
-  def finding_modules() do
+  def finding_modules do
     @submodules
     |> Enum.flat_map(&apply(&1, :finding_modules, []))
   end
@@ -276,14 +276,14 @@ defmodule Sobelow do
     severity in threshold
   end
 
-  def format() do
+  def format do
     case get_env(:format) do
       "sarif" -> "json"
       format -> format
     end
   end
 
-  def output_format() do
+  def output_format do
     get_env(:format)
   end
 
@@ -291,7 +291,7 @@ defmodule Sobelow do
     Application.get_env(:sobelow, key)
   end
 
-  defp print_banner() do
+  defp print_banner do
     """
     ##############################################
     #                                            #
@@ -431,7 +431,7 @@ defmodule Sobelow do
     [prev | combine_skips(h, t)]
   end
 
-  defp no_router() do
+  defp no_router do
     message = """
     WARNING: Sobelow cannot find the router. If this is a Phoenix application
     please use the `--router` flag to specify the router's location.
@@ -447,7 +447,7 @@ defmodule Sobelow do
     )
   end
 
-  defp file_error() do
+  defp file_error do
     message = """
     This does not appear to be a Phoenix application. If this is an Umbrella application,
     each application should be scanned separately.
@@ -540,7 +540,7 @@ defmodule Sobelow do
     end
   end
 
-  defp get_sobelow_version() do
+  defp get_sobelow_version do
     {:ok, _} = Application.ensure_all_started(:ssl)
 
     {:ok, _} = Application.ensure_all_started(:inets)
@@ -652,7 +652,7 @@ defmodule Sobelow do
     end
   end
 
-  def get_ignored() do
+  def get_ignored do
     get_env(:ignored)
     |> Enum.map(&get_mod/1)
   end
@@ -671,7 +671,7 @@ defmodule Sobelow do
     end)
   end
 
-  def version() do
+  def version do
     @v
     |> IO.puts()
   end

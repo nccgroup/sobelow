@@ -29,7 +29,7 @@ defmodule Sobelow.RCE.CodeModule do
     Parse.get_fun_vars_and_meta(fun, 0, code_fun, [:Code])
   end
 
-  def details() do
+  def details do
     Sobelow.RCE.details()
   end
 end

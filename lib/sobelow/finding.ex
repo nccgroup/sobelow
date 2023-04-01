@@ -77,15 +77,15 @@ defmodule Sobelow.Finding do
       alias Sobelow.Print
       alias Sobelow.Utils
 
-      def details() do
+      def details do
         @moduledoc
       end
 
-      def id() do
+      def id do
         "SBLW" <> String.pad_leading("#{@uid}", 3, "0")
       end
 
-      def rule() do
+      def rule do
         [name, description] = String.split(@finding_type, ":", parts: 2)
 
         description = String.trim(description)
@@ -117,17 +117,17 @@ defmodule Sobelow.FindingType do
 
   defmacro __using__(_) do
     quote do
-      def finding_modules() do
+      def finding_modules do
         @submodules
       end
 
-      def details() do
+      def details do
         Enum.map(@submodules, fn sub ->
           apply(sub, :details, [])
         end)
       end
 
-      def rules() do
+      def rules do
         Enum.map(@submodules, fn sub ->
           apply(sub, :rule, [])
         end)

@@ -4,9 +4,9 @@
   * Enhancements
     * Fixed all `credo` warnings
     * Implemented all `credo` "Code Readability" adjustments
-    * Took advantage of some `credo` refactoring opportunities
+    * Took advantage of _some_ `credo` refactoring opportunities
   * Misc
-    * Added `credo` to project
+    * Added `mix credo --strict` to project
 
 ## v0.12.1
   * Bug fixes

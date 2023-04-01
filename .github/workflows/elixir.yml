@@ -57,7 +57,7 @@ jobs:
         mix deps.get --only test
 
     - name: Credo
-      run: mix credo --all # eventually would like to move to --strict
+      run: mix credo --all --strict
 
     - name: Run Tests
       run: mix test

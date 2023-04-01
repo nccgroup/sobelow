@@ -1,12 +1,12 @@
 defmodule Sobelow.Config do
   @moduledoc false
 
-  alias Sobelow.Parse
+  alias Sobelow.Config.CSP
   alias Sobelow.Config.CSRF
   alias Sobelow.Config.CSRFRoute
-  alias Sobelow.Config.CSP
-  alias Sobelow.Config.Headers
   alias Sobelow.Config.CSWH
+  alias Sobelow.Config.Headers
+  alias Sobelow.Parse
 
   @submodules [
     Sobelow.Config.CSRF,

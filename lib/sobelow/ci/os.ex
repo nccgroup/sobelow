@@ -25,7 +25,7 @@ defmodule Sobelow.CI.OS do
     Parse.get_erlang_fun_vars_and_meta(fun, 0, :cmd, :os)
   end
 
-  def details() do
+  def details do
     Sobelow.CI.details()
   end
 end

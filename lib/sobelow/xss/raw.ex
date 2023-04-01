@@ -110,7 +110,7 @@ defmodule Sobelow.XSS.Raw do
     Parse.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
   end
 
-  def details() do
+  def details do
     Sobelow.XSS.details()
   end
 

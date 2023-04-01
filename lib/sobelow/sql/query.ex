@@ -34,7 +34,7 @@ defmodule Sobelow.SQL.Query do
     Parse.get_fun_vars_and_meta(fun, 0, :query, :Repo)
   end
 
-  def details() do
+  def details do
     Sobelow.SQL.details()
   end
 end

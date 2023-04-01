@@ -18,7 +18,7 @@ defmodule Sobelow.Vuln do
     Sobelow.Vuln.Ecto
   ]
 
-  alias Sobelow.{Finding, Utils, Print}
+  alias Sobelow.{Finding, Print, Utils}
   use Sobelow.FindingType
 
   def get_vulns(root) do
@@ -76,7 +76,7 @@ defmodule Sobelow.Vuln do
     end
   end
 
-  def details() do
+  def details do
     @moduledoc
   end
 end

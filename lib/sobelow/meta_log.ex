@@ -4,7 +4,7 @@ defmodule Sobelow.MetaLog do
   use GenServer
   alias Sobelow.Parse
 
-  def start_link() do
+  def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
@@ -12,7 +12,7 @@ defmodule Sobelow.MetaLog do
     GenServer.cast(__MODULE__, {:add, templates})
   end
 
-  def get_templates() do
+  def get_templates do
     GenServer.call(__MODULE__, :get_templates)
   end
 

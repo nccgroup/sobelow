@@ -34,7 +34,7 @@ defmodule Sobelow.Traversal.SendDownload do
     {findings, params, {fun_name, line_no}}
   end
 
-  def details() do
+  def details do
     Sobelow.Traversal.details()
   end
 
