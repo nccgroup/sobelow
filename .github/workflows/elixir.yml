@@ -63,7 +63,7 @@ jobs:
       run: mix format --check-formatted
 
     - name: Credo
-      if: ${{ matrix.elixir != '1.5.x' && matrix != '1.6.6' }} # credo is not supported in these versions
+      if: ${{ matrix.elixir != '1.5.x' && matrix.elixir != '1.6.6' }} # credo is not supported in these versions
       run: mix credo --all --strict
 
     - name: Run Tests
