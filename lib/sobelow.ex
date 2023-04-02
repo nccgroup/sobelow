@@ -548,13 +548,12 @@ defmodule Sobelow do
 
     url = 'https://sobelow.io/version'
 
-    # Uses CAStore since we cannot exclusively use OTP 25+ yet
-    cacertfile = CAStore.file_path() |> String.to_charlist()
-
     http_options = [
       ssl: [
-        verify: :verify_peer,
-        cacertfile: cacertfile
+        verify: :verify_none
+        # We cannot use exclusively use OTP 25+ yet, but when we can - uncomment the following few lines
+        # verify: :verify_peer,
+        # cacertfile: :public_key.cacerts_get()
       ],
       timeout: 10_000
     ]

@@ -14,6 +14,10 @@
       * Compiler Warnings as Errors
       * Checks Formatting
     * Added helper `mix test.all` alias
+    
+## v0.12.2
+  * Bug fixes
+    * Removed `:castore` and introduced `:verify_none` to quiet warning and unblock escript usage, see [#133](https://github.com/nccgroup/sobelow/issues/133) for more context on why this is necessary
 
 ## v0.12.1
   * Bug fixes
