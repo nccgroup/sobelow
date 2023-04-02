@@ -42,8 +42,8 @@ jobs:
     - name: Setup Elixir
       uses: erlef/setup-beam@v1
       with:
-        otp-version: ${{matrix.otp}}
-        elixir-version: ${{matrix.elixir}}
+        otp-version: ${{ matrix.otp }}
+        elixir-version: ${{ matrix.elixir }}
 
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -55,13 +55,15 @@ jobs:
         mix deps.get --only test
 
     - name: Compiles w/o Warnings
+      if: ${{ matrix.elixir == '1.14.x' }} # we only care about warnings for latest version of Elixir
       run: mix compile --warnings-as-errors
 
     - name: Check Formatting
+      if: ${{ matrix.elixir == '1.14.x' }} # we only care about warnings for latest version of Elixir
       run: mix format --check-formatted
 
     - name: Credo
-      if: ${{ matrix.elixir != '1.5.x' && matrix != '1.6.6'}}
+      if: ${{ matrix.elixir != '1.5.x' && matrix != '1.6.6' }} # credo is not supported in these versions
       run: mix credo --all --strict
 
     - name: Run Tests
