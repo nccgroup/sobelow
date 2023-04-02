@@ -33,7 +33,7 @@ defmodule Sobelow.Mixfile do
 
       # Dev / Test Dependencies
       {:ex_doc, "~> 0.20", only: :dev},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.7", only: [:dev], runtime: false}
     ]
   end
 
