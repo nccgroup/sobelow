@@ -1,12 +1,20 @@
 # Changelog
 
-## v0.12.X
+## v0.13.0
+  * Removed
+    * Support for minimum Elixir versions 1.5 & 1.6 (**POTENTIALLY BREAKING** - only applies if you relied on Elixir 1.5 or 1.6, 1.7+ is still supported)
   * Enhancements
     * Fixed all `credo` warnings
     * Implemented all `credo` "Code Readability" adjustments
     * Took advantage of _some_ `credo` refactoring opportunities
   * Misc
     * Added `mix credo --strict` to project
+    * Improvements to GitHub CI
+      * Hex Audit
+      * Compiler Warnings as Errors
+      * Checks Formatting
+      * Check for unused dependencies
+    * Added helper `mix test.all` alias
 
 ## v0.12.1
   * Bug fixes

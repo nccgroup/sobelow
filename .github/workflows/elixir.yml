@@ -50,13 +50,19 @@ jobs:
         mix local.rebar --force
         mix deps.get --only test
 
-    - name: Compiles w/o Warnings
-      if: ${{ matrix.elixir == '1.14.x' }} # we only care about warnings for latest version of Elixir
-      run: mix compile --warnings-as-errors
+    - name: Hex Audit
+      run: mix hex.audit
 
     - name: Check Formatting
       if: ${{ matrix.elixir == '1.14.x' }} # we only care about formatting for latest version of Elixir
       run: mix format --check-formatted
+
+    - name: Compiles w/o Warnings
+      if: ${{ matrix.elixir == '1.14.x' }} # we only care about warnings for latest version of Elixir
+      run: mix compile --warnings-as-errors
+
+    - name: Check Unused Dependencies
+      run: mix deps.unlock --check-unused
 
     - name: Credo
       run: mix credo --all --strict
