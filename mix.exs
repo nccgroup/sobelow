@@ -8,7 +8,7 @@ defmodule Sobelow.Mixfile do
     [
       app: :sobelow,
       version: @version,
-      elixir: "~> 1.5",
+      elixir: "~> 1.7",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -33,7 +33,7 @@ defmodule Sobelow.Mixfile do
 
       # Dev / Test Dependencies
       {:ex_doc, "~> 0.20", only: :dev},
-      {:credo, "~> 1.7", only: [:dev], runtime: false}
+      {:credo, "~> 1.6 or ~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 

@@ -17,10 +17,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - elixir: '1.5.x'
-            otp: 20.3.8.26
-          - elixir: '1.6.6'
-            otp: 21.3.8.24
           - elixir: '1.7.x'
             otp: 22.3.4.26
           - elixir: '1.8.x'
@@ -59,11 +55,10 @@ jobs:
       run: mix compile --warnings-as-errors
 
     - name: Check Formatting
-      if: ${{ matrix.elixir == '1.14.x' }} # we only care about warnings for latest version of Elixir
+      if: ${{ matrix.elixir == '1.14.x' }} # we only care about formatting for latest version of Elixir
       run: mix format --check-formatted
 
     - name: Credo
-      if: ${{ matrix.elixir != '1.5.x' && matrix.elixir != '1.6.6' }} # credo is not supported in these versions
       run: mix credo --all --strict
 
     - name: Run Tests
