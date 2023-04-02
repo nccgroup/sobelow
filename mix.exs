@@ -2,7 +2,7 @@ defmodule Sobelow.Mixfile do
   use Mix.Project
 
   @source_url "https://github.com/nccgroup/sobelow"
-  @version "0.12.1"
+  @version "0.12.2"
 
   def project do
     [
@@ -28,8 +28,7 @@ defmodule Sobelow.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.20", only: :dev},
-      {:jason, "~> 1.0"},
-      {:castore, ">= 0.0.0"}
+      {:jason, "~> 1.0"}
     ]
   end
 
