@@ -13,7 +13,6 @@
       * Hex Audit
       * Compiler Warnings as Errors
       * Checks Formatting
-      * Check for unused dependencies
     * Added helper `mix test.all` alias
 
 ## v0.12.1

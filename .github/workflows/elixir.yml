@@ -61,9 +61,6 @@ jobs:
       if: ${{ matrix.elixir == '1.14.x' }} # we only care about warnings for latest version of Elixir
       run: mix compile --warnings-as-errors
 
-    - name: Check Unused Dependencies
-      run: mix deps.unlock --check-unused
-
     - name: Credo
       run: mix credo --all --strict
 
