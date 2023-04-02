@@ -37,8 +37,6 @@ jobs:
             otp: 25.1
           - elixir: '1.14.x'
             otp: 25.1
-            warnings_as_errors: true
-            check_formatted: true
 
     steps:
     - name: Setup Elixir
@@ -56,7 +54,14 @@ jobs:
         mix local.rebar --force
         mix deps.get --only test
 
+    - name: Compiles w/o Warnings
+      run: mix compile --warnings-as-errors
+
+    - name: Check Formatting
+      run: mix format --check-formatted
+
     - name: Credo
+      if: ${{ matrix.elixir != '1.5.x' && matrix != '1.6.6'}}
       run: mix credo --all --strict
 
     - name: Run Tests
