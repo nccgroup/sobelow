@@ -836,29 +836,156 @@ Patched versions
 1.2.3
 ```
 
-## FindingHere
+## UID 28, XSS.ContentType: XSS in `put_resp_content_type
+
+If an attacker is able to set arbitrary content types for an HTTP response containing user input, the attacker is likely to be able to leverage this for cross-site scripting (XSS).
+
+For example, consider an endpoint that returns JSON with user input:
+
+`{"json": "user_input"}`
+
+If an attacker can control the content type set in the HTTP response, they can set it to "text/html" and update the JSON to the following in order to cause XSS:
+
+`{"json": "<script>alert(document.domain)</script>"}`
 
 ### Severity
 
+This is a medium severity finding. The type of XSS this finding enables is generally called "reflected XSS", meaning a user must view a malicious web page setup by the attacker. This requirement for user interaction limits the impact of the vulnerability. 
+
 ### How to verify this finding
+
+Consider a file upload function in a Phoenix application, where the `content-type` of the uploaded image is set by the user.
+
+```elixir
+def view_photo(conn, %{"filename" => filename}) do
+  case ImgServer.get(filename) do
+    %{content_type: content_type, bin: bin} ->
+      conn
+      |> put_resp_content_type(content_type)
+      |> send_resp(200, bin)
+    _ ->
+      conn
+      |> put_resp_content_type("text/html")
+      |> send_resp(404, "Not Found")
+  end
+end
+```
+
+`view_photo` is vulnerable to XSS, because an attacker can upload an HTML document, for example: 
+
+`<script>alert(1)</script>`
+
+With the content-type `text/html`. When a user visits the page for the uploaded file, the attacker controlled JavaScript will execute. 
+
+For more details see - https://paraxial.io/blog/xss-phoenix
 
 ### How to fix a true positive 
 
+Do not allow users to upload HTML documents, which are then shown to users. If you are implementing a file upload system, where only images are expected, do not allow `content-type` to be set by users. Restrict the allowed `content-type` values to a pre-defined list, for example `image/jpeg`, `image/png`, etc. 
 
-## FindingHere
+
+## UID 29, XSS.HTML: XSS in `html`
 
 ### Severity
 
+This is a high severity finding. User input should not be passed to the `Phoenix.Controller.html/2` function, due to the risk of XSS - https://hexdocs.pm/phoenix/Phoenix.Controller.html#html/2 
+
 ### How to verify this finding
+
+Are you passing user input to the `Phoenix.Controller.html/2` function? Consider an example Phoenix controller: 
+
+```elixir
+def html_resp(conn, %{"i" => i}) do
+  html(conn, "<html><head>#{i}</head></html>")
+end
+```
+
+This function is vulnerable to XSS, because user input is being passed directly into the HTML document. 
+
+For more details see - https://paraxial.io/blog/xss-phoenix
 
 ### How to fix a true positive 
 
+Use the `Phoenix.Controller.render/3` function, which is the standard way to handle user input in HTML documents in Phoenix. The `render` function is the standard pattern seen in Phoenix applications, because it protects against XSS by default. 
 
-## FindingHere
+https://hexdocs.pm/phoenix/Phoenix.Controller.html#render/3
+
+
+## UID 30, XSS.Raw: XSS
 
 ### Severity
 
+This is a high severity finding. User input should not be passed to the `Phoenix.HTML.raw` function, due to the risk of XSS - https://hexdocs.pm/phoenix_html/Phoenix.HTML.html
+
 ### How to verify this finding
+
+Consider the following code:
+
+```
+lib/cross_web/templates/page/render_b.html.eex
+
+<h2>User input (vulnerable due to Phoenix.HTML.raw/1): </h2>
+<%= raw @i %>
+```
+
+The `i` variable is controlled by user input, and is being passed to the `raw` function. Submit a request that sets `i` to `<script>alert(1)</script>`, and see how the alert box is rendered. If external user input results in JavaScript being executed, this is a true positive. 
+
+If the variable passed to `raw` is not controlled by the user, this is a false positive. 
 
 ### How to fix a true positive 
 
+Do not pass user input to the `raw` function. Ideally you should avoid using `raw`, but if you must, ensure that data created at runtime from user input is not passed to `raw`. 
+
+
+## UID 31, XSS.SendResp: XSS in `send_resp`
+
+### Severity
+
+This is a medium severity finding. The type of XSS this finding enables is generally called "reflected XSS", meaning a user must view a malicious web page setup by the attacker. This requirement for user interaction limits the impact of the vulnerability. 
+
+### How to verify this finding
+
+In Phoenix you can pass HTML directly to `send_resp`.
+
+```elixir
+def send_resp_html(conn, %{"i" => i}) do
+  conn
+  |> put_resp_content_type("text/html")
+  |> send_resp(200, "#{i}")
+end
+```
+
+Note that an attacker can set `i` to `<script>alert(1)</script>`. However, the above example is unlikely to be seen in real code. 
+
+Consider a file upload function in a Phoenix application, where the `content-type` of the uploaded image is set by the user.
+
+```elixir
+def view_photo(conn, %{"filename" => filename}) do
+  case ImgServer.get(filename) do
+    %{content_type: content_type, bin: bin} ->
+      conn
+      |> put_resp_content_type(content_type)
+      |> send_resp(200, bin)
+    _ ->
+      conn
+      |> put_resp_content_type("text/html")
+      |> send_resp(404, "Not Found")
+  end
+end
+```
+
+`view_photo` is vulnerable to XSS, because an attacker can upload an HTML document, for example: 
+
+`<script>alert(1)</script>`
+
+With the content-type `text/html`. When a user visits the page for the uploaded file, the attacker controlled JavaScript will execute. 
+
+For more details see - https://paraxial.io/blog/xss-phoenix
+
+### How to fix a true positive 
+
+Consider how user input is being passed to `send_resp`. If user input can be used to build HTML elements on the page, the function is vulnerable. 
+
+Use the `Phoenix.Controller.render/3` function, which is the standard way to handle user input in HTML documents in Phoenix. The `render` function is the standard pattern seen in Phoenix applications, because it protects against XSS by default. 
+
+https://hexdocs.pm/phoenix/Phoenix.Controller.html#render/3
