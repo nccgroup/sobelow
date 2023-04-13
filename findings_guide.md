@@ -685,37 +685,47 @@ Do not pass user input to `send_file`. Inputs to `send_file` should be pre-defin
 
 ### Severity
 
-This is a high severity vulnerability. An attacker can add themselves as an admin user, see the Github issue for more details -  https://github.com/smpallen99/coherence/issues/270
-
-https://github.com/advisories/GHSA-mrq8-53r4-3j5m
-
+This is a high severity vulnerability. An attacker can add themselves as an admin user by exploiting coherence. https://github.com/advisories/GHSA-mrq8-53r4-3j5m
 
 ### How to verify this finding
 
-Check if you are using `coherence` version `<= 0.5.1`. If you are, this is a true positive. 
+```
+Affected versions
+< 0.5.2
+```
 
 ### How to fix a true positive 
 
-Upgrade to `0.5.2` or later. 
-
+```
+Patched versions
+0.5.2
+```
 
 ## UID 23, Vuln.Plug: Known Vulnerable Dependency - Update Plug
 
 ### Severity
 
-This is a high severity vulnerability. See this post from Jose Valim for more details - https://elixirforum.com/t/static-and-session-security-fixes-for-plug
-
-https://github.com/advisories/GHSA-5v4m-c73v-c7gq
+This is a high severity vulnerability in Plug, "Arbitrary Code Execution in Cookie Serialization". https://github.com/advisories/GHSA-5v4m-c73v-c7gq
 
 ### How to verify this finding
 
-Check if the version of Plug you are using matches: `Plug v1.3.1, v1.3.0, v1.2.2, v1.2.1, v1.2.0, v1.1.6, v1.1.5, v1.1.4, v1.1.3, v1.1.2, v1.1.1, v1.1.0, v1.0.3, v1.0.2, v1.0.1, v1.0.0`
+```
+Affected versions
+< 1.0.4
+>= 1.1.0, < 1.1.7
+>= 1.2.0, < 1.2.3
+>= 1.3.0, < 1.3.2
+```
 
 ### How to fix a true positive 
 
-Upgrade to `Plug v1.3.2+, v1.2.3+, v1.1.7+, v1.0.4+`
-
-https://hex.pm/packages/plug
+```
+Patched versions
+1.0.4
+1.1.7
+1.2.3
+1.3.2
+```
 
 ## UID 24, Vuln.Ecto: Known Vulnerable Dependency - Update Ecto
 
@@ -729,61 +739,102 @@ Imagine you write this query:
 
 Now if someone passes no token, you will accidentally login as any of the users without a token.
 
-
 https://elixirforum.com/t/why-does-ecto-require-the-use-of-is-nil-1/49241
-
-https://groups.google.com/g/elixir-ecto/c/0m4NPfg_MMU
 
 https://github.com/advisories/GHSA-4r2f-6fm9-2qgh
 
 ### How to verify this finding
 
-If you are using Ecto version `2.2.0`, it is a true positive.
+```
+Affected versions
+= 2.2.0
+```
 
 ### How to fix a true positive 
 
-Upgrade to a version of Ecto after `2.2.0`.
-
+```
+Patched versions
+2.2.1
+```
 
 ## UID 25, Vuln.HeaderInject: Known Vulnerable Dependency - Update Plug
 
 ### Severity
 
-This is a high severity vulnerability. See this post from Jose Valim for more details - https://elixirforum.com/t/static-and-session-security-fixes-for-plug
-
-https://github.com/advisories/GHSA-2q6v-32mr-8p8x
+This is a high severity vulnerability in Plug, "Header Injection". https://github.com/advisories/GHSA-9h73-w7ch-rh73
 
 ### How to verify this finding
 
-If you are using plug version:
-
-`"<=1.3.4 and >=1.3.0", "<=1.2.4 and >=1.2.0", "<=1.1.8 and >=1.1.0", "<=1.0.5"`
-
-This is a true positive. 
+```
+Affected versions
+< 1.0.6
+>= 1.1.0, < 1.1.9
+>= 1.2.0, < 1.2.5
+>= 1.3.0, < 1.3.5
+```
 
 ### How to fix a true positive 
 
-Upgrade to a secure version of Plug. 
+```
+Patched versions
+1.0.6
+1.1.9
+1.2.5
+1.3.5
+```
 
-https://hex.pm/packages/plug
-
-## FindingHere
+## UID 26, Vuln.PlugNull: Known Vulnerable Dependency - Update Plug
 
 ### Severity
 
+This is a high severity vulnerability in Plug, "Null Byte Injection in Plug.Static". https://github.com/advisories/GHSA-2q6v-32mr-8p8x
+
 ### How to verify this finding
+
+```
+Affected versions
+< 1.0.4
+>= 1.1.0, < 1.1.7
+>= 1.2.0, < 1.2.3
+>= 1.3.0, < 1.3.2
+```
 
 ### How to fix a true positive 
 
+```
+Patched versions
+1.0.4
+1.1.7
+1.2.3
+1.3.2
+```
 
-## FindingHere
+
+## UID 27, Vuln.Redirect: Known Vulnerable Dependency - Update Phoenix
 
 ### Severity
 
+This is a low severity vulnerability in Phoenix, "Arbitrary URL Redirect". https://github.com/advisories/GHSA-cmfh-8f8r-fj96
+
+"An attacker can use this vulnerability to aid in social engineering attacks. The most common use would be to create highly believable phishing attacks."
+
 ### How to verify this finding
+
+```
+Affected versions
+< 1.0.6
+>= 1.1.0, < 1.1.8
+>= 1.2.0, < 1.2.3
+```
 
 ### How to fix a true positive 
 
+```
+Patched versions
+1.0.6
+1.1.8
+1.2.3
+```
 
 ## FindingHere
 
