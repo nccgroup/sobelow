@@ -225,9 +225,43 @@ Websocket connections are not bound by the same-origin policy. Connections that 
 
 ### Severity
 
+This is a medium severity vulnerability. Exploiting CSWH requires an attacker to setup a malicious website, then get the victim to browse to the site, while also logged into their current session. CSWH does allow the attacker to take over the victim's account, the requirement for user interaction reduces the severity. 
+
+Details on CSWH - https://christian-schneider.net/CrossSiteWebSocketHijacking.html
+
 ### How to verify this finding
 
+Example of a bad endpoint:
+
+```elixir
+defmodule PhoenixWeb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :phoenix
+
+  socket("/socket", PhoenixInternalsWeb.UserSocket,
+    websocket: [check_origin: false],
+    longpoll: false
+  )
+end
+```
+
+Example of a good endpoint:
+
+```elixir
+defmodule PhoenixWeb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :phoenix
+
+  socket("/socket", PhoenixInternalsWeb.UserSocket,
+    websocket: true,
+    longpoll: false
+  )
+end
+```
+
 ### How to fix a true positive 
+
+Ensure `:check_origin` is enabled. It defaults to true.
+
+Phoenix Docs - https://hexdocs.pm/phoenix/Phoenix.Endpoint.html#socket/3
 
 
 ## UID 7, Config.Headers: Missing Secure Browser Headers
