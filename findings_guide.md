@@ -15,7 +15,7 @@ This document provides guidelines for evaluating each possible Sobelow finding. 
 1. `Misc.BinToTerm`, Severity: High
 2. `DOS.StringToAtom`, Severity: Medium
 
-Both these findings are a true positive. The `Misc.BinToTerm` finding means the application may be vulnerable to remote code execution, where an attacker could gain the equivalent of production SSH access to the web server. From this foothold, the attacker can issue financial transaction, modify customer records, and further compromise the banking infrastructure. Contract this finding to the `DOS.StringToAtom` finding. An attacker can use this vulnerability to crash the banking server. This is not ideal, and is a security issue, however the attacker cannot forge financial transaction or access customer data, so the severity is lower. 
+Both these findings are true positives. The `Misc.BinToTerm` finding means the application may be vulnerable to remote code execution, where an attacker could gain the equivalent of production SSH access to the web server. From this foothold, the attacker can issue financial transactions, modify customer records, and further compromise the bank's network. Contrast this finding to the `DOS.StringToAtom` finding. An attacker can use this vulnerability to crash the banking server. This is not ideal, and is a security issue, however the attacker does not get read/write/execute access to the server, so the severity is lower. 
 
 ## Severity Ratings
 
@@ -45,19 +45,13 @@ This is a high severity finding. An attacker can exploit this vulnerability to t
 The danger of command injection is that an attacker can send a malicious string which is passed to a call to `:os.cmd`. This function requires a charlist, for example:
 
 ```
-iex(11)> :os.cmd('ls')
+iex(11)> :os.cmd(user_input)
 'CHANGELOG.md\nLICENSE\nREADME.md\nlib\nmix.exs\nmix.lock\ntest\n'
-iex(12)> :os.cmd("ls")
-** (ArgumentError) errors were found at the given arguments:
-
-  * 1st argument: not a list of characters
-
-    (kernel 8.4.1) os.erl:434: :os.cmd("ls")
 ```
 
 Follow this checklist to determine if user input can reach this function:
 
-1. Start at the call to `:os.cmd` in your code base. Can you determine the source of this variable?
+1. Start at the call to `:os.cmd(user_input)` in your code base. Can you determine the source of this variable?
 
 2. If it is hard-coded in the source code, user input does not change the variable, so the finding is a false-positive. 
 
@@ -87,13 +81,13 @@ This is a high severity finding. An attacker can exploit this vulnerability to t
 The danger of command injection is that an attacker can send a malicious string which is passed to a call to `System.cmd`. For example:
 
 ```
-iex(16)> System.cmd("ls", [])
+iex(16)> System.cmd(user_input, [])
 {"CHANGELOG.md\nLICENSE\nREADME.md\nlib\nmix.exs\nmix.lock\ntest\n", 0}
 ```
 
 Follow this checklist to determine if user input can reach this function:
 
-1. Start at the call to `System.cmd` in your code base. Can you determine the source of this variable?
+1. Start at the call to `System.cmd` in your code base. Can you determine the source of the variable passed to this function?
 
 2. If it is hard-coded in the source code, user input does not change the variable, so the finding is a false-positive. 
 
@@ -116,7 +110,7 @@ Content-Security-Policy is an HTTP header that helps mitigate a number of attack
 
 ### Severity
 
-This is a low severity finding. CSP is not a vulnerability, it is a layer of defense to stop XSS and data injection attacks. An attacker must exploit a XSS vulnerability that already exists for CSP to be relevant. 
+This is a low severity finding. Missing CSP is not a vulnerability, it is a layer of defense to stop XSS and data injection attacks. An attacker must exploit a XSS vulnerability that already exists for CSP to be relevant. 
 
 ### How to verify this finding
 
@@ -126,7 +120,11 @@ Check the HTTP response from your web server for the `content-security-policy` h
 
 Use `plug :put_secure_browser_headers` in your pipeline. Documentation on the `put_secure_browser_headers` plug functioncan be found here: https://hexdocs.pm/phoenix/Phoenix.Controller.html#put_secure_browser_headers/2
 
-Note that adding a restrictive CSP header will improve security, but may break your application's front end JavaScript. Read https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP for more details. 
+Example policy:
+
+`plug :put_secure_browser_headers, %{"content-security-policy" => "default-src 'self'"}`
+
+*Warning: Note that adding a restrictive CSP header will improve security, but may break your application's JavaScript. Read https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP for more details.*
 
 
 ## UID 4, Config.CSRFRoute: CSRF via Action Reuse
@@ -135,7 +133,7 @@ In a Cross-Site Request Forgery (CSRF) attack, an untrusted application can caus
 
 ### Severity
 
-This is a medium severity finding. An attacker can create a malicious web page, and when a victim visits the web page, the attacker can force the victim's browser to perform an action in the web application. 
+This is a medium severity finding. An attacker can create a malicious web page, and when a victim visits the web page, the attacker can force the victim's browser to perform an action in the web application. The attacker cannot leak data from the victim through CSRF, it is a write-only attack. For example, a banking application vulnerable to CSRF where an attacker can force the victim to make a POST request, transferring money to the attacker. 
 
 ### How to verify this finding
 
@@ -146,9 +144,15 @@ In your Phoenix router, there should be two routes that use the same action, for
   post "/users/settings/edit_bio", UserSettingsController, :edit_bio
 ```
 
+Note that both the GET and POST request are sent to the same function, `:edit_bio`. A user can update their bio with a POST request, where the POST body contains `user[bio]=This+is+some+info+about+my+profile+page`. This is safe, state changing actions should use POST, because they can be protected from CSRF. This same state changing action can also be triggered via a GET request, which is unsafe, because GET requests are always vulnerable to CSRF. For example, if the victim visits the route:
+
+http://potionshop.url/users/settings/edit_bio?user%5Bbio%5D=Hacked+LOL
+
+Their bio will be updated.
+
 The POST request to `/users/settings/edit_bio` is not vulnerable to CSRF. Rather, it's the GET request to `/users/settings/edit_bio`, which contains the same parameters as the POST request in the URL, which is the source of this vulnerability. If you can issue a GET request that triggers the same functionality as the POST request, this finding is a true positive. 
 
-For more detail see - https://paraxial.io/blog/action-reuse-csrf 
+Additional details - https://paraxial.io/blog/action-reuse-csrf 
 
 ### How to fix a true positive 
 
@@ -214,7 +218,7 @@ Ensure you are logged into the vulnerable application with a valid session, then
 
 ### How to fix a true positive 
 
-1. Ensure you are using the `:protect_from_forgery` plug in pipelines that fetch a session. 
+1. Ensure you are using the `:protect_from_forgery` plug in pipelines that fetch a session. Even if the HTML form has a CSRF token, the vulnerability still exists if the backend application is not checking if the token is valid. `:protect_from_forgery` performs the check. 
 
 2. The HTML form should be created with a Phoenix helper, such as `form_for`, because it automatically includes the CSRF token - https://hexdocs.pm/phoenix_html/Phoenix.HTML.Form.html#form_for/4 If the matching form does not have a CSRF token, the vulnerability is not fixed. 
 
@@ -301,7 +305,7 @@ The HTTP Strict Transport Security (HSTS) header helps defend against man-in-the
 
 ### Severity
 
-This is a medium severity finding. The HSTS header is used to defend against man-in-the-middle attacks by preventing unencrypted connections.
+This is a low severity finding. The HSTS header is used to defend against man-in-the-middle attacks by preventing unencrypted connections.
 
 ### How to verify this finding
 
@@ -342,7 +346,7 @@ This is a high severity finding. Using HTTPS is a requirement if your applicatio
 
 This finding is often a false positive, because HTTPS configuration may be set at a different layer in the application stack. For example, your web server may be configured to force HTTPS. 
 
-Use https://www.ssllabs.com/ssltest/ on the deployed server to test the HTTPS configuration. 
+Test if your application serves traffic from `http://` and `https://`. If you are able to send data to your server over `http://`, this is a true positive. 
 
 ### How to fix a true positive 
 
@@ -466,14 +470,16 @@ Is user input being passed to `binary_to_term`? For example:
 
 `:erlang.binary_to_term(user_input, [:safe])`
 
-The [:safe] option is misleading, this function is vulnerable. If user input is being passed to `binary_to_term`, this is a true positive. 
+The `[:safe]` option is misleading, this function is vulnerable. If user input is being passed to `binary_to_term`, this is a true positive. 
 
-https://paraxial.io/blog/elixir-rce
+Additional details - https://paraxial.io/blog/elixir-rce
 
 
 ### How to fix a true positive 
 
-Use `Plug.Crypto.non_executable_binary_to_term` instead. 
+1. Do not pass user input to `:erlang.binary_to_term/2` if you can avoid it.
+
+2. Use `Plug.Crypto.non_executable_binary_to_term` instead. 
 
 https://hexdocs.pm/plug_crypto/Plug.Crypto.html#non_executable_binary_to_term/2
 
@@ -553,7 +559,7 @@ The key line is `WHERE f.quantity > #{min_q} AND f.secret = FALSE`, where `min_q
 
 is not vulnerable, because the user input `(user_in_a, user_in_b)` is being passed as parameters to the SQL query. 
 
-https://paraxial.io/blog/sql-injection
+Additional details - https://paraxial.io/blog/sql-injection
 
 ### How to fix a true positive 
 
@@ -599,7 +605,7 @@ The key line is `WHERE f.quantity > #{min_q} AND f.secret = FALSE`, where `min_q
 
 is not vulnerable, because the user input `(user_in_a, user_in_b)` is being passed as parameters to the SQL query. 
 
-https://paraxial.io/blog/sql-injection
+Additional details - https://paraxial.io/blog/sql-injection
 
 ### How to fix a true positive 
 
@@ -884,7 +890,7 @@ If an attacker can control the content type set in the HTTP response, they can s
 
 ### Severity
 
-This is a medium severity finding. The type of XSS this finding enables is generally called "reflected XSS", meaning a user must view a malicious web page setup by the attacker. This requirement for user interaction limits the impact of the vulnerability. 
+This is a high severity finding. XSS can lead to user account compromise and a malicious worm spreading via JavaScript. See the [MySpace Samy worm](https://en.wikipedia.org/wiki/Samy_(computer_worm)) for a real world example. 
 
 ### How to verify this finding
 
@@ -911,7 +917,7 @@ end
 
 With the content-type `text/html`. When a user visits the page for the uploaded file, the attacker controlled JavaScript will execute. 
 
-For more details see - https://paraxial.io/blog/xss-phoenix
+Additional details - https://paraxial.io/blog/xss-phoenix
 
 ### How to fix a true positive 
 
@@ -936,7 +942,7 @@ end
 
 This function is vulnerable to XSS, because user input is being passed directly into the HTML document. 
 
-For more details see - https://paraxial.io/blog/xss-phoenix
+Additional details - https://paraxial.io/blog/xss-phoenix
 
 ### How to fix a true positive 
 
@@ -975,7 +981,7 @@ Do not pass user input to the `raw` function. Ideally you should avoid using `ra
 
 ### Severity
 
-This is a medium severity finding. The type of XSS this finding enables is generally called "reflected XSS", meaning a user must view a malicious web page setup by the attacker. This requirement for user interaction limits the impact of the vulnerability. 
+This is a high severity finding. XSS can lead to user account compromise and a malicious worm spreading via JavaScript. See the [MySpace Samy worm](https://en.wikipedia.org/wiki/Samy_(computer_worm)) for a real world example. 
 
 ### How to verify this finding
 
@@ -1014,7 +1020,7 @@ end
 
 With the content-type `text/html`. When a user visits the page for the uploaded file, the attacker controlled JavaScript will execute. 
 
-For more details see - https://paraxial.io/blog/xss-phoenix
+Additional details - https://paraxial.io/blog/xss-phoenix
 
 ### How to fix a true positive 
 
