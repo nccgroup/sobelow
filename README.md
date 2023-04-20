@@ -42,6 +42,7 @@ If you encounter a bug, or would like to request additional
 features or security checks, please open an issue!
 
 ## Table of Contents
+- [Documentation](#documentation)
 - [Installation](#installation)
   - [To Use](#to-use)
 - [Options](#options)
@@ -50,6 +51,13 @@ features or security checks, please open an issue!
 - [Modules](#modules)
 - [Umbrella Apps](#umbrella-apps)
 - [Updates](#updates)
+
+## Documentation
+
+Documentation for Sobelow can be found online - https://hexdocs.pm/sobelow/readme.html
+
+For guidance on how to triage and fix individual findings, see [findings_guide.md](findings_guide.md)
+
 
 ## Installation
 
