@@ -2,7 +2,10 @@ defmodule Sobelow.SQL.Stream do
   @moduledoc """
   # SQL Injection in Stream
 
-  TODO: <description of vuln>
+  This submodule of the `SQL` module checks for SQL injection
+  vulnerabilities through usage of the `Ecto.Adapters.SQL.stream`.
+
+  Ensure that the query is parameterized and not user-controlled.
 
   SQLi Stream checks can be ignored with the following command:
 

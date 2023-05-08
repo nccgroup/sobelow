@@ -7,6 +7,7 @@
     * Fixed all `credo` warnings
     * Implemented all `credo` "Code Readability" adjustments
     * Took advantage of _some_ `credo` refactoring opportunities
+    * Added (sub)module documentation that was missing for some vulnerabilities and unified presentation of others
   * Misc
     * Added `mix credo --strict` to project
     * Improvements to GitHub CI

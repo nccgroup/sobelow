@@ -1,8 +1,9 @@
 defmodule Sobelow.XSS.Raw do
   @moduledoc """
-  # TODO: <FINDING_TITLE>
+  # XSS in `raw`
 
-  TODO: <description of vuln>
+  This submodule checks for the use of `raw` in templates
+  as this can lead to XSS vulnerabilities if taking user input.
 
   Raw checks can be ignored with the following command:
 

@@ -1,5 +1,19 @@
 defmodule Sobelow.Config do
-  @moduledoc false
+  @moduledoc """
+  # Configuration
+
+  Submodules contained within this vulnerability type
+  are related to common insecurities found in how
+  Phoenix applications are configured.
+
+  This can include things like missing headers,
+  insecure cookies, and more.
+
+  Configuration checks can be ignored with the
+  following command:
+
+      $ mix sobelow -i Config
+  """
 
   alias Sobelow.Config.CSP
   alias Sobelow.Config.CSRF

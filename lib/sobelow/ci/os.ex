@@ -2,7 +2,10 @@ defmodule Sobelow.CI.OS do
   @moduledoc """
   # Command Injection in `:os.cmd`
 
-  TODO: <description of vuln>
+  This submodule of the `CI` module checks for Command Injection
+  vulnerabilities through usage of the `:os.cmd` function.
+
+  Ensure the the command passed to `:os.cmd` is not user-controlled.
 
   `:os.cmd` Injection checks can be ignored with the following command:
 

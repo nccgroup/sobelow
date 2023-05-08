@@ -2,7 +2,8 @@ defmodule Sobelow.XSS.HTML do
   @moduledoc """
   # XSS in `html`
 
-  TODO: <description of vuln>
+  This submodule looks for XSS vulnerabilities in `html`
+  calls from the Phoenix Controller.
 
   HTML checks can be ignored with the following command:
 

@@ -2,7 +2,8 @@ defmodule Sobelow.XSS.SendResp do
   @moduledoc """
   # XSS in `send_resp`
 
-  TODO: <description of vuln>
+  This submodule looks for XSS vulnerabilities in the `body`
+  argument of `Conn.send_resp`.
 
   SendResp checks can be ignored with the following command:
 
