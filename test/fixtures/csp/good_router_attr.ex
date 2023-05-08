@@ -1,4 +1,6 @@
 defmodule GoodRouter do
+  @moduledoc false
+
   @csp %{"content-security-policy" => "default-src 'self'"}
 
   pipeline :browser do

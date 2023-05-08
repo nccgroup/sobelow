@@ -12,15 +12,11 @@ env:
 jobs:
   mix_test:
     name: mix test (Elixir ${{matrix.elixir}} | OTP ${{matrix.otp}})
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - elixir: '1.5.x'
-            otp: 20.3.8.26
-          - elixir: '1.6.6'
-            otp: 21.3.8.24
           - elixir: '1.7.x'
             otp: 22.3.4.26
           - elixir: '1.8.x'
@@ -37,15 +33,13 @@ jobs:
             otp: 25.1
           - elixir: '1.14.x'
             otp: 25.1
-            #warnings_as_errors: true # temporarily disabled due to separate issue that requires fixing, see: https://github.com/nccgroup/sobelow/issues/115
-            check_formatted: true
 
     steps:
     - name: Setup Elixir
       uses: erlef/setup-beam@v1
       with:
-        otp-version: ${{matrix.otp}}
-        elixir-version: ${{matrix.elixir}}
+        otp-version: ${{ matrix.otp }}
+        elixir-version: ${{ matrix.elixir }}
 
     - name: Checkout Code
       uses: actions/checkout@v3
@@ -55,6 +49,20 @@ jobs:
         mix local.hex --force
         mix local.rebar --force
         mix deps.get --only test
+
+    - name: Hex Audit
+      run: mix hex.audit
+
+    - name: Check Formatting
+      if: ${{ matrix.elixir == '1.14.x' }} # we only care about formatting for latest version of Elixir
+      run: mix format --check-formatted
+
+    - name: Compiles w/o Warnings
+      if: ${{ matrix.elixir == '1.14.x' }} # we only care about warnings for latest version of Elixir
+      run: mix compile --warnings-as-errors
+
+    - name: Credo
+      run: mix credo --all --strict
 
     - name: Run Tests
       run: mix test

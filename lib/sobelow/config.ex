@@ -1,10 +1,26 @@
 defmodule Sobelow.Config do
-  alias Sobelow.Parse
+  @moduledoc """
+  # Configuration
+
+  Submodules contained within this vulnerability type
+  are related to common insecurities found in how
+  Phoenix applications are configured.
+
+  This can include things like missing headers,
+  insecure cookies, and more.
+
+  Configuration checks can be ignored with the
+  following command:
+
+      $ mix sobelow -i Config
+  """
+
+  alias Sobelow.Config.CSP
   alias Sobelow.Config.CSRF
   alias Sobelow.Config.CSRFRoute
-  alias Sobelow.Config.CSP
-  alias Sobelow.Config.Headers
   alias Sobelow.Config.CSWH
+  alias Sobelow.Config.Headers
+  alias Sobelow.Parse
 
   @submodules [
     Sobelow.Config.CSRF,

@@ -1,4 +1,16 @@
 defmodule Sobelow.SQL.Query do
+  @moduledoc """
+  # SQL Injection in Query
+
+  This submodule of the `SQL` module checks for SQL injection
+  vulnerabilities through usage of the `Ecto.Adapters.SQL.query`.
+
+  Ensure that the query is parameterized and not user-controlled.
+
+  SQLi Query checks can be ignored with the following command:
+
+      $ mix sobelow -i SQL.Query
+  """
   @uid 17
   @finding_type "SQL.Query: SQL injection"
 
@@ -25,7 +37,7 @@ defmodule Sobelow.SQL.Query do
     Parse.get_fun_vars_and_meta(fun, 0, :query, :Repo)
   end
 
-  def details() do
+  def details do
     Sobelow.SQL.details()
   end
 end

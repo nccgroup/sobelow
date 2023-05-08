@@ -5,7 +5,7 @@ defmodule Sobelow.Fingerprint do
     use Agent
   end
 
-  def start_link() do
+  def start_link do
     Agent.start_link(fn -> {MapSet.new(), MapSet.new()} end, name: __MODULE__)
   end
 

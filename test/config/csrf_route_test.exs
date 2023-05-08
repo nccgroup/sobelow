@@ -63,7 +63,7 @@ defmodule SobelowTest.Config.CSRFRouteTest do
       |> CSRFRoute.combine_scopes()
       |> Enum.flat_map(&CSRFRoute.route_findings(&1, %Finding{}))
 
-    assert length(vulns) == 0
+    assert Enum.empty?(vulns)
   end
 
   test "flags vulnerable routes in nested scopes" do

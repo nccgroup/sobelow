@@ -1,4 +1,14 @@
 defmodule Sobelow.XSS.SendResp do
+  @moduledoc """
+  # XSS in `send_resp`
+
+  This submodule looks for XSS vulnerabilities in the `body`
+  argument of `Conn.send_resp`.
+
+  SendResp checks can be ignored with the following command:
+
+      $ mix sobelow -i XSS.SendResp
+  """
   @uid 31
   @finding_type "XSS.SendResp: XSS in `send_resp`"
 
@@ -16,7 +26,7 @@ defmodule Sobelow.XSS.SendResp do
     Parse.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
   end
 
-  def details() do
+  def details do
     Sobelow.XSS.details()
   end
 
@@ -39,7 +49,7 @@ defmodule Sobelow.XSS.SendResp do
 
   defp get_confidence(finding, content_types) do
     cond do
-      length(content_types) == 0 ->
+      Enum.empty?(content_types) ->
         finding.confidence
 
       Enum.any?(content_types, &(!is_binary(&1))) ->

@@ -1,4 +1,16 @@
 defmodule Sobelow.Traversal.SendDownload do
+  @moduledoc """
+  # Directory Traversal in `send_download`
+
+  This submodule checks for directory traversal vulnerabilities in the
+  `send_download` function of a Phoenix Controller.
+
+  Ensure that the path passed to `send_download` is not user-controlled.
+
+  Send Download checks can be ignored with the following command:
+
+      $ mix sobelow -i Traversal.SendDownload
+  """
   @uid 20
   @finding_type "Traversal.SendDownload: Directory Traversal in `send_download`"
 
@@ -25,7 +37,7 @@ defmodule Sobelow.Traversal.SendDownload do
     {findings, params, {fun_name, line_no}}
   end
 
-  def details() do
+  def details do
     Sobelow.Traversal.details()
   end
 

@@ -1,4 +1,20 @@
 defmodule Sobelow.RCE.CodeModule do
+  @moduledoc """
+  # Code Execution in `eval` function
+
+  Arbitrary strings passed to the `Code.eval_*` functions can be
+  executed as malicious code.
+
+  Ensure the the code passed to the function is not user-controlled
+  or remove the function call completely.
+
+  Read more about Elixir RCE here:
+  https://erlef.github.io/security-wg/secure_coding_and_deployment_hardening/sandboxing
+
+  Code Execution checks can be ignored with the following command:
+
+      $ mix sobelow -i RCE.CodeModule
+  """
   @uid 15
   @finding_type "RCE.CodeModule: Code execution in eval function"
 
@@ -20,7 +36,7 @@ defmodule Sobelow.RCE.CodeModule do
     Parse.get_fun_vars_and_meta(fun, 0, code_fun, [:Code])
   end
 
-  def details() do
+  def details do
     Sobelow.RCE.details()
   end
 end

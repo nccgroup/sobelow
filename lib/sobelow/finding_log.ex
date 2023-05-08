@@ -1,7 +1,9 @@
 defmodule Sobelow.FindingLog do
+  @moduledoc false
+
   use GenServer
 
-  def start_link() do
+  def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
@@ -9,7 +11,7 @@ defmodule Sobelow.FindingLog do
     GenServer.cast(__MODULE__, {:add, finding, severity})
   end
 
-  def log() do
+  def log do
     GenServer.call(__MODULE__, :log)
   end
 
@@ -53,7 +55,7 @@ defmodule Sobelow.FindingLog do
     )
   end
 
-  def sarif_results() do
+  def sarif_results do
     %{high: highs, medium: meds, low: lows} = log()
 
     highs = normalize_sarif_log(highs)
@@ -64,7 +66,7 @@ defmodule Sobelow.FindingLog do
       Enum.map(meds, &format_sarif/1) ++ Enum.map(lows, &format_sarif/1)
   end
 
-  def quiet() do
+  def quiet do
     total = total(log())
     findings = if total > 1, do: "findings", else: "finding"
 

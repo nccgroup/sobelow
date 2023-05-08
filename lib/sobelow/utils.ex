@@ -101,7 +101,7 @@ defmodule Sobelow.Utils do
     end
   end
 
-  def get_root() do
+  def get_root do
     root = Sobelow.get_env(:root)
     if is_nil(root), do: "", else: root
   end

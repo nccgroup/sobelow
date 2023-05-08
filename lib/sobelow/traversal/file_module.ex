@@ -1,4 +1,16 @@
 defmodule Sobelow.Traversal.FileModule do
+  @moduledoc """
+  # Directory Traversal in `File` function
+
+  This submodule checks for directory traversal vulnerabilities in the `File`
+  module.
+
+  Ensure that the path passed to `File` functions is not user-controlled.
+
+  File checks can be ignored with the following command:
+
+      $ mix sobelow -i Traversal.FileModule
+  """
   @uid 19
   @finding_type "Traversal.FileModule: Directory Traversal in `File` function"
 
@@ -51,7 +63,7 @@ defmodule Sobelow.Traversal.FileModule do
     Parse.get_fun_vars_and_meta(fun, 1, type, [:File])
   end
 
-  def details() do
+  def details do
     Sobelow.Traversal.details()
   end
 end

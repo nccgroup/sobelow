@@ -1,4 +1,16 @@
 defmodule Sobelow.SQL.Stream do
+  @moduledoc """
+  # SQL Injection in Stream
+
+  This submodule of the `SQL` module checks for SQL injection
+  vulnerabilities through usage of the `Ecto.Adapters.SQL.stream`.
+
+  Ensure that the query is parameterized and not user-controlled.
+
+  SQLi Stream checks can be ignored with the following command:
+
+      $ mix sobelow -i SQL.Stream
+  """
   @uid 18
   @finding_type "SQL.Stream: SQL injection"
 
@@ -17,7 +29,7 @@ defmodule Sobelow.SQL.Stream do
     Parse.get_fun_vars_and_meta(fun, 1, :stream, {:required, :SQL})
   end
 
-  def details() do
+  def details do
     Sobelow.SQL.details()
   end
 end

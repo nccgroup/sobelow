@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.13.0
+  * Removed
+    * Support for minimum Elixir versions 1.5 & 1.6 (**POTENTIALLY BREAKING** - only applies if you relied on Elixir 1.5 or 1.6, 1.7+ is still supported)
+  * Enhancements
+    * Fixed all `credo` warnings
+    * Implemented all `credo` "Code Readability" adjustments
+    * Took advantage of _some_ `credo` refactoring opportunities
+    * Added (sub)module documentation that was missing for some vulnerabilities and unified presentation of others
+  * Misc
+    * Added `mix credo --strict` to project
+    * Improvements to GitHub CI
+      * Hex Audit
+      * Compiler Warnings as Errors
+      * Checks Formatting
+    * Added helper `mix test.all` alias
+    
 ## v0.12.2
   * Bug fixes
     * Removed `:castore` and introduced `:verify_none` to quiet warning and unblock escript usage, see [#133](https://github.com/nccgroup/sobelow/issues/133) for more context on why this is necessary

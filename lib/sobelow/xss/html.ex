@@ -1,4 +1,14 @@
 defmodule Sobelow.XSS.HTML do
+  @moduledoc """
+  # XSS in `html`
+
+  This submodule looks for XSS vulnerabilities in `html`
+  calls from the Phoenix Controller.
+
+  HTML checks can be ignored with the following command:
+
+      $ mix sobelow -i XSS.HTML
+  """
   @uid 29
   @finding_type "XSS.HTML: XSS in `html`"
 
@@ -16,7 +26,7 @@ defmodule Sobelow.XSS.HTML do
     Parse.get_fun_vars_and_meta(fun, 1, :html, :Controller)
   end
 
-  def details() do
+  def details do
     Sobelow.XSS.details()
   end
 end

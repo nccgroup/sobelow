@@ -1,4 +1,14 @@
 defmodule Sobelow.XSS.Raw do
+  @moduledoc """
+  # XSS in `raw`
+
+  This submodule checks for the use of `raw` in templates
+  as this can lead to XSS vulnerabilities if taking user input.
+
+  Raw checks can be ignored with the following command:
+
+      $ mix sobelow -i XSS.Raw
+  """
   @uid 30
   @finding_type "XSS.Raw: XSS"
 
@@ -101,7 +111,7 @@ defmodule Sobelow.XSS.Raw do
     Parse.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
   end
 
-  def details() do
+  def details do
     Sobelow.XSS.details()
   end
 

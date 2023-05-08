@@ -159,7 +159,7 @@ defmodule Sobelow.Print do
     end
   end
 
-  def finding_break() do
+  def finding_break do
     "\n-----------------------------------------------\n"
   end
 

@@ -1,4 +1,14 @@
 defmodule Sobelow.Vuln.Coherence do
+  @moduledoc """
+  # Coherence Version Vulnerable to Privilege Escalation
+
+  For more information visit:
+  https://github.com/advisories/GHSA-mrq8-53r4-3j5m
+
+  Coherence checks can be ignored with the following command:
+
+      $ mix sobelow -i Vuln.Coherence
+  """
   alias Sobelow.Config
   alias Sobelow.Vuln
 
@@ -23,7 +33,7 @@ defmodule Sobelow.Vuln.Coherence do
               vsn,
               "Coherence",
               "Permissive parameters and privilege escalation",
-              "TBA - https://github.com/smpallen99/coherence/issues/270",
+              "CVE-2018-20301",
               "Coherence"
             )
           end
@@ -34,7 +44,7 @@ defmodule Sobelow.Vuln.Coherence do
     end
   end
 
-  def details() do
+  def details do
     Sobelow.Vuln.details()
   end
 end

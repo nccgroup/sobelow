@@ -31,7 +31,7 @@ defmodule Sobelow.Config.HTTPS do
   end
 
   defp handle_https(opts, path) do
-    if length(opts) === 0 do
+    if Enum.empty?(opts) do
       add_finding(path)
     end
   end
