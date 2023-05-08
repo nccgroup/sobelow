@@ -46,8 +46,4 @@ defmodule Sobelow.Vuln.HeaderInject do
       end
     end
   end
-
-  def details do
-    Sobelow.Vuln.details()
-  end
 end

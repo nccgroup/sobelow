@@ -40,8 +40,4 @@ defmodule Sobelow.Vuln.Redirect do
       end
     end
   end
-
-  def details do
-    Sobelow.Vuln.details()
-  end
 end

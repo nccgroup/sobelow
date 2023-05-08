@@ -27,8 +27,4 @@ defmodule Sobelow.CI.System do
   def parse_def(fun) do
     Parse.get_fun_vars_and_meta(fun, 0, :cmd, [:System])
   end
-
-  def details do
-    Sobelow.CI.details()
-  end
 end

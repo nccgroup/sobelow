@@ -62,8 +62,4 @@ defmodule Sobelow.Traversal.FileModule do
   def parse_second_def(fun, type) do
     Parse.get_fun_vars_and_meta(fun, 1, type, [:File])
   end
-
-  def details do
-    Sobelow.Traversal.details()
-  end
 end

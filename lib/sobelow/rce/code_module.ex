@@ -35,8 +35,4 @@ defmodule Sobelow.RCE.CodeModule do
   def parse_def(fun, code_fun) do
     Parse.get_fun_vars_and_meta(fun, 0, code_fun, [:Code])
   end
-
-  def details do
-    Sobelow.RCE.details()
-  end
 end

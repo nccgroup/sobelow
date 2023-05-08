@@ -111,10 +111,6 @@ defmodule Sobelow.XSS.Raw do
     Parse.get_fun_vars_and_meta(fun, 0, :raw, :HTML)
   end
 
-  def details do
-    Sobelow.XSS.details()
-  end
-
   defp add_finding(t_name, line_no, filename, fun_name, fun, var, severity, finding) do
     finding =
       %Finding{

@@ -25,8 +25,4 @@ defmodule Sobelow.XSS.HTML do
   def parse_def(fun) do
     Parse.get_fun_vars_and_meta(fun, 1, :html, :Controller)
   end
-
-  def details do
-    Sobelow.XSS.details()
-  end
 end
