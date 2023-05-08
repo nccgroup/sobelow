@@ -9,7 +9,15 @@ defmodule Sobelow.DOS do
   Read more about Denial of Service here:
   https://owasp.org/www-community/attacks/Denial_of_Service
 
-  Denial of Service checks can be ignored with the
+  If you wish to learn more about the specific vulnerabilities
+  found within the Denial of Service category, you may run the
+  following commands to find out more:
+
+          $ mix sobelow -d DOS.StringToAtom
+          $ mix sobelow -d DOS.ListToAtom
+          $ mix sobelow -d DOS.BinToAtom
+
+  Denial of Service checks of all types can be ignored with the
   following command:
 
       $ mix sobelow -i DOS
@@ -23,5 +31,9 @@ defmodule Sobelow.DOS do
     Enum.each(allowed, fn mod ->
       apply(mod, :run, [fun, meta_file])
     end)
+  end
+
+  def details do
+    @moduledoc
   end
 end

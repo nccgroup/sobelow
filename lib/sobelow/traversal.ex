@@ -10,7 +10,15 @@ defmodule Sobelow.Traversal do
   Read more about Path Traversal here:
   https://www.owasp.org/index.php/Path_Traversal
 
-  Path Traversal checks can be ignored with the following command:
+  If you wish to learn more about the specific vulnerabilities
+  found within the Path Traversal category, you may run the
+  following commands to find out more:
+
+            $ mix sobelow -d Traversal.SendFile
+            $ mix sobelow -d Traversal.FileModule
+            $ mix sobelow -d Traversal.SendDownload
+
+  Path Traversal checks of all types can be ignored with the following command:
 
       $ mix sobelow -i Traversal
   """

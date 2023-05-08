@@ -6,7 +6,13 @@ defmodule Sobelow.Misc do
   checks that don't fall neatly into the other
   detection categories.
 
-  Miscellaneous checks can be ignored with the
+  If you wish to learn more about the specific vulnerabilities
+  found within the Miscellaneous category, you may run the
+  following commands to find out more:
+
+            $ mix sobelow -d Misc.BinToTerm
+
+  Miscellaneous checks of all types can be ignored with the
   following command:
 
       $ mix sobelow -i Misc
@@ -20,5 +26,9 @@ defmodule Sobelow.Misc do
     Enum.each(allowed, fn mod ->
       apply(mod, :run, [fun, meta_file])
     end)
+  end
+
+  def details do
+    @moduledoc
   end
 end
