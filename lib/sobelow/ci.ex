@@ -9,7 +9,14 @@ defmodule Sobelow.CI do
   Read more about Command Injection here:
   https://www.owasp.org/index.php/Command_Injection
 
-  Command Injection checks can be ignored with the
+  If you wish to learn more about the specific vulnerabilities
+  found within the Command Injection category, you may run the
+  following commands to find out more:
+
+        $ mix sobelow -d CI.OS
+        $ mix sobelow -d CI.System
+
+  Command Injection checks of all types can be ignored with the
   following command:
 
       $ mix sobelow -i CI

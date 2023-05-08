@@ -26,10 +26,6 @@ defmodule Sobelow.XSS.SendResp do
     Parse.get_fun_vars_and_meta(fun, 2, :send_resp, :Conn)
   end
 
-  def details do
-    Sobelow.XSS.details()
-  end
-
   @doc false
   def get_content_type({:put_resp_content_type, _, opts}), do: hd(opts)
   def get_content_type({{_, _, [_, :put_resp_content_type]}, _, opts}), do: hd(opts)

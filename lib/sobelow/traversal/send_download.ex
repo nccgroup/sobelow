@@ -37,10 +37,6 @@ defmodule Sobelow.Traversal.SendDownload do
     {findings, params, {fun_name, line_no}}
   end
 
-  def details do
-    Sobelow.Traversal.details()
-  end
-
   defp download_type_binary?({:send_download, _, opts}), do: type_binary?(opts)
 
   defp download_type_binary?({{:., _, [{_, _, _}, :send_download]}, _, opts}),

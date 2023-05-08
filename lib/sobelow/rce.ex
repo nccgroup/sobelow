@@ -6,7 +6,14 @@ defmodule Sobelow.RCE do
   untrusted user input being executed or interpreted by
   the system and may result in complete system compromise.
 
-  Code Execution checks can be ignored with the
+  If you wish to learn more about the specific vulnerabilities
+  found within the Remote Code Execution category, you may run the
+  following commands to find out more:
+
+          $ mix sobelow -d RCE.EEx
+          $ mix sobelow -d RCE.CodeModule
+
+  Remote Code Execution checks of all types can be ignored with the
   following command:
 
       $ mix sobelow -i RCE

@@ -43,8 +43,4 @@ defmodule Sobelow.Vuln.Ecto do
       end
     end
   end
-
-  def details do
-    Sobelow.Vuln.details()
-  end
 end
