@@ -217,6 +217,7 @@ command line:
 ## Umbrella Apps
 
 In order to run Sobelow against all child apps within an umbrella app with a single command, you can add an alias for sobelow in your root `mix.exs` file:
+(don't forget to specify the dependency in each application of the umbrella project)
 
 ```elixir
 defp aliases do
