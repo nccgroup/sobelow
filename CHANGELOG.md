@@ -10,6 +10,7 @@
     * Added (sub)module documentation that was missing for some vulnerabilities and unified presentation of others
   * Bug fixes
     * Fixed `--details` / `-d` not displaying correct information
+    * Fixed incompatibility issue with Elixir 1.15
   * Misc
     * Added `mix credo --strict` to project
     * Improvements to GitHub CI
