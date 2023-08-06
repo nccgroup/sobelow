@@ -526,7 +526,7 @@ defmodule Sobelow do
 
       {timestamp, _} =
         case :file.read_line(iofile) do
-          {:ok, 'sobelow-' ++ timestamp} -> to_string(timestamp) |> Integer.parse()
+          {:ok, ~c"sobelow-" ++ timestamp} -> to_string(timestamp) |> Integer.parse()
           _ -> file_error()
         end
 
@@ -546,7 +546,7 @@ defmodule Sobelow do
     {:ok, _} = Application.ensure_all_started(:inets)
     {:ok, _} = :inets.start(:httpc, [{:profile, :sobelow}])
 
-    url = 'https://sobelow.io/version'
+    url = ~c"https://sobelow.io/version"
 
     http_options = [
       ssl: [

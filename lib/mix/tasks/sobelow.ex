@@ -169,6 +169,11 @@ defmodule Mix.Tasks.Sobelow do
 
     save_config = Keyword.get(opts, :save_config)
 
+    if function_exported?(Mix, :ensure_application!, 1) do
+      Mix.ensure_application!(:ssl)
+      Mix.ensure_application!(:inets)
+    end
+
     cond do
       diff ->
         run_diff(argv)
