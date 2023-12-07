@@ -462,7 +462,7 @@ defmodule Sobelow.Parse do
   end
 
   defp create_fun_cap(fun, meta, idx) when is_number(idx) do
-    opts = Enum.map(1..idx, fn i -> {:&, [], [i]} end)
+    opts = Enum.map(1..trunc(idx), fn i -> {:&, [], [i]} end)
     {fun, meta, opts}
   end
 
