@@ -236,9 +236,16 @@ defmodule Sobelow.Parse do
     {finding, List.flatten(opts)}
   end
 
+  # This handles normalizations for the case where the finding is a dot-access tuple
+  def normalize_finding({finding, {:., _, [{var, _, _}, field]}}) when is_atom(field) do
+    {finding, "#{atom_to_string(var)}.${atom_to_string(field)}"}
+  end
+
   def normalize_finding({finding, opt}) do
     {finding, [opt]}
   end
+
+  defp atom_to_string(atom) when is_atom(atom), do: Atom.to_string(atom)
 
   def get_erlang_funs_of_type(ast, type) do
     {_, acc} = Macro.prewalk(ast, [], &get_erlang_funs_of_type(&1, &2, type, :erlang))
@@ -455,7 +462,7 @@ defmodule Sobelow.Parse do
   end
 
   defp create_fun_cap(fun, meta, idx) when is_number(idx) do
-    opts = Enum.map(1..idx, fn i -> {:&, [], [i]} end)
+    opts = Enum.map(1..trunc(idx), fn i -> {:&, [], [i]} end)
     {fun, meta, opts}
   end
 
