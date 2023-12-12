@@ -67,13 +67,15 @@ defmodule Sobelow.Config.CSWH do
 
     file_header = "File: #{finding.filename}"
     line_header = "Line: #{finding.vuln_line_no}"
+    fingerprint_header = "Fingerprint: #{finding.fingerprint}"
 
     case Sobelow.format() do
       "json" ->
         json_finding = [
           type: finding.type,
           file: finding.filename,
-          line: finding.vuln_line_no
+          line: finding.vuln_line_no,
+          fingerprint: finding.fingerprint
         ]
 
         Sobelow.log_finding(json_finding, finding)
@@ -83,7 +85,7 @@ defmodule Sobelow.Config.CSWH do
 
         Print.print_custom_finding_metadata(
           finding,
-          [file_header, line_header]
+          [file_header, line_header, fingerprint_header]
         )
 
       "compact" ->

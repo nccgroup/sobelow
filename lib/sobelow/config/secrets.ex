@@ -80,6 +80,7 @@ defmodule Sobelow.Config.Secrets do
     file_header = "File: #{finding.filename}"
     line_header = "Line: #{finding.vuln_line_no}"
     key_header = "Key: #{key}"
+    fingerprint_header = "Fingerprint: #{finding.fingerprint}"
 
     case Sobelow.get_env(:format) do
       "json" ->
@@ -87,7 +88,8 @@ defmodule Sobelow.Config.Secrets do
           type: finding.type,
           file: finding.filename,
           line: finding.vuln_line_no,
-          key: key
+          key: key,
+          fingerprint: finding.fingerprint
         ]
 
         Sobelow.log_finding(json_finding, finding)
@@ -98,7 +100,8 @@ defmodule Sobelow.Config.Secrets do
         Print.print_custom_finding_metadata(finding, [
           file_header,
           line_header,
-          key_header
+          key_header,
+          fingerprint_header
         ])
 
       "compact" ->

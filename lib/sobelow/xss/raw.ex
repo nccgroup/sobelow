@@ -125,6 +125,8 @@ defmodule Sobelow.XSS.Raw do
       }
       |> Finding.fetch_fingerprint()
 
+    fingerprint_header = "Fingerprint: #{finding.fingerprint}"
+
     case Sobelow.format() do
       "json" ->
         json_finding = [
@@ -132,7 +134,8 @@ defmodule Sobelow.XSS.Raw do
           file: finding.filename,
           variable: "#{finding.vuln_variable}",
           template: "#{t_name}",
-          line: finding.vuln_line_no
+          line: finding.vuln_line_no,
+          fingerprint: finding.fingerprint
         ]
 
         Sobelow.log_finding(json_finding, finding)
@@ -144,7 +147,8 @@ defmodule Sobelow.XSS.Raw do
           Print.finding_file_name(filename),
           Print.finding_line(finding.vuln_source),
           Print.finding_fun_metadata(fun_name, line_no),
-          "Template: #{t_name} - #{var}"
+          "Template: #{t_name} - #{var}",
+          fingerprint_header
         ])
 
       "compact" ->

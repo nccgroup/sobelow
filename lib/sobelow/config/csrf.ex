@@ -54,6 +54,7 @@ defmodule Sobelow.Config.CSRF do
     file_header = "File: #{finding.filename}"
     pipeline_header = "Pipeline: #{finding.fun_name}"
     line_header = "Line: #{finding.vuln_line_no}"
+    fingerprint_header = "Fingerprint: #{finding.fingerprint}"
 
     case Sobelow.format() do
       "json" ->
@@ -61,7 +62,8 @@ defmodule Sobelow.Config.CSRF do
           type: finding.type,
           file: finding.filename,
           pipeline: finding.fun_name,
-          line: finding.vuln_line_no
+          line: finding.vuln_line_no,
+          fingerprint: finding.fingerprint
         ]
 
         Sobelow.log_finding(json_finding, finding)
@@ -71,7 +73,7 @@ defmodule Sobelow.Config.CSRF do
 
         Print.print_custom_finding_metadata(
           finding,
-          [file_header, pipeline_header, line_header]
+          [file_header, pipeline_header, line_header, fingerprint_header]
         )
 
       "compact" ->
