@@ -484,6 +484,7 @@ defmodule Sobelow do
 
   defp load_ignored_fingerprints(project_root) do
     cfile = project_root <> @skips
+    IO.inspect(cfile, label: "Sobelow skips file")
 
     if File.exists?(cfile) do
       {:ok, iofile} = :file.open(cfile, [:read])
