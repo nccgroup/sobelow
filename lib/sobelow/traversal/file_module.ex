@@ -33,7 +33,9 @@ defmodule Sobelow.Traversal.FileModule do
     :mkdir,
     :mkdir!,
     :mkdir_p,
-    :mkdir_p!
+    :mkdir_p!,
+    :stream,
+    :stream!
   ]
   @double_file_funcs [:cp, :copy, :cp!, :copy!, :cp_r, :cp_r!, :ln, :ln!, :ln_s, :ln_s!]
 

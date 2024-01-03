@@ -3,7 +3,7 @@ defmodule SobelowTest.Traversal.FileModuleTest do
   import Sobelow, only: [is_vuln?: 1]
   alias Sobelow.Traversal.FileModule
 
-  @evil_funcs [:read, :read!, :write, :write!, :rm, :rm!, :rm_rf]
+  @evil_funcs [:read, :read!, :write, :write!, :rm, :rm!, :rm_rf, :stream, :stream!]
 
   @double_evil_funcs [:cp, :cp!, :cp_r, :cp_r!, :ln, :ln!, :ln_s, :ln_s!]
 
