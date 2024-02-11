@@ -3,51 +3,61 @@ defmodule SobelowTest.SQL.QueryTest do
   import Sobelow, only: [is_vuln?: 1]
   alias Sobelow.SQL.Query
 
+  @query_funcs [:query, :query!]
+
   test "SQL injection in `SQL`" do
-    func = """
-    def query(%{"sql" => sql}) do
-      SQL.query(Repo, sql, [])
-    end
-    """
+    Enum.each(@query_funcs, fn query_func ->
+      func = """
+      def query(%{"sql" => sql}) do
+        SQL.#{query_func}(Repo, sql, [])
+      end
+      """
 
-    {_, ast} = Code.string_to_quoted(func)
+      {_, ast} = Code.string_to_quoted(func)
 
-    assert Query.parse_sql_def(ast) |> is_vuln?
+      assert Query.parse_sql_def(ast, query_func) |> is_vuln?
+    end)
   end
 
   test "Safe `SQL`" do
-    func = """
-    def query(%{"sql" => sql}) do
-      SQL.query(Repo, "SELECT * FROM users", [])
-    end
-    """
+    Enum.each(@query_funcs, fn query_func ->
+      func = """
+      def query(%{"sql" => sql}) do
+        SQL.#{query_func}(Repo, "SELECT * FROM users", [])
+      end
+      """
 
-    {_, ast} = Code.string_to_quoted(func)
+      {_, ast} = Code.string_to_quoted(func)
 
-    refute Query.parse_sql_def(ast) |> is_vuln?
+      refute Query.parse_sql_def(ast, query_func) |> is_vuln?
+    end)
   end
 
   test "SQL injection in `Repo`" do
-    func = """
-    def query(%{"sql" => sql}) do
-      Repo.query(sql)
-    end
-    """
+    Enum.each(@query_funcs, fn query_func ->
+      func = """
+      def query(%{"sql" => sql}) do
+        Repo.#{query_func}(sql)
+      end
+      """
 
-    {_, ast} = Code.string_to_quoted(func)
+      {_, ast} = Code.string_to_quoted(func)
 
-    assert Query.parse_repo_query_def(ast) |> is_vuln?
+      assert Query.parse_repo_query_def(ast, query_func) |> is_vuln?
+    end)
   end
 
   test "safe `Repo`" do
-    func = """
-    def query(%{"sql" => sql}) do
-      Repo.query("SELECT * FROM users")
-    end
-    """
+    Enum.each(@query_funcs, fn query_func ->
+      func = """
+      def query(%{"sql" => sql}) do
+        Repo.#{query_func}("SELECT * FROM users")
+      end
+      """
 
-    {_, ast} = Code.string_to_quoted(func)
+      {_, ast} = Code.string_to_quoted(func)
 
-    refute Query.parse_repo_query_def(ast) |> is_vuln?
+      refute Query.parse_repo_query_def(ast, query_func) |> is_vuln?
+    end)
   end
 end
