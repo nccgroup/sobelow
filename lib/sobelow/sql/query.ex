@@ -3,7 +3,8 @@ defmodule Sobelow.SQL.Query do
   # SQL Injection in Query
 
   This submodule of the `SQL` module checks for SQL injection
-  vulnerabilities through usage of the `Ecto.Adapters.SQL.query`.
+  vulnerabilities through usage of the `Ecto.Adapters.SQL.query`
+  and `Ecto.Adapters.SQL.query!`.
 
   Ensure that the query is parameterized and not user-controlled.
 
