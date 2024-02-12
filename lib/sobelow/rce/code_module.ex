@@ -22,7 +22,7 @@ defmodule Sobelow.RCE.CodeModule do
   @code_funs [:eval_string, :eval_file, :eval_quoted]
 
   def run(fun, meta_file) do
-    confidence = if !meta_file.is_controller?, do: :low
+    confidence = if !meta_file.controller?, do: :low
 
     Enum.each(@code_funs, fn code_fun ->
       "RCE.CodeModule: Code Execution in `Code.#{code_fun}`"

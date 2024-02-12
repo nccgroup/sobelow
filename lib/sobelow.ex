@@ -324,7 +324,7 @@ defmodule Sobelow do
     phoenix_files =
       Enum.reduce(meta_files, %{routers: [], endpoints: []}, fn meta_file, acc ->
         cond do
-          meta_file.is_router? ->
+          meta_file.router? ->
             Map.update!(acc, :routers, &[meta_file.file_path | &1])
 
           meta_file.endpoint? ->
@@ -368,7 +368,7 @@ defmodule Sobelow do
         filename: filename,
         raw: raw,
         ast: [ast],
-        is_controller?: false
+        controller?: false
       }
     }
   end
@@ -391,8 +391,8 @@ defmodule Sobelow do
       filename: Utils.normalize_path(filename),
       file_path: Path.expand(filename),
       def_funs: def_funs,
-      is_controller?: Utils.is_controller?(use_funs),
-      is_router?: Utils.is_router?(use_funs),
+      controller?: Utils.controller?(use_funs),
+      router?: Utils.router?(use_funs),
       is_endpoint?: Utils.endpoint?(use_funs)
     }
   end

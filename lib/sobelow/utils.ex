@@ -3,11 +3,11 @@ defmodule Sobelow.Utils do
 
   alias Sobelow.Parse
 
-  def is_controller?(uses) do
+  def controller?(uses) do
     has_use_type?(uses, :controller)
   end
 
-  def is_router?(uses) do
+  def router?(uses) do
     has_use_type?(uses, :router)
   end
 

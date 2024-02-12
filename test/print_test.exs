@@ -3,7 +3,7 @@ defmodule SobelowTest.PrintTest do
   import ExUnit.CaptureIO
   alias Sobelow.RCE.CodeModule
 
-  @metafile %{filename: "test.ex", is_controller?: true}
+  @metafile %{filename: "test.ex", controller?: true}
 
   setup do
     Application.put_env(:sobelow, :format, "txt")

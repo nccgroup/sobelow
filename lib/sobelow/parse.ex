@@ -681,7 +681,7 @@ defmodule Sobelow.Parse do
 
     reflected_vars =
       Enum.filter(vars, fn var ->
-        (is_reflected_var?(var) && is_in_params?(var, params)) || is_conn_params?(var)
+        (reflected_var?(var) && in_params?(var, params)) || conn_params?(var)
       end)
 
     var_keys =
@@ -705,16 +705,16 @@ defmodule Sobelow.Parse do
     end
   end
 
-  defp is_reflected_var?({_, {_, _, nil}}), do: true
-  defp is_reflected_var?(_), do: false
+  defp reflected_var?({_, {_, _, nil}}), do: true
+  defp reflected_var?(_), do: false
 
-  defp is_in_params?({_, {var, _, _}}, params) do
+  defp in_params?({_, {var, _, _}}, params) do
     Enum.member?(params, var)
   end
 
-  def is_conn_params?({_, {{:., _, [Access, :get]}, _, access_opts}}),
-    do: is_conn_params?(access_opts)
+  def conn_params?({_, {{:., _, [Access, :get]}, _, access_opts}}),
+    do: conn_params?(access_opts)
 
-  def is_conn_params?([{{:., _, [{:conn, _, nil}, :params]}, _, []}, _]), do: true
-  def is_conn_params?(_), do: false
+  def conn_params?([{{:., _, [{:conn, _, nil}, :params]}, _, []}, _]), do: true
+  def conn_params?(_), do: false
 end
