@@ -28,12 +28,12 @@ defmodule Sobelow.Config.CSRF do
     finding = Finding.init(@finding_type, Utils.normalize_path(router))
 
     Config.get_pipelines(router)
-    |> Stream.filter(&is_vuln_pipeline?/1)
+    |> Stream.filter(&vuln_pipeline?/1)
     |> Enum.each(&add_finding(&1, finding))
   end
 
-  defp is_vuln_pipeline?(pipeline) do
-    Config.is_vuln_pipeline?(pipeline, :csrf)
+  defp vuln_pipeline?(pipeline) do
+    Config.vuln_pipeline?(pipeline, :csrf)
   end
 
   defp add_finding({:pipeline, _, [pipeline_name, _]} = pipeline, finding) do

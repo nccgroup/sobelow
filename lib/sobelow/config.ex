@@ -120,7 +120,7 @@ defmodule Sobelow.Config do
     |> Enum.reject(fn {type, _, _} -> type !== :plug end)
   end
 
-  def is_vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :csrf) do
+  def vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :csrf) do
     plugs = get_plug_list(block)
     has_csrf? = Enum.any?(plugs, &is_plug?(&1, :protect_from_forgery))
     has_session? = Enum.any?(plugs, &is_plug?(&1, :fetch_session))
@@ -128,7 +128,7 @@ defmodule Sobelow.Config do
     has_session? and not has_csrf?
   end
 
-  def is_vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :headers) do
+  def vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :headers) do
     plugs = get_plug_list(block)
     has_headers? = Enum.any?(plugs, &is_plug?(&1, :put_secure_browser_headers))
     accepts = Enum.find_value(plugs, &get_plug_accepts/1)
