@@ -1,6 +1,6 @@
 defmodule SobelowTest.DOS.BinaryToAtomTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.DOS.BinToAtom
 
   test "Unsafe atom interpolation" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.DOS.BinaryToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToAtom.parse_def(ast) |> is_vuln?
+    assert BinToAtom.parse_def(ast) |> vuln?
   end
 
   test "Unsafe indirect atom interpolation" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.DOS.BinaryToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToAtom.parse_def(ast) |> is_vuln?
+    assert BinToAtom.parse_def(ast) |> vuln?
   end
 
   test "safe atom interpolation" do
@@ -36,6 +36,6 @@ defmodule SobelowTest.DOS.BinaryToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute BinToAtom.parse_def(ast) |> is_vuln?
+    refute BinToAtom.parse_def(ast) |> vuln?
   end
 end

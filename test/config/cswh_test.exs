@@ -6,7 +6,7 @@ defmodule SobelowTest.Config.CSWHTest do
   test "checks normal endpoint" do
     endpoint = "./test/fixtures/cswh/good_endpoint.ex"
 
-    is_vuln? =
+    vuln? =
       Parse.ast(endpoint)
       |> Parse.get_funs_of_type(:socket)
       |> Enum.any?(fn socket ->
@@ -16,13 +16,13 @@ defmodule SobelowTest.Config.CSWHTest do
         end
       end)
 
-    refute is_vuln?
+    refute vuln?
   end
 
   test "checks normal endpoint with configuration" do
     endpoint = "./test/fixtures/cswh/good_endpoint_2.ex"
 
-    is_vuln? =
+    vuln? =
       Parse.ast(endpoint)
       |> Parse.get_funs_of_type(:socket)
       |> Enum.any?(fn socket ->
@@ -32,13 +32,13 @@ defmodule SobelowTest.Config.CSWHTest do
         end
       end)
 
-    refute is_vuln?
+    refute vuln?
   end
 
   test "checks no-check endpoint" do
     endpoint = "./test/fixtures/cswh/bad_endpoint.ex"
 
-    is_vuln? =
+    vuln? =
       Parse.ast(endpoint)
       |> Parse.get_funs_of_type(:socket)
       |> Enum.any?(fn socket ->
@@ -48,13 +48,13 @@ defmodule SobelowTest.Config.CSWHTest do
         end
       end)
 
-    assert is_vuln?
+    assert vuln?
   end
 
   test "checks loose check endpoint" do
     endpoint = "./test/fixtures/cswh/soso_endpoint.ex"
 
-    is_vuln? =
+    vuln? =
       Parse.ast(endpoint)
       |> Parse.get_funs_of_type(:socket)
       |> Enum.any?(fn socket ->
@@ -64,6 +64,6 @@ defmodule SobelowTest.Config.CSWHTest do
         end
       end)
 
-    assert is_vuln?
+    assert vuln?
   end
 end

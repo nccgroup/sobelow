@@ -1,6 +1,6 @@
 defmodule SobelowTest.DOS.ListToAtomTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.DOS.ListToAtom
 
   test "Unsafe `List.to_atom`" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.DOS.ListToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert ListToAtom.parse_def(ast) |> is_vuln?
+    assert ListToAtom.parse_def(ast) |> vuln?
   end
 
   test "Unsafe indirect `List.to_atom`" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.DOS.ListToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert ListToAtom.parse_def(ast) |> is_vuln?
+    assert ListToAtom.parse_def(ast) |> vuln?
   end
 
   test "safe `String.to_atom`" do
@@ -36,6 +36,6 @@ defmodule SobelowTest.DOS.ListToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute ListToAtom.parse_def(ast) |> is_vuln?
+    refute ListToAtom.parse_def(ast) |> vuln?
   end
 end

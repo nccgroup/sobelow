@@ -1,6 +1,6 @@
 defmodule SobelowTest.XSS.ContentTypeTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.XSS.ContentType
 
   test "vulnerable put_resp_content_type" do
@@ -13,7 +13,7 @@ defmodule SobelowTest.XSS.ContentTypeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert ContentType.parse_def(ast) |> is_vuln?
+    assert ContentType.parse_def(ast) |> vuln?
   end
 
   test "vulnerable aliased put_resp_content_type" do
@@ -26,7 +26,7 @@ defmodule SobelowTest.XSS.ContentTypeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert ContentType.parse_def(ast) |> is_vuln?
+    assert ContentType.parse_def(ast) |> vuln?
   end
 
   test "vulnerable indirect aliased put_resp_content_type" do
@@ -39,7 +39,7 @@ defmodule SobelowTest.XSS.ContentTypeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert ContentType.parse_def(ast) |> is_vuln?
+    assert ContentType.parse_def(ast) |> vuln?
   end
 
   test "safe put_resp_content_type" do
@@ -52,6 +52,6 @@ defmodule SobelowTest.XSS.ContentTypeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute ContentType.parse_def(ast) |> is_vuln?
+    refute ContentType.parse_def(ast) |> vuln?
   end
 end

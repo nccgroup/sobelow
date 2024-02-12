@@ -1,6 +1,6 @@
 defmodule SobelowTest.XSS.RawTemplateTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.XSS.Raw
 
   test "vulnerable raw in template" do
@@ -10,7 +10,7 @@ defmodule SobelowTest.XSS.RawTemplateTest do
 
     ast = EEx.compile_string(temp)
 
-    assert Raw.parse_raw_def(ast) |> is_vuln?
+    assert Raw.parse_raw_def(ast) |> vuln?
   end
 
   test "vulnerable piped raw in template" do
@@ -20,7 +20,7 @@ defmodule SobelowTest.XSS.RawTemplateTest do
 
     ast = EEx.compile_string(temp)
 
-    assert Raw.parse_raw_def(ast) |> is_vuln?
+    assert Raw.parse_raw_def(ast) |> vuln?
   end
 
   test "safe raw in template" do
@@ -30,6 +30,6 @@ defmodule SobelowTest.XSS.RawTemplateTest do
 
     ast = EEx.compile_string(temp)
 
-    refute Raw.parse_raw_def(ast) |> is_vuln?
+    refute Raw.parse_raw_def(ast) |> vuln?
   end
 end

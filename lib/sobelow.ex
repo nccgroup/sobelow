@@ -656,7 +656,7 @@ defmodule Sobelow do
     |> Enum.map(&get_mod/1)
   end
 
-  def is_vuln?({vars, _, _}) do
+  def vuln?({vars, _, _}) do
     if Enum.empty?(vars) do
       false
     else

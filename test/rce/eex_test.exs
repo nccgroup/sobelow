@@ -1,6 +1,6 @@
 defmodule SobelowTest.RCE.EExTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.RCE.EEx
 
   @evil_funcs [:eval_string, :eval_file]
@@ -15,7 +15,7 @@ defmodule SobelowTest.RCE.EExTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      assert EEx.parse_def(ast, evil_func) |> is_vuln?
+      assert EEx.parse_def(ast, evil_func) |> vuln?
     end)
   end
 
@@ -29,7 +29,7 @@ defmodule SobelowTest.RCE.EExTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      refute EEx.parse_def(ast, evil_func) |> is_vuln?
+      refute EEx.parse_def(ast, evil_func) |> vuln?
     end)
   end
 end

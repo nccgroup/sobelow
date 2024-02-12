@@ -12,7 +12,7 @@ defmodule SobelowTest.Config.CSPTest do
 
     assert Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
-           |> Enum.any?(&is_vuln?/1)
+           |> Enum.any?(&vuln?/1)
   end
 
   test "Inline CSP" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.Config.CSPTest do
 
     refute Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
-           |> Enum.any?(&is_vuln?/1)
+           |> Enum.any?(&vuln?/1)
   end
 
   test "Module Attribute CSP" do
@@ -36,7 +36,7 @@ defmodule SobelowTest.Config.CSPTest do
 
     refute Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
-           |> Enum.any?(&is_vuln?/1)
+           |> Enum.any?(&vuln?/1)
   end
 
   test "Module Attribute Missing CSP" do
@@ -48,9 +48,9 @@ defmodule SobelowTest.Config.CSPTest do
 
     assert Config.get_pipelines(router)
            |> Enum.map(&CSP.check_vuln_pipeline(&1, meta_file))
-           |> Enum.any?(&is_vuln?/1)
+           |> Enum.any?(&vuln?/1)
   end
 
-  defp is_vuln?({true, _, _, _}), do: true
-  defp is_vuln?(_), do: false
+  defp vuln?({true, _, _, _}), do: true
+  defp vuln?(_), do: false
 end

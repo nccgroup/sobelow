@@ -1,6 +1,6 @@
 defmodule SobelowTest.Traversal.SendDownload do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.Traversal.SendDownload
 
   test "vulnerable send_download" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.Traversal.SendDownload do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert SendDownload.parse_def(ast) |> is_vuln?
+    assert SendDownload.parse_def(ast) |> vuln?
   end
 
   test "safe send_download" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.Traversal.SendDownload do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute SendDownload.parse_def(ast) |> is_vuln?
+    refute SendDownload.parse_def(ast) |> vuln?
   end
 
   test "safe send_download with filename key" do
@@ -36,7 +36,7 @@ defmodule SobelowTest.Traversal.SendDownload do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute SendDownload.parse_def(ast) |> is_vuln?
+    refute SendDownload.parse_def(ast) |> vuln?
 
     func = """
     def index(conn, %{"test" => test}) do
@@ -47,7 +47,7 @@ defmodule SobelowTest.Traversal.SendDownload do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute SendDownload.parse_def(ast) |> is_vuln?
+    refute SendDownload.parse_def(ast) |> vuln?
   end
 
   test "vulnerable Phoenix.Controller.send_download" do
@@ -59,6 +59,6 @@ defmodule SobelowTest.Traversal.SendDownload do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert SendDownload.parse_def(ast) |> is_vuln?
+    assert SendDownload.parse_def(ast) |> vuln?
   end
 end

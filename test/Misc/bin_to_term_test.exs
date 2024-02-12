@@ -1,6 +1,6 @@
 defmodule SobelowTest.Misc.BinToTerm do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.Misc.BinToTerm
 
   test "Unsafe `binary_to_term`" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.Misc.BinToTerm do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToTerm.parse_def(ast) |> is_vuln?
+    assert BinToTerm.parse_def(ast) |> vuln?
   end
 
   test "Unsafe indirect `binary_to_term`" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.Misc.BinToTerm do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToTerm.parse_def(ast) |> is_vuln?
+    assert BinToTerm.parse_def(ast) |> vuln?
   end
 
   test "safe `binary_to_term`" do
@@ -36,7 +36,7 @@ defmodule SobelowTest.Misc.BinToTerm do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute BinToTerm.parse_def(ast) |> is_vuln?
+    refute BinToTerm.parse_def(ast) |> vuln?
   end
 
   test "Piped `binary_to_term`" do
@@ -48,7 +48,7 @@ defmodule SobelowTest.Misc.BinToTerm do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToTerm.parse_def(ast) |> is_vuln?
+    assert BinToTerm.parse_def(ast) |> vuln?
   end
 
   test "Pipe to Piped `binary_to_term`" do
@@ -60,6 +60,6 @@ defmodule SobelowTest.Misc.BinToTerm do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToTerm.parse_def(ast) |> is_vuln?
+    assert BinToTerm.parse_def(ast) |> vuln?
   end
 end

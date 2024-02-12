@@ -1,6 +1,6 @@
 defmodule SobelowTest.Traversal.SendFile do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.Traversal.SendFile
 
   test "vulnerable send_file" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.Traversal.SendFile do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert SendFile.parse_def(ast) |> is_vuln?
+    assert SendFile.parse_def(ast) |> vuln?
   end
 
   test "vulnerable aliased send_file" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.Traversal.SendFile do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert SendFile.parse_def(ast) |> is_vuln?
+    assert SendFile.parse_def(ast) |> vuln?
   end
 
   test "vulnerable indirect aliased send_file" do
@@ -36,7 +36,7 @@ defmodule SobelowTest.Traversal.SendFile do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert SendFile.parse_def(ast) |> is_vuln?
+    assert SendFile.parse_def(ast) |> vuln?
   end
 
   test "safe send_file" do
@@ -48,6 +48,6 @@ defmodule SobelowTest.Traversal.SendFile do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute SendFile.parse_def(ast) |> is_vuln?
+    refute SendFile.parse_def(ast) |> vuln?
   end
 end
