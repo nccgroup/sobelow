@@ -1,6 +1,6 @@
 defmodule SobelowTest.PipeTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.DOS.StringToAtom
   alias Sobelow.Misc.BinToTerm
 
@@ -14,7 +14,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Nested Pipe" do
@@ -27,7 +27,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Piped String is not vulnerable" do
@@ -40,7 +40,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute StringToAtom.parse_def(ast) |> is_vuln?
+    refute StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Pipe in function" do
@@ -52,7 +52,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Pipe in piped function" do
@@ -65,7 +65,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Unpiped in piped function" do
@@ -78,7 +78,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Unpiped anonymous function in piped function" do
@@ -91,7 +91,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Pipe to erlang module" do
@@ -103,7 +103,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToTerm.parse_def(ast) |> is_vuln?
+    assert BinToTerm.parse_def(ast) |> vuln?
   end
 
   test "Unpiped erlang module in piped function" do
@@ -116,7 +116,7 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert BinToTerm.parse_def(ast) |> is_vuln?
+    assert BinToTerm.parse_def(ast) |> vuln?
   end
 
   test "Safe unpiped in piped function" do
@@ -129,6 +129,6 @@ defmodule SobelowTest.PipeTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute StringToAtom.parse_def(ast) |> is_vuln?
+    refute StringToAtom.parse_def(ast) |> vuln?
   end
 end

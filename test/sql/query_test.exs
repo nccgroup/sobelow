@@ -1,6 +1,6 @@
 defmodule SobelowTest.SQL.QueryTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.SQL.Query
 
   @query_funcs [:query, :query!]
@@ -15,7 +15,7 @@ defmodule SobelowTest.SQL.QueryTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      assert Query.parse_sql_def(ast, query_func) |> is_vuln?
+      assert Query.parse_sql_def(ast, query_func) |> vuln?
     end)
   end
 
@@ -29,7 +29,7 @@ defmodule SobelowTest.SQL.QueryTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      refute Query.parse_sql_def(ast, query_func) |> is_vuln?
+      refute Query.parse_sql_def(ast, query_func) |> vuln?
     end)
   end
 
@@ -43,7 +43,7 @@ defmodule SobelowTest.SQL.QueryTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      assert Query.parse_repo_query_def(ast, query_func) |> is_vuln?
+      assert Query.parse_repo_query_def(ast, query_func) |> vuln?
     end)
   end
 
@@ -57,7 +57,7 @@ defmodule SobelowTest.SQL.QueryTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      refute Query.parse_repo_query_def(ast, query_func) |> is_vuln?
+      refute Query.parse_repo_query_def(ast, query_func) |> vuln?
     end)
   end
 end

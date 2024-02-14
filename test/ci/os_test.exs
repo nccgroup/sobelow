@@ -1,6 +1,6 @@
 defmodule SobelowTest.CI.OSTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.CI.OS
 
   test "Command Injection in `:os.cmd`" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.CI.OSTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert OS.parse_def(ast) |> is_vuln?
+    assert OS.parse_def(ast) |> vuln?
   end
 
   test "Command Injection in indirect `:os.cmd`" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.CI.OSTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert OS.parse_def(ast) |> is_vuln?
+    assert OS.parse_def(ast) |> vuln?
   end
 
   test "safe `:os.cmd`" do
@@ -36,6 +36,6 @@ defmodule SobelowTest.CI.OSTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute OS.parse_def(ast) |> is_vuln?
+    refute OS.parse_def(ast) |> vuln?
   end
 end

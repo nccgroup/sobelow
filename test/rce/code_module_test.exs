@@ -1,6 +1,6 @@
 defmodule SobelowTest.RCE.CodeModuleTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.RCE.CodeModule
 
   @evil_funcs [:eval_string, :eval_file, :eval_quoted]
@@ -15,7 +15,7 @@ defmodule SobelowTest.RCE.CodeModuleTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      assert CodeModule.parse_def(ast, evil_func) |> is_vuln?
+      assert CodeModule.parse_def(ast, evil_func) |> vuln?
     end)
   end
 
@@ -29,7 +29,7 @@ defmodule SobelowTest.RCE.CodeModuleTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      refute CodeModule.parse_def(ast, evil_func) |> is_vuln?
+      refute CodeModule.parse_def(ast, evil_func) |> vuln?
     end)
   end
 end

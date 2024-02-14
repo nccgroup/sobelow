@@ -1,6 +1,6 @@
 defmodule SobelowTest.CI.SystemTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.CI.System
 
   test "Command Injection in `System.cmd`" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.CI.SystemTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert System.parse_def(ast) |> is_vuln?
+    assert System.parse_def(ast) |> vuln?
   end
 
   test "Command Injection in indirect `System.cmd`" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.CI.SystemTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert System.parse_def(ast) |> is_vuln?
+    assert System.parse_def(ast) |> vuln?
   end
 
   test "safe `System.cmd`" do
@@ -36,6 +36,6 @@ defmodule SobelowTest.CI.SystemTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute System.parse_def(ast) |> is_vuln?
+    refute System.parse_def(ast) |> vuln?
   end
 end

@@ -46,15 +46,15 @@ defmodule Sobelow.Config.CSP do
   def check_vuln_pipeline({:pipeline, _, [_name, [do: block]]} = pipeline, meta_file) do
     {vuln?, conf, plug} =
       Config.get_plug_list(block)
-      |> Enum.find(&is_header_plug?/1)
+      |> Enum.find(&header_plug?/1)
       |> missing_csp_status(meta_file)
 
     {vuln?, conf, plug, pipeline}
   end
 
-  defp is_header_plug?({:plug, _, [:put_secure_browser_headers]}), do: true
-  defp is_header_plug?({:plug, _, [:put_secure_browser_headers, _]}), do: true
-  defp is_header_plug?(_), do: false
+  defp header_plug?({:plug, _, [:put_secure_browser_headers]}), do: true
+  defp header_plug?({:plug, _, [:put_secure_browser_headers, _]}), do: true
+  defp header_plug?(_), do: false
 
   defp missing_csp_status({_, _, [:put_secure_browser_headers]} = plug, _),
     do: {true, :high, plug}

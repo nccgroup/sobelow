@@ -1,6 +1,6 @@
 defmodule SobelowTest.XSS.HTMLTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.XSS.HTML
 
   test "vulnerable html" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.XSS.HTMLTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert HTML.parse_def(ast) |> is_vuln?
+    assert HTML.parse_def(ast) |> vuln?
   end
 
   test "vulnerable interpolated html" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.XSS.HTMLTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert HTML.parse_def(ast) |> is_vuln?
+    assert HTML.parse_def(ast) |> vuln?
   end
 
   test "safe html" do
@@ -36,6 +36,6 @@ defmodule SobelowTest.XSS.HTMLTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute HTML.parse_def(ast) |> is_vuln?
+    refute HTML.parse_def(ast) |> vuln?
   end
 end

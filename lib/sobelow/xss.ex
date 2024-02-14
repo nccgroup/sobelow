@@ -30,7 +30,7 @@ defmodule Sobelow.XSS do
 
   def get_vulns(fun, meta_file, web_root, skip_mods \\ []) do
     controller =
-      if meta_file.is_controller? do
+      if meta_file.controller? do
         String.replace_suffix(meta_file.filename, "_controller.ex", "")
         |> Path.basename()
       end

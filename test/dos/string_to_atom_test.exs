@@ -1,6 +1,6 @@
 defmodule SobelowTest.DOS.StringToAtomTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.DOS.StringToAtom
 
   test "Unsafe `String.to_atom`" do
@@ -12,7 +12,7 @@ defmodule SobelowTest.DOS.StringToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "Unsafe indirect `String.to_atom`" do
@@ -24,7 +24,7 @@ defmodule SobelowTest.DOS.StringToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    assert StringToAtom.parse_def(ast) |> is_vuln?
+    assert StringToAtom.parse_def(ast) |> vuln?
   end
 
   test "safe `String.to_atom`" do
@@ -36,6 +36,6 @@ defmodule SobelowTest.DOS.StringToAtomTest do
 
     {_, ast} = Code.string_to_quoted(func)
 
-    refute StringToAtom.parse_def(ast) |> is_vuln?
+    refute StringToAtom.parse_def(ast) |> vuln?
   end
 end

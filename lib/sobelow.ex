@@ -324,10 +324,10 @@ defmodule Sobelow do
     phoenix_files =
       Enum.reduce(meta_files, %{routers: [], endpoints: []}, fn meta_file, acc ->
         cond do
-          meta_file.is_router? ->
+          meta_file.router? ->
             Map.update!(acc, :routers, &[meta_file.file_path | &1])
 
-          meta_file.is_endpoint? ->
+          meta_file.endpoint? ->
             Map.update!(acc, :endpoints, &[meta_file.file_path | &1])
 
           true ->
@@ -351,7 +351,7 @@ defmodule Sobelow do
     ignored_files = get_env(:ignored_files)
 
     Utils.template_files(root)
-    |> Enum.reject(&is_ignored_file(&1, ignored_files))
+    |> Enum.reject(&ignored_file?(&1, ignored_files))
     |> Enum.map(&get_template_meta/1)
     |> Map.new()
   end
@@ -368,7 +368,7 @@ defmodule Sobelow do
         filename: filename,
         raw: raw,
         ast: [ast],
-        is_controller?: false
+        controller?: false
       }
     }
   end
@@ -377,7 +377,7 @@ defmodule Sobelow do
     ignored_files = get_env(:ignored_files)
 
     Utils.all_files(root)
-    |> Enum.reject(&is_ignored_file(&1, ignored_files))
+    |> Enum.reject(&ignored_file?(&1, ignored_files))
     |> Enum.map(&get_file_meta/1)
   end
 
@@ -391,9 +391,9 @@ defmodule Sobelow do
       filename: Utils.normalize_path(filename),
       file_path: Path.expand(filename),
       def_funs: def_funs,
-      is_controller?: Utils.is_controller?(use_funs),
-      is_router?: Utils.is_router?(use_funs),
-      is_endpoint?: Utils.is_endpoint?(use_funs)
+      controller?: Utils.controller?(use_funs),
+      router?: Utils.router?(use_funs),
+      is_endpoint?: Utils.endpoint?(use_funs)
     }
   end
 
@@ -656,7 +656,7 @@ defmodule Sobelow do
     |> Enum.map(&get_mod/1)
   end
 
-  def is_vuln?({vars, _, _}) do
+  def vuln?({vars, _, _}) do
     if Enum.empty?(vars) do
       false
     else
@@ -664,7 +664,7 @@ defmodule Sobelow do
     end
   end
 
-  defp is_ignored_file(filename, ignored_files) do
+  defp ignored_file?(filename, ignored_files) do
     Enum.any?(ignored_files, fn ignored_file ->
       String.ends_with?(ignored_file, filename)
     end)

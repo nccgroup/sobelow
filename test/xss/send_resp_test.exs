@@ -16,7 +16,7 @@ defmodule SobelowTest.XSS.SendRespTest do
     |> Finding.multi_from_def(ast, SendResp.parse_def(ast))
     |> Stream.map(&SendResp.set_confidence/1)
     |> Stream.reject(&SendResp.nil_confidence?/1)
-    |> Enum.each(&assert(is_vuln?(&1)))
+    |> Enum.each(&assert(vuln?(&1)))
   end
 
   test "vulnerable send_resp" do
@@ -33,7 +33,7 @@ defmodule SobelowTest.XSS.SendRespTest do
     |> Finding.multi_from_def(ast, SendResp.parse_def(ast))
     |> Stream.map(&SendResp.set_confidence/1)
     |> Stream.reject(&SendResp.nil_confidence?/1)
-    |> Enum.each(&assert(is_vuln?(&1)))
+    |> Enum.each(&assert(vuln?(&1)))
   end
 
   test "vulnerable aliased send_resp" do
@@ -50,7 +50,7 @@ defmodule SobelowTest.XSS.SendRespTest do
     |> Finding.multi_from_def(ast, SendResp.parse_def(ast))
     |> Stream.map(&SendResp.set_confidence/1)
     |> Stream.reject(&SendResp.nil_confidence?/1)
-    |> Enum.each(&assert(is_vuln?(&1)))
+    |> Enum.each(&assert(vuln?(&1)))
   end
 
   test "vulnerable alternative aliased send_resp" do
@@ -67,7 +67,7 @@ defmodule SobelowTest.XSS.SendRespTest do
     |> Finding.multi_from_def(ast, SendResp.parse_def(ast))
     |> Stream.map(&SendResp.set_confidence/1)
     |> Stream.reject(&SendResp.nil_confidence?/1)
-    |> Enum.each(&assert(is_vuln?(&1)))
+    |> Enum.each(&assert(vuln?(&1)))
   end
 
   test "safe send_resp due to content_type" do
@@ -84,7 +84,7 @@ defmodule SobelowTest.XSS.SendRespTest do
     |> Finding.multi_from_def(ast, SendResp.parse_def(ast))
     |> Stream.map(&SendResp.set_confidence/1)
     |> Stream.reject(&SendResp.nil_confidence?/1)
-    |> Enum.each(&assert(is_vuln?(&1)))
+    |> Enum.each(&assert(vuln?(&1)))
   end
 
   test "safe send_resp" do
@@ -101,9 +101,9 @@ defmodule SobelowTest.XSS.SendRespTest do
     |> Finding.multi_from_def(ast, SendResp.parse_def(ast))
     |> Stream.map(&SendResp.set_confidence/1)
     |> Stream.reject(&SendResp.nil_confidence?/1)
-    |> Enum.each(&assert(is_vuln?(&1)))
+    |> Enum.each(&assert(vuln?(&1)))
   end
 
-  def is_vuln?(%Finding{confidence: nil}), do: false
-  def is_vuln?(%Finding{}), do: true
+  def vuln?(%Finding{confidence: nil}), do: false
+  def vuln?(%Finding{}), do: true
 end

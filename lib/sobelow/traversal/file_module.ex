@@ -40,7 +40,7 @@ defmodule Sobelow.Traversal.FileModule do
   @double_file_funcs [:cp, :copy, :cp!, :copy!, :cp_r, :cp_r!, :ln, :ln!, :ln_s, :ln_s!]
 
   def run(fun, meta_file) do
-    confidence = if !meta_file.is_controller?, do: :low
+    confidence = if !meta_file.controller?, do: :low
 
     Enum.each(@file_funcs ++ @double_file_funcs, fn file_func ->
       "Traversal.FileModule: Directory Traversal in `File.#{file_func}`"

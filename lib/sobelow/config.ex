@@ -120,17 +120,17 @@ defmodule Sobelow.Config do
     |> Enum.reject(fn {type, _, _} -> type !== :plug end)
   end
 
-  def is_vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :csrf) do
+  def vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :csrf) do
     plugs = get_plug_list(block)
-    has_csrf? = Enum.any?(plugs, &is_plug?(&1, :protect_from_forgery))
-    has_session? = Enum.any?(plugs, &is_plug?(&1, :fetch_session))
+    has_csrf? = Enum.any?(plugs, &plug?(&1, :protect_from_forgery))
+    has_session? = Enum.any?(plugs, &plug?(&1, :fetch_session))
 
     has_session? and not has_csrf?
   end
 
-  def is_vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :headers) do
+  def vuln_pipeline?({:pipeline, _, [_name, [do: block]]}, :headers) do
     plugs = get_plug_list(block)
-    has_headers? = Enum.any?(plugs, &is_plug?(&1, :put_secure_browser_headers))
+    has_headers? = Enum.any?(plugs, &plug?(&1, :put_secure_browser_headers))
     accepts = Enum.find_value(plugs, &get_plug_accepts/1)
 
     !has_headers? && is_list(accepts) && Enum.member?(accepts, "html")
@@ -142,9 +142,9 @@ defmodule Sobelow.Config do
 
   def parse_accepts([{:<<>>, _, [accepts | _]}, []]), do: String.split(accepts, " ")
 
-  def is_plug?({:plug, _, [type]}, type), do: true
-  def is_plug?({:plug, _, [type, _]}, type), do: true
-  def is_plug?(_, _), do: false
+  def plug?({:plug, _, [type]}, type), do: true
+  def plug?({:plug, _, [type, _]}, type), do: true
+  def plug?(_, _), do: false
 
   def get_fuzzy_configs(key, filepath) do
     ast = Parse.ast(filepath)

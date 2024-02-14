@@ -17,7 +17,7 @@ defmodule Sobelow.RCE.EEx do
   @eex_funs [:eval_string, :eval_file]
 
   def run(fun, meta_file) do
-    confidence = if !meta_file.is_controller?, do: :low
+    confidence = if !meta_file.controller?, do: :low
 
     Enum.each(@eex_funs, fn eex_fun ->
       "RCE.EEx: Code Execution in `EEx.#{eex_fun}`"

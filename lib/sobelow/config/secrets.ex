@@ -40,7 +40,7 @@ defmodule Sobelow.Config.Secrets do
 
   defp enumerate_secrets(secrets, file) do
     Enum.each(secrets, fn {fun, key, val} ->
-      if is_binary(val) && String.length(val) > 0 && !is_env_var?(val) do
+      if is_binary(val) && String.length(val) > 0 && !env_var?(val) do
         add_finding(file, Parse.get_fun_line(fun), fun, key, val)
       end
     end)
@@ -49,18 +49,18 @@ defmodule Sobelow.Config.Secrets do
   defp enumerate_fuzzy_secrets(secrets, file) do
     Enum.each(secrets, fn {fun, vals} ->
       Enum.each(vals, fn {k, v} ->
-        if is_binary(v) && String.length(v) > 0 && !is_env_var?(v) do
+        if is_binary(v) && String.length(v) > 0 && !env_var?(v) do
           add_finding(file, Parse.get_fun_line(fun), fun, k, v)
         end
       end)
     end)
   end
 
-  def is_env_var?("${" <> rest) do
+  def env_var?("${" <> rest) do
     String.ends_with?(rest, "}")
   end
 
-  def is_env_var?(_), do: false
+  def env_var?(_), do: false
 
   defp add_finding(file, line_no, fun, key, val) do
     {vuln_line_no, vuln_line_col} = get_vuln_line(file, line_no, val)

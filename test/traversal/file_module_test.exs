@@ -1,6 +1,6 @@
 defmodule SobelowTest.Traversal.FileModuleTest do
   use ExUnit.Case
-  import Sobelow, only: [is_vuln?: 1]
+  import Sobelow, only: [vuln?: 1]
   alias Sobelow.Traversal.FileModule
 
   @evil_funcs [:read, :read!, :write, :write!, :rm, :rm!, :rm_rf, :stream, :stream!]
@@ -17,7 +17,7 @@ defmodule SobelowTest.Traversal.FileModuleTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      assert FileModule.parse_def(ast, evil_func) |> is_vuln?
+      assert FileModule.parse_def(ast, evil_func) |> vuln?
     end)
   end
 
@@ -31,7 +31,7 @@ defmodule SobelowTest.Traversal.FileModuleTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      assert FileModule.parse_second_def(ast, evil_func) |> is_vuln?
+      assert FileModule.parse_second_def(ast, evil_func) |> vuln?
     end)
   end
 
@@ -45,7 +45,7 @@ defmodule SobelowTest.Traversal.FileModuleTest do
 
       {_, ast} = Code.string_to_quoted(func)
 
-      refute FileModule.parse_def(ast, evil_func) |> is_vuln?
+      refute FileModule.parse_def(ast, evil_func) |> vuln?
     end)
   end
 end
