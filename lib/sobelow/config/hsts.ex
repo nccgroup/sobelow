@@ -49,12 +49,15 @@ defmodule Sobelow.Config.HSTS do
       }
       |> Finding.fetch_fingerprint()
 
+    fingerprint_header = "Fingerprint: #{finding.fingerprint}"
+
     case Sobelow.format() do
       "json" ->
         json_finding = [
           type: finding.type,
           file: finding.filename,
-          line: finding.vuln_line_no
+          line: finding.vuln_line_no,
+          fingerprint: finding.fingerprint
         ]
 
         Sobelow.log_finding(json_finding, finding)
@@ -62,7 +65,7 @@ defmodule Sobelow.Config.HSTS do
       "txt" ->
         Sobelow.log_finding(finding)
 
-        Print.print_custom_finding_metadata(finding, [])
+        Print.print_custom_finding_metadata(finding, [fingerprint_header])
 
       "compact" ->
         Print.log_compact_finding(finding)

@@ -25,6 +25,8 @@ defmodule SobelowTest.PrintTest do
       CodeModule.run(ast, @metafile)
     end
 
-    assert capture_io(run_test) =~ "Code Execution in `Code.eval_string` - Medium Confidence"
+    output = capture_io(run_test)
+    assert output =~ "Code Execution in `Code.eval_string` - Medium Confidence"
+    assert output =~ "Fingerprint: 4B5AA54E7C16D1D9876E9118B84CB6CE"
   end
 end
