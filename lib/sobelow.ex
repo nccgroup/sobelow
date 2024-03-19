@@ -327,7 +327,7 @@ defmodule Sobelow do
           meta_file.router? ->
             Map.update!(acc, :routers, &[meta_file.file_path | &1])
 
-          meta_file.endpoint? ->
+          meta_file.is_endpoint? ->
             Map.update!(acc, :endpoints, &[meta_file.file_path | &1])
 
           true ->
