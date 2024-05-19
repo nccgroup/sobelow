@@ -14,20 +14,23 @@ defmodule Sobelow.Config.HSTS do
 
   @uid 8
   @finding_type "Config.HSTS: HSTS Not Enabled"
+  @ignored_files ["runtime.exs"]
 
   use Sobelow.Finding
 
   def run(dir_path, configs) do
     Enum.each(configs, fn conf ->
-      path = dir_path <> conf
+      unless Enum.member?(@ignored_files, conf) do
+        path = dir_path <> conf
 
-      Config.get_configs_by_file(:https, path)
-      |> handle_https(path)
+        Config.get_configs_by_file(:https, path)
+        |> handle_https(path)
+      end
     end)
   end
 
   defp handle_https(opts, file) do
-    # If HTTPS configs were found in any config file and there
+    # If HTTPS configs were found in any compile-time config file and there
     # are no accompanying HSTS configs, add an HSTS finding.
     if length(opts) > 0 && Enum.empty?(Config.get_configs(:force_ssl, file)) do
       add_finding(file)
