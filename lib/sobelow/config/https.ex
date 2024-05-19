@@ -16,28 +16,40 @@ defmodule Sobelow.Config.HTTPS do
 
   @uid 9
   @finding_type "Config.HTTPS: HTTPS Not Enabled"
+  @files_to_check ["prod.exs", "runtime.exs"]
 
   use Sobelow.Finding
 
-  def run(dir_path, configs) do
-    path = dir_path <> "prod.exs"
+  def run(dir_path, configs, files_to_check \\ @files_to_check) do
+    configs_in_files = configs_in_files(dir_path, configs, files_to_check)
 
-    if File.exists?(path) && Enum.member?(configs, "prod.exs") do
-      https = Config.get_configs_by_file(:https, path)
-
-      (Config.get_configs_by_file(:force_ssl, path) ++ https)
-      |> handle_https(path)
+    if !Enum.empty?(configs_in_files) && Enum.all?(configs_in_files, &https_config_missing?/1) do
+      Enum.each(configs_in_files, fn {path, _} ->
+        add_finding(path)
+      end)
     end
   end
 
-  defp handle_https(opts, path) do
-    if Enum.empty?(opts) do
-      add_finding(path)
-    end
+  defp configs_in_files(dir_path, configs, files) do
+    files
+    |> Enum.map(fn file_path ->
+      path = dir_path <> file_path
+      exists = File.exists?(path) && Enum.member?(configs, file_path)
+      {path, exists}
+    end)
+    |> Enum.filter(fn {_path, exists} -> exists end)
+    |> Enum.map(fn {path, _exists} ->
+      https = Config.get_configs_by_file(:https, path)
+      {path, Config.get_configs_by_file(:force_ssl, path) ++ https}
+    end)
+  end
+
+  defp https_config_missing?({_path, opts}) do
+    Enum.empty?(opts)
   end
 
   defp add_finding(file) do
-    reason = "HTTPS configuration details could not be found in `prod.exs`."
+    reason = "HTTPS configuration details could not be found in `prod.exs` nor `runtime.exs`."
 
     finding =
       %Finding{
