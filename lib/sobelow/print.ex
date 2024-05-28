@@ -36,6 +36,7 @@ defmodule Sobelow.Print do
     IO.puts(finding_line(finding.vuln_line_no))
     maybe_print_finding_fun_metadata(finding.fun_name, finding.fun_line_no)
     IO.puts(finding_variable(finding.vuln_variable))
+    IO.puts(finding_fingerprint(finding))
     maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
   end
@@ -103,7 +104,8 @@ defmodule Sobelow.Print do
       type: finding.type,
       file: finding.filename,
       line: finding.vuln_line_no,
-      variable: finding.vuln_variable
+      variable: finding.vuln_variable,
+      fingerprint: finding.fingerprint
     ]
 
     Sobelow.log_finding(json_finding, finding)
@@ -161,6 +163,10 @@ defmodule Sobelow.Print do
 
   def finding_break do
     "\n-----------------------------------------------\n"
+  end
+
+  def finding_fingerprint(%Finding{} = finding) do
+    "Fingerprint: #{finding.fingerprint}"
   end
 
   def maybe_print_code(fun, finding) do

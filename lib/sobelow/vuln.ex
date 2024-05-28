@@ -55,6 +55,8 @@ defmodule Sobelow.Vuln do
       }
       |> Finding.fetch_fingerprint()
 
+    fingerprint_header = "Fingerprint: #{finding.fingerprint}"
+
     case Sobelow.format() do
       "json" ->
         json_finding = [
@@ -62,7 +64,8 @@ defmodule Sobelow.Vuln do
           details: detail,
           file: finding.filename,
           cve: cve,
-          line: 0
+          line: 0,
+          fingerprint: finding.fingerprint
         ]
 
         Sobelow.log_finding(json_finding, finding)
@@ -73,7 +76,8 @@ defmodule Sobelow.Vuln do
         Print.print_custom_finding_metadata(finding, [
           "Details: #{detail}",
           "File: #{finding.filename}",
-          "CVE: #{cve}"
+          "CVE: #{cve}",
+          fingerprint_header
         ])
 
       "compact" ->
