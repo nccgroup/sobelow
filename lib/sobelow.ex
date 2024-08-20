@@ -291,6 +291,10 @@ defmodule Sobelow do
     Application.get_env(:sobelow, key)
   end
 
+  def put_env(key, value) do
+    Application.put_env(:sobelow, key, value)
+  end
+
   defp print_banner do
     """
     ##############################################

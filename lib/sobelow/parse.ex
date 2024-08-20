@@ -58,7 +58,7 @@ defmodule Sobelow.Parse do
     if Sobelow.get_env(:skip) do
       String.replace(
         content,
-        ~r/#\s?sobelow_skip (\[(\"[^"]+\"(,|, )?)+\])/,
+        ~r/#\s?sobelow_skip (\[(\"[^"]+?\"(,|, )?)+?\]).*/,
         "@sobelow_skip \\g{1}"
       )
     else

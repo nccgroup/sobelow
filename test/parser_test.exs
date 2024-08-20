@@ -2,6 +2,7 @@ defmodule SobelowTest.ParserTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
   alias Sobelow.RCE.CodeModule
+  alias Sobelow.Parse
 
   @metafile %{filename: "test.ex", controller?: true}
 
@@ -27,4 +28,15 @@ defmodule SobelowTest.ParserTest do
 
     assert capture_io(run_test) =~ "Code Execution in `Code.eval_string` - Medium Confidence"
   end
+
+  test "Remainder of line after sobelow_skip expression is ignored" do
+    Sobelow.put_env(:skip, true)
+    file = "./test/fixtures/parser/parse_skip.ex"
+
+    %{def_funs: defs} = Parse.ast(file)
+                        |> Parse.get_meta_funs()
+    assert not Enum.empty?(defs)
+  after
+    Sobelow.put_env(:skip, false)
+   end 
 end
