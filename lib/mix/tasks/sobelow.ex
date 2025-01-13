@@ -198,7 +198,7 @@ defmodule Mix.Tasks.Sobelow do
   # This diff check is strictly used for testing/debugging and
   # isn't meant for general use.
   #
-  # Useful for comapring the output of two different runs of Sobelow
+  # Useful for comparing the output of two different runs of Sobelow
   def run_diff(argv) do
     diff_idx = Enum.find_index(argv, fn i -> i === "--diff" end)
     {_, list} = List.pop_at(argv, diff_idx)
