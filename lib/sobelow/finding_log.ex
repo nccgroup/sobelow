@@ -86,9 +86,10 @@ defmodule Sobelow.FindingLog do
   def handle_cast({:add, finding, severity}, findings) do
     if Sobelow.format() == "txt" do
       {_, %_{} = finding_struct, custom_metadata} = finding
-      Sobelow.Print.do_print_finding_metadata(finding_struct)
 
-      if not Enum.empty?(custom_metadata) do
+      if Enum.empty?(custom_metadata) do
+        Sobelow.Print.do_print_finding_metadata(finding_struct)
+      else
         Sobelow.Print.do_print_custom_finding_metadata(finding_struct, custom_metadata)
       end
     end
