@@ -68,9 +68,7 @@ defmodule Sobelow.Vuln do
         Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding)
-
-        Print.print_custom_finding_metadata(finding, [
+        Sobelow.log_finding(finding, [
           "Details: #{detail}",
           "File: #{finding.filename}",
           "CVE: #{cve}"

@@ -96,9 +96,7 @@ defmodule Sobelow.Config.CSRFRoute do
         Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding)
-
-        Print.print_custom_finding_metadata(
+        Sobelow.log_finding(
           finding,
           [file_header, action_header, line_header]
         )

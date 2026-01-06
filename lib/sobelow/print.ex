@@ -20,12 +20,6 @@ defmodule Sobelow.Print do
     end
   end
 
-  def print_finding_metadata(%Finding{} = finding) do
-    if Sobelow.loggable?(finding.fingerprint, finding.confidence) do
-      do_print_finding_metadata(finding)
-    end
-  end
-
   def do_print_finding_metadata(%Finding{} = finding) do
     IO.puts(finding_header(finding.type, finding.confidence))
     IO.puts(finding_file_name(finding.filename))
@@ -34,12 +28,6 @@ defmodule Sobelow.Print do
     IO.puts(finding_variable(finding.vuln_variable))
     maybe_print_code(finding.fun_source, finding.vuln_source)
     IO.puts(finding_break())
-  end
-
-  def print_custom_finding_metadata(%Finding{} = finding, headers) do
-    if Sobelow.loggable?(finding.fingerprint, finding.confidence) do
-      do_print_custom_finding_metadata(finding, headers)
-    end
   end
 
   def do_print_custom_finding_metadata(%Finding{} = finding, headers) do

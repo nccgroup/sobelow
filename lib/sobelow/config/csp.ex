@@ -131,9 +131,7 @@ defmodule Sobelow.Config.CSP do
         Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding)
-
-        Print.print_custom_finding_metadata(
+        Sobelow.log_finding(
           finding,
           [file_header, pipeline_header, line_header]
         )

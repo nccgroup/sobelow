@@ -138,9 +138,7 @@ defmodule Sobelow.XSS.Raw do
         Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding)
-
-        Print.print_custom_finding_metadata(finding, [
+        Sobelow.log_finding(finding, [
           Print.finding_file_name(filename),
           Print.finding_line(finding.vuln_source),
           Print.finding_fun_metadata(fun_name, line_no),

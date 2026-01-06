@@ -217,14 +217,20 @@ defmodule Sobelow do
     end
   end
 
-  def log_finding(%Finding{} = finding) do
-    log_finding(finding.type, finding)
+  def log_finding(finding, custom_metadata \\ [])
+
+  def log_finding(%Finding{} = finding, custom_metadata) when is_list(custom_metadata) do
+    do_log_finding(finding.type, finding, custom_metadata)
   end
 
   def log_finding(details, %Finding{} = finding) do
+    do_log_finding(details, finding, [])
+  end
+
+  def do_log_finding(details, %Finding{} = finding, custom_metadata) do
     if loggable?(finding.fingerprint, finding.confidence) do
       Fingerprint.put(finding.fingerprint)
-      FindingLog.add({details, finding}, finding.confidence)
+      FindingLog.add({details, finding, custom_metadata}, finding.confidence)
     end
   end
 

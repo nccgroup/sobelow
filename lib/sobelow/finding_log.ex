@@ -85,8 +85,12 @@ defmodule Sobelow.FindingLog do
 
   def handle_cast({:add, finding, severity}, findings) do
     if Sobelow.format() == "txt" do
-      {_, %_{} = finding_struct} = finding
-      Sobelow.Print.print_finding_metadata(finding_struct)
+      {_, %_{} = finding_struct, custom_metadata} = finding
+      Sobelow.Print.do_print_finding_metadata(finding_struct)
+
+      if not Enum.empty?(custom_metadata) do
+        Sobelow.Print.do_print_custom_finding_metadata(finding_struct, custom_metadata)
+      end
     end
 
     {:noreply, Map.update!(findings, severity, &[finding | &1])}
@@ -147,10 +151,11 @@ defmodule Sobelow.FindingLog do
   defp sarif_num(0), do: 1
   defp sarif_num(num), do: num
 
-  defp normalize_json_log(finding), do: finding |> Stream.map(fn {d, _} -> d end) |> normalize()
+  defp normalize_json_log(finding),
+    do: finding |> Stream.map(fn {d, _, _} -> d end) |> normalize()
 
   defp normalize_sarif_log(finding),
-    do: finding |> Stream.map(fn {_, f} -> Map.from_struct(f) end) |> normalize()
+    do: finding |> Stream.map(fn {_, f, _} -> Map.from_struct(f) end) |> normalize()
 
   defp normalize(l), do: l |> Enum.map(&Map.new/1)
 end

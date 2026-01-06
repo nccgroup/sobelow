@@ -64,8 +64,6 @@ defmodule Sobelow.Config.HTTPS do
       "txt" ->
         Sobelow.log_finding(finding)
 
-        Print.print_custom_finding_metadata(finding, [])
-
       "compact" ->
         Print.log_compact_finding(finding)
 

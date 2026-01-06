@@ -34,7 +34,7 @@ defmodule SobelowTest.LogTest do
       variable: "var"
     ]
 
-    Sobelow.log_finding(finding, %Sobelow.Finding{confidence: :high})
+    Sobelow.log_finding(finding, %Sobelow.Finding{type: "Some check", confidence: :high})
 
     assert Jason.decode!(FindingLog.json("1.0.0")) == output
   end
