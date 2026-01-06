@@ -62,7 +62,7 @@ defmodule Sobelow.Config.HTTPS do
         Sobelow.log_finding(json_finding, finding)
 
       "txt" ->
-        Sobelow.log_finding(finding)
+        Sobelow.log_finding(finding, ["File: #{finding.filename}"])
 
       "compact" ->
         Print.log_compact_finding(finding)
