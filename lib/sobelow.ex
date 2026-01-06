@@ -91,30 +91,43 @@ defmodule Sobelow do
 
     Application.put_env(:sobelow, :app_name, app_name)
 
-    if Enum.member?(allowed, Config), do: Config.fetch(project_root, routers, endpoints)
-    if Enum.member?(allowed, Vuln), do: Vuln.get_vulns(project_root)
+    config_task =
+      if Enum.member?(allowed, Config) do
+        Task.async_stream([project_root], &Config.fetch(&1, routers, endpoints))
+      end
+
+    vuln_task =
+      if Enum.member?(allowed, Vuln) do
+        Task.async_stream([project_root], &Vuln.get_vulns/1)
+      end
 
     allowed = allowed -- [Config, Vuln]
 
-    Enum.each(root_meta_files, fn meta_file ->
-      meta_file.def_funs
-      |> combine_skips()
-      |> Enum.each(&get_fun_vulns(&1, meta_file, project_root, allowed))
-    end)
+    root_and_libroot_tasks =
+      [root_meta_files, libroot_meta_files]
+      |> Enum.concat()
+      |> Task.async_stream(
+        fn meta_file ->
+          meta_file.def_funs
+          |> combine_skips()
+          |> Enum.each(&get_fun_vulns(&1, meta_file, project_root, allowed))
+        end,
+        timeout: :infinity
+      )
 
-    Enum.each(libroot_meta_files, fn meta_file ->
-      meta_file.def_funs
-      |> combine_skips()
-      |> Enum.each(&get_fun_vulns(&1, meta_file, "", allowed))
-    end)
+    xss_tasks =
+      if Sobelow.XSS in allowed do
+        Task.async_stream(
+          template_meta_files,
+          fn {_, meta_file} -> Sobelow.XSS.get_template_vulns(meta_file) end,
+          timeout: :infinity
+        )
+      end
 
-    Enum.each(template_meta_files, fn {_, meta_file} ->
-      if Sobelow.XSS in allowed, do: Sobelow.XSS.get_template_vulns(meta_file)
-    end)
-
-    # Enum.each(template_meta_files, fn {_, meta_file} ->
-    #   get_fun_vulns(meta_file.ast, meta_file, root, allowed)
-    # end)
+    [config_task, vuln_task, root_and_libroot_tasks, xss_tasks]
+    |> Enum.map(&List.wrap/1)
+    |> Enum.concat()
+    |> Enum.each(&Stream.run/1)
 
     if format() != "txt" do
       print_output()

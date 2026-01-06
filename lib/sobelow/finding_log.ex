@@ -84,6 +84,11 @@ defmodule Sobelow.FindingLog do
   end
 
   def handle_cast({:add, finding, severity}, findings) do
+    if Sobelow.format() == "txt" do
+      {_, %_{} = finding_struct} = finding
+      Sobelow.Print.print_finding_metadata(finding_struct)
+    end
+
     {:noreply, Map.update!(findings, severity, &[finding | &1])}
   end
 

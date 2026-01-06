@@ -9,10 +9,6 @@ defmodule Sobelow.Print do
       "json" ->
         log_json_finding(finding)
 
-      "txt" ->
-        Sobelow.log_finding(finding)
-        print_finding_metadata(finding)
-
       "compact" ->
         log_compact_finding(finding)
 
