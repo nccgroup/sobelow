@@ -476,7 +476,7 @@ defmodule Sobelow do
 
       fingerprints ->
         {:ok, iofile} = :file.open(cfile, [:append])
-        fingerprints = Enum.join(fingerprints, "\n")
+        fingerprints = fingerprints |> Enum.sort() |> Enum.join("\n")
         :file.write(iofile, ["\n", fingerprints])
         :file.close(iofile)
     end
